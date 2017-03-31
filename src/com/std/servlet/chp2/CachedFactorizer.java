@@ -22,17 +22,17 @@ public class CachedFactorizer extends GenericServlet {
     private BigInteger[] lastFactors;
 
     @GuardedBy("this")
-    private Long hits;
+    private long hits;
 
     @GuardedBy("this")
-    private Long cacheHits;
+    private long cacheHits;
 
     /**
      * 加锁
      *
      * @return
      */
-    public synchronized Long getHits() {
+    public synchronized long getHits() {
         return hits;
     }
 
