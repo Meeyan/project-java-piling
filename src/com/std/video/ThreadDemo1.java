@@ -20,6 +20,9 @@ public class ThreadDemo1 extends Thread {
     }
 }
 
+/**
+ *
+ */
 class RunnableImpl implements Runnable {
 
     /**
@@ -33,12 +36,13 @@ class RunnableImpl implements Runnable {
         while (true) {
             /**
              * 比较优雅的一种终结线程的方式
+             * 检查线程是否有被通知中断
              */
             if (Thread.currentThread().isInterrupted()) {
                 System.out.println("-----------线程被终结了");
                 break;
             }
-            // 逻辑方法体
+            // todo 逻辑方法体
             System.out.println("我一直在跑着呢");
         }
     }
