@@ -1,4 +1,4 @@
-package com.std.servlet.chp2;
+package com.std.thread.chp2;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;

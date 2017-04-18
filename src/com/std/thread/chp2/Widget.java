@@ -1,4 +1,4 @@
-package com.std.servlet.chp2;
+package com.std.thread.chp2;
 
 /**
  * 测试是否会产生死锁

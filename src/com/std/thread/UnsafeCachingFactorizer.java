@@ -1,4 +1,4 @@
-package com.std.servlet;
+package com.std.thread;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;

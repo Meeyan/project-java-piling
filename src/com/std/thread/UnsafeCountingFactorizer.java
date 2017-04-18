@@ -1,4 +1,4 @@
-package com.std.servlet;
+package com.std.thread;
 
 
 import net.jcip.annotations.NotThreadSafe;

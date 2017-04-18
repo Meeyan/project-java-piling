@@ -26,7 +26,6 @@ public class JoinMain {
 
         AddThread addThread = new AddThread();
         addThread.start();
-        addThread.join();
         System.out.println("主线程运行完毕");
 
     }

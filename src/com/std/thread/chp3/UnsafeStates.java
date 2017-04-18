@@ -1,4 +1,4 @@
-package com.std.servlet.chp3;
+package com.std.thread.chp3;
 
 /**
  * 测试发布状态
