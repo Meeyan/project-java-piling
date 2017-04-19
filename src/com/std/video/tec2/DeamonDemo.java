@@ -1,4 +1,4 @@
-package com.std.thread.video;
+package com.std.video.tec2;
 
 /**
  * 守护线程：<p/>
@@ -6,14 +6,14 @@ package com.std.thread.video;
  * 2. 开启守护线程的方法：setDaemon(true)，只能在线程开启前设定。<p/>
  * 3. The Java Virtual Machine exits when the only threads running are all daemon threads
  * 4. 在Deamon中产生的新线程也是Deamon的，即后台线程。
- *
+ * <p/>
  * <p/>
  * 由线面的例子可以看出：<p/>
- *   MyCommon作为业务线程，是前台线程，一直在执行，直到业务执行完毕。<p/>
- *   MyDaemon作为守护线程，是后台线程，当前台线程运行完毕只剩守护线程，程序退出。<p/>
- *   但是：MyDaemon的服务并没有完毕（没有循环完9999999次），由于MyCommon结束，自动结束。<p/>
- *
- *  MyDaemon的结束（程序退出）依赖于MyCommon的运行完毕。
+ * MyCommon作为业务线程，是前台线程，一直在执行，直到业务执行完毕。<p/>
+ * MyDaemon作为守护线程，是后台线程，当前台线程运行完毕只剩守护线程，程序退出。<p/>
+ * 但是：MyDaemon的服务并没有完毕（没有循环完9999999次），由于MyCommon结束，自动结束。<p/>
+ * <p/>
+ * MyDaemon的结束（程序退出）依赖于MyCommon的运行完毕。
  *
  * @author zhaojy
  * @createTime 2017-04-18
