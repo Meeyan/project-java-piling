@@ -29,6 +29,7 @@ public class AccountingSyc2 implements Runnable {
         AccountingSyc2 instance = new AccountingSyc2();
         Thread t1 = new Thread(instance);
         Thread t2 = new Thread(instance);
+
         // 注意：如下写法无法达到同步的目的，由于实例不同，则锁不同
         // Thread t3 = new Thread(new AccountingSyc2());
         // Thread t4 = new Thread(new AccountingSyc2());
