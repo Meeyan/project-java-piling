@@ -11,18 +11,21 @@ import java.util.concurrent.atomic.AtomicStampedReference;
  * @createTime 2017-05-27
  */
 public class AtomicStampedRefDemo {
+
     // 第二个参数是stamped，用于标识过程中的状态
     static AtomicStampedReference<Integer> money = new AtomicStampedReference<>(19, 0);
 
     public static void main(String[] args) {
         for (int i = 0; i < 3; i++) {
 
+            // 生产线程
             new Thread() {
                 public void run() {
                     while (true) {
-                        final int stamped = money.getStamp();
-                        Integer tmpMoney = money.getReference();
+                        final int stamped = money.getStamp();       // 获取标识状态戳
+                        Integer tmpMoney = money.getReference();    // 获取当前值，也即期望值
                         if (tmpMoney < 20) {
+                            // 如果期望值和对象中保存的值，并且标识状态戳都相同，视为可以更改。充值20元
                             if (money.compareAndSet(tmpMoney, tmpMoney + 20, stamped, stamped + 1)) {
                                 System.out.println(Thread.currentThread().getId() + "--余额小于20元，充值成功，当前余额：" + money.getReference() + " 元");
                             } else {
@@ -42,12 +45,14 @@ public class AtomicStampedRefDemo {
             }.start();
         }
 
+        // 消费线程
         new Thread() {
             public void run() {
                 while (true) {
-                    int stamped = money.getStamp();
-                    Integer oMoney = money.getReference();
+                    int stamped = money.getStamp();             // 获取标识状态戳
+                    Integer oMoney = money.getReference();      // 获取当前值，也即期望值
                     if (oMoney > 10) {
+                        // 如果期望值和对象中保存的值，并且标识状态戳都相同，则消费掉10块钱
                         if (money.compareAndSet(oMoney, oMoney - 10, stamped, stamped + 1)) {
                             System.out.println("--余额大于10块,成功消费10块，当前余额： " + money.getReference());
                         }
