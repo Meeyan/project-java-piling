@@ -1,4 +1,4 @@
-package com.std.video.tec4;
+package com.std.video.geyiming.tec4;
 
 /**
  * Created by zhaojy on 2017/5/27.

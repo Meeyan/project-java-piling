@@ -1,4 +1,4 @@
-package com.std.video.tec2;
+package com.std.video.geyiming.tec2;
 
 /**
  * 线程中断方式2

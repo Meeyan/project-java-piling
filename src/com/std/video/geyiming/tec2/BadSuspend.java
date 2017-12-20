@@ -1,4 +1,4 @@
-package com.std.video.tec2;
+package com.std.video.geyiming.tec2;
 
 /**
  *

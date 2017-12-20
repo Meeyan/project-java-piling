@@ -1,4 +1,4 @@
-package com.std.video.tec2;
+package com.std.video.geyiming.tec2;
 
 /**
  * wait 和 notify实例 - notifyAll()

@@ -1,4 +1,4 @@
-package com.std.video.tec2;
+package com.std.video.geyiming.tec2;
 
 /**
  * 加锁讲解(2) - 锁作用于实例方法，加锁依赖于具体的实例，除非实例为相同的，否则无法线程同步。

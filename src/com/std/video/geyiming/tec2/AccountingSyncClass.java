@@ -1,4 +1,4 @@
-package com.std.video.tec2;
+package com.std.video.geyiming.tec2;
 
 /**
  * 加锁讲解(3) - 锁作用于静态方法：相当于对当前类加锁，进入同步代码前要获得当前类的锁。全局共享唯一一把锁

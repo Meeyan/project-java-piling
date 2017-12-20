@@ -1,7 +1,9 @@
-package com.std.video;
+package com.std.video.geyiming;
 
 /**
- * Created by zhaojy on 2017/3/31.
+ *
+ * @author zhaojy
+ * @createTime 2017-3-31
  */
 public class ThreadDemo1 extends Thread {
     @Override

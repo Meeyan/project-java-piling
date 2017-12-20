@@ -1,4 +1,4 @@
-package com.std.video.tec5;
+package com.std.video.geyiming.tec5;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
