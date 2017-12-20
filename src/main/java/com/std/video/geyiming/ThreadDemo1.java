@@ -32,11 +32,11 @@ class RunnableImpl implements Runnable {
      */
     @Override
     public void run() {
-        /**
+        /*
          * 一般而言，线程中的内容都是存在于run内部，且无限循环的执行下去。break当前循环，即终止掉。
          */
         while (true) {
-            /**
+            /*
              * 比较优雅的一种终结线程的方式
              * 检查线程是否有被通知中断
              */

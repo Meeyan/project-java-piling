@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <!-- 非线程安全servlet配置**********开始，pdf，page:47 -->
+    <servlet>
+        <servlet-name>UnSafeCnt</servlet-name>
+        <servlet-class>com.std.thread.UnsafeCountingFactorizer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UnSafeCnt</servlet-name>
+        <url-pattern>/unSafeCnt</url-pattern>
+    </servlet-mapping>
+    <!-- 非线程安全servlet配置**********结束，pdf，page:47 -->
+
+    <!-- 线程安全servlet配置**********开始，pdf，page:51 -->
+    <servlet>
+        <servlet-name>SafeCnt</servlet-name>
+        <servlet-class>com.std.thread.CountingFactorizer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SafeCnt</servlet-name>
+        <url-pattern>/safeCnt</url-pattern>
+    </servlet-mapping>
+    <!-- 线程安全servlet配置**********结束，pdf，page:51 -->
+
+    <servlet>
+        <servlet-name>UnsafeCachFact</servlet-name>
+        <servlet-class>com.std.thread.UnsafeCachingFactorizer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UnsafeCachFact</servlet-name>
+        <url-pattern>/chapter2/unsafeCachingFactor</url-pattern>
+    </servlet-mapping>
+
+    <!-- 可以确保为线程安全的，但是性能，即响应性有限 -->
+    <servlet>
+        <servlet-name>SynchronizedFactorzier</servlet-name>
+        <servlet-class>com.std.thread.chp2.SynchronizedFactorzier</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SynchronizedFactorzier</servlet-name>
+        <url-pattern>/chapter2/safeFactorzier</url-pattern>
+    </servlet-mapping>
+
+    <!-- 在实现同步的情况下，提高性能-170324 -->
+    <servlet>
+        <servlet-name>CachedFactorizer</servlet-name>
+        <servlet-class>com.std.thread.chp2.CachedFactorizer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CachedFactorizer</servlet-name>
+        <url-pattern>/chapter2/cahceFac</url-pattern>
+    </servlet-mapping>
+
+</web-app>
