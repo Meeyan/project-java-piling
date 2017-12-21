@@ -15,14 +15,14 @@ public class AtomicReferenceDemo {
     // 操作字符换
     static AtomicReference<String> atomicStr = new AtomicReference<>("abc");
 
-    // 老值，也将做期望值
+    // 初始期望值
     static Person oldPerson = new Person("张三", 18);
-    static AtomicReference<Person> atomPerson = new AtomicReference<>(oldPerson);   // 将老值存进来
+    static AtomicReference<Person> atomPerson = new AtomicReference<>(oldPerson);   // 设定初始值
 
     public static void main(String[] args) throws InterruptedException {
 
         // 测试字符串
-        for (int i = 0; i < 0; i++) {
+        for (int i = 0; i < 10; i++) {
             new Thread() {
                 @Override
                 public void run() {
@@ -43,7 +43,7 @@ public class AtomicReferenceDemo {
 
         oldPerson.setName("王五");    // 即便在此处更改了对象的属性，视为更改的是atomPerson内部存储的值
 
-        atomPerson.get().setName("赵六");         // 此时改也不会导致程序failed
+        atomPerson.get().setName("赵六");  // 此时改也不会导致程序failed
 
         // 测试对象
         System.out.println(oldPerson);          // 没有更改前

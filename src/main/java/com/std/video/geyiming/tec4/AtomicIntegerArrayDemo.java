@@ -22,12 +22,12 @@ public class AtomicIntegerArrayDemo {
         @Override
         public void run() {
             for (int i = 0; i < 100000; i++) {
-                /**
+                /*
                  * 疑问：对比AtomicStampedRefDemo，该例子总是成功，而AtomicStampedRefDemo却有失败，为什么？
                  *  AtomicStampedRefDemo：持有状态值，每个线程做操作时，要依赖stamp。
                  *  AtomicIntegerArrayDemo：对数组的增长属于自增，且getAndIncrement总是成功的。
                  */
-                integerArray.getAndIncrement(i % integerArray.length()); // +1操作，每一个下标
+                integerArray.getAndIncrement(i % integerArray.length()); // 自增操作，入参为下标
             }
         }
     }
@@ -49,7 +49,7 @@ public class AtomicIntegerArrayDemo {
         System.out.println(integerArray);
 
 
-        /**
+        /*
          * 想要获取Unsafe时请注意，因为这个对象输入非公开api的，所以内部有对加载器的安全检查。
          * 两种方式获取：
          *   1. 获取加载器,只能在特定场合下使用

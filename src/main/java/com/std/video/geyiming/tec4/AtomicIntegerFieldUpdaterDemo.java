@@ -18,7 +18,7 @@ public class AtomicIntegerFieldUpdaterDemo {
         volatile int score;
     }
 
-    // 创建一个更新器
+    // 创建一个更新器，内部使用反射获取字段
     private final static AtomicIntegerFieldUpdater fieldUpdater = AtomicIntegerFieldUpdater.newUpdater(Candidate.class, "score");
 
     public static final AtomicInteger checkObj = new AtomicInteger(0);
@@ -31,9 +31,9 @@ public class AtomicIntegerFieldUpdaterDemo {
             list.add(new Thread() {
                 @Override
                 public void run() {
-                    if (Math.random() > 0.4) {
-                        fieldUpdater.incrementAndGet(candidate);
-                        checkObj.incrementAndGet();
+                    if (Math.random() > 0.4) {  // 各种概率下的测试
+                        fieldUpdater.incrementAndGet(candidate);    // 自增一次
+                        checkObj.incrementAndGet(); //  为了验证结果
                     }
                 }
             });

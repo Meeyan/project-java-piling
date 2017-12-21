@@ -5,7 +5,8 @@ import java.util.concurrent.atomic.AtomicStampedReference;
 /**
  * 非阻塞式同步demo<p/>
  * 对对象的修改不再仅仅是关注结果，同时要关注过程<p/>
- * 可以模拟一直消费和生产
+ * 可以模拟一直消费和生产<p/>
+ * 确保只给消费线程充值一次。
  *
  * @author zhaojy
  * @createTime 2017-05-27
@@ -28,11 +29,13 @@ public class AtomicStampedRefDemo {
                             // 如果期望值和对象中保存的值，并且标识状态戳都相同，视为可以更改。充值20元
                             if (money.compareAndSet(tmpMoney, tmpMoney + 20, stamped, stamped + 1)) {
                                 System.out.println(Thread.currentThread().getId() + "--余额小于20元，充值成功，当前余额：" + money.getReference() + " 元");
+                                break;
                             } else {
                                 System.out.println(Thread.currentThread().getId() + "--充值失败");
                             }
                         } else {
                             // System.out.println("--账户余额>=20，不能充值");
+                            break;
                         }
 
                         try {
