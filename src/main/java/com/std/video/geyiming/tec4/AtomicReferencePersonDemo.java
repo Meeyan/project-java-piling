@@ -22,22 +22,25 @@ public class AtomicReferencePersonDemo {
                 @Override
                 public void run() {
                     int i = 0;
-                    while (true) {
-                        i++;
-                        try {
-                            Thread.sleep(Math.abs((int) (Math.random() * 100)));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Person person = atomPerson.get();
-                        Person newPer = new Person(person.getName() + "0", person.getAge() + 1);
-                        if (atomPerson.compareAndSet(oldPerson, newPer)) {
-                            System.out.println(atomPerson.get().getName());
-                            System.out.println("times: " + i + " , " + Thread.currentThread().getId() + " changed value succeed ");
-                            break;
-                        } else {
-                            System.out.println(Thread.currentThread().getId() + " changed value failed ");
-                        }
+
+                    try {
+                        Thread.sleep(Math.abs((int) (Math.random() * 100)));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Person person = atomPerson.get();
+                    Person newPer = new Person(person.getName() + "0", person.getAge() + 1);
+                    /*
+                     * 两种写法：
+                     *  1. if (atomPerson.compareAndSet(oldPerson, newPer)) : 保证所有的线程只有一个线程可以修改成功，
+                     *    原因：atomPerson本身所hold的对象已经被修改为newPer，其他线程再用oldPerson来和atomPerson本身hold的对象做对比，显然false
+                     *  2. if (atomPerson.compareAndSet(person, newPer)) : 所有的线程都可以修改，因为每一次获取的对象都是在新修改的基础上做的。
+                     */
+                    if (atomPerson.compareAndSet(person, newPer)) {
+                        System.out.println(atomPerson.get().getName());
+                        System.out.println(Thread.currentThread().getId() + " changed value succeed ");
+                    } else {
+                        System.out.println(Thread.currentThread().getId() + " changed value failed ");
                     }
                 }
             }.start();
