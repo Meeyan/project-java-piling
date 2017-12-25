@@ -10,6 +10,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @createTime 2017-07-27
  */
 public class D3_ReentrantLockInt implements Runnable {
+
+    // 注意static关键字：两把锁都是全局锁，
     static ReentrantLock lock1 = new ReentrantLock();
     static ReentrantLock lock2 = new ReentrantLock();
 
@@ -23,13 +25,14 @@ public class D3_ReentrantLockInt implements Runnable {
     @Override
     public void run() {
         try {
+            // 下面模拟死锁
             if (lock == 1) {
-                lock1.lockInterruptibly();  // 可中断额加锁；如果是lock方法，不能中断；
-                Thread.sleep(500);  // 500毫秒后，获取lock2
+                lock1.lockInterruptibly();  // 可中断加锁；如果是lock方法，不能中断；
+                Thread.sleep(500);          // 500毫秒后，获取lock2
                 lock2.lockInterruptibly();
             } else {
                 lock2.lockInterruptibly();
-                Thread.sleep(500);   // 500毫秒后，获取lock1
+                Thread.sleep(500);          // 500毫秒后，获取lock1
                 lock1.lockInterruptibly();
             }
         } catch (Exception e) {

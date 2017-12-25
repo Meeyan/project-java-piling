@@ -8,7 +8,7 @@ package com.std.video.geyiming.tec2;
  */
 public class SimpleWaitNotify {
 
-    // 生命一把锁，object
+    // 声明一把锁，object
     final static Object object = new Object();  // 锁
 
     /**
