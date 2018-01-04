@@ -44,7 +44,7 @@ public class D1_NioDemo {
                 break;  // 读取完毕
             }
 
-            // 5.
+            // 5. 读写模式转换
             buffer.flip();
             fosChannel.write(buffer);   // 写数据
         }

@@ -54,9 +54,12 @@ public class D2_HeavySocketClient {
             } finally {
                 // do some close here
                 try {
-                    if (null != writer) writer.close();
-                    if (null != bfReader) bfReader.close();
-                    if (null != client) client.close();
+                    if (null != writer)
+                        writer.close();
+                    if (null != bfReader)
+                        bfReader.close();
+                    if (null != client)
+                        client.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
