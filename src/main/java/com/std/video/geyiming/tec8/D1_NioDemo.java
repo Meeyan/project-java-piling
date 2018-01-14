@@ -46,14 +46,14 @@ public class D1_NioDemo {
 
             // 5. 读写模式转换
             buffer.flip();
-            fosChannel.write(buffer);   // 写数据
+
+            fosChannel.write(buffer);   // 写数据:从buffer写入到channel中
         }
 
         // 6. 关闭通道chanel
         fisChannel.close();
         fosChannel.close();
     }
-
 
 
     public static void main(String[] args) throws IOException {

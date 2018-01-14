@@ -63,6 +63,7 @@ public class D2_MultiThreadNioEchoServer {
     }
 
     private void startServer() throws IOException {
+        Selector open = Selector.open();
         selector = SelectorProvider.provider().openSelector();
         ServerSocketChannel ssc = ServerSocketChannel.open();
 
@@ -72,7 +73,6 @@ public class D2_MultiThreadNioEchoServer {
         // socket绑定到8000端口
         InetSocketAddress isa = new InetSocketAddress(8008);
         ssc.socket().bind(isa);
-
 
         SelectionKey register = ssc.register(selector, SelectionKey.OP_ACCEPT);
         for (; ; ) {
