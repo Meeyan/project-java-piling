@@ -1,6 +1,7 @@
 package com.std.video.geyiming.tec9;
 
 /**
+ * 演示一个错误的使用锁的案例
  * @author zhaojy
  * @create-time 2018-01-10
  */
@@ -14,7 +15,7 @@ public class D6_IntegerLock {
                 synchronized (i) {
                     /*
                      * 解读：
-                     *   对于Integer的对象做自增操作，设计到装箱和拆箱的操作。
+                     *   对于Integer的对象做自增操作，涉及到装箱和拆箱的操作。
                      *   i++后，生成一个新的对象，让i指向新的对象。
                      */
                     i++;
