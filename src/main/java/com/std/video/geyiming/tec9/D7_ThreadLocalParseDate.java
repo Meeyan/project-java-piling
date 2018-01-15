@@ -16,6 +16,8 @@ public class D7_ThreadLocalParseDate {
 
     // 使用ThreadLocal包装局部变量
     static ThreadLocal<SimpleDateFormat> tl = new ThreadLocal<>();
+
+    // 这种方法也是不行的。因为sdf是基于类共享，不符合ThreadLocal的
     static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static class ParseDate implements Runnable {
@@ -33,7 +35,7 @@ public class D7_ThreadLocalParseDate {
                 // tl.set(sdf); // ThreadLocal只维护局部变量
             }
             try {
-                Date parse = tl.get().parse("2018-01-14 17:10:" + i % 60);
+                Date parse = tl.get().parse("2018-01-14 17:10:" + i % 60);  // 用当前线程的对象来解析
                 System.out.println(i + ":" + parse);
             } catch (ParseException e) {
                 e.printStackTrace();

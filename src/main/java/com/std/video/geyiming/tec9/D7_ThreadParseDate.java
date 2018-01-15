@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
  * @create-time 2018-01-14
  */
 public class D7_ThreadParseDate {
+    // 为什么不把对象放到线程内部处理？
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static class ParseDate implements Runnable {
