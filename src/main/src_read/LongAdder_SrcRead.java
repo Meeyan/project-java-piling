@@ -34,6 +34,7 @@
  */
 
 package com.std.src_read;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.Striped64;
@@ -45,7 +46,7 @@ import java.util.concurrent.atomic.Striped64;
  * contention. Method {@link #sum} (or, equivalently, {@link
  * #longValue}) returns the current total combined across the
  * variables maintaining the sum.
- *
+ * <p>
  * <p>This class is usually preferable to {@link AtomicLong} when
  * multiple threads update a common sum that is used for purposes such
  * as collecting statistics, not for fine-grained synchronization
@@ -53,21 +54,21 @@ import java.util.concurrent.atomic.Striped64;
  * characteristics. But under high contention, expected throughput of
  * this class is significantly higher, at the expense of higher space
  * consumption.
- *
+ * <p>
  * <p>LongAdders can be used with a {@link
  * java.util.concurrent.ConcurrentHashMap} to maintain a scalable
  * frequency map (a form of histogram or multiset). For example, to
  * add a count to a {@code ConcurrentHashMap<String,LongAdder> freqs},
  * initializing if not already present, you can use {@code
  * freqs.computeIfAbsent(k -> new LongAdder()).increment();}
- *
+ * <p>
  * <p>This class extends {@link Number}, but does <em>not</em> define
  * methods such as {@code equals}, {@code hashCode} and {@code
  * compareTo} because instances are expected to be mutated, and so are
  * not useful as collection keys.
  *
- * @since 1.8
  * @author Doug Lea
+ * @since 1.8
  */
 public class LongAdder extends Striped64 implements Serializable {
     private static final long serialVersionUID = 7249069246863182397L;
@@ -84,7 +85,10 @@ public class LongAdder extends Striped64 implements Serializable {
      * @param x the value to add
      */
     public void add(long x) {
-        Cell[] as; long b, v; int m; Cell a;
+        Cell[] as;
+        long b, v;
+        int m;
+        Cell a;
         /**
          * 条件：如果cells为null或者casBase操作失败时进入条件体
          *    1. cells为null，线程处于低并发状态，通过casbase完成【低并发】
@@ -121,7 +125,8 @@ public class LongAdder extends Striped64 implements Serializable {
      * @return the sum
      */
     public long sum() {
-        Cell[] as = cells; Cell a;
+        Cell[] as = cells;
+        Cell a;
         long sum = base;
         if (as != null) {
             for (int i = 0; i < as.length; ++i) {
@@ -140,7 +145,8 @@ public class LongAdder extends Striped64 implements Serializable {
      * known that no threads are concurrently updating.
      */
     public void reset() {
-        Cell[] as = cells; Cell a;
+        Cell[] as = cells;
+        Cell a;
         base = 0L;
         if (as != null) {
             for (int i = 0; i < as.length; ++i) {
@@ -161,7 +167,8 @@ public class LongAdder extends Striped64 implements Serializable {
      * @return the sum
      */
     public long sumThenReset() {
-        Cell[] as = cells; Cell a;
+        Cell[] as = cells;
+        Cell a;
         long sum = base;
         base = 0L;
         if (as != null) {
@@ -177,6 +184,7 @@ public class LongAdder extends Striped64 implements Serializable {
 
     /**
      * Returns the String representation of the {@link #sum}.
+     *
      * @return the String representation of the {@link #sum}
      */
     public String toString() {
@@ -197,7 +205,7 @@ public class LongAdder extends Striped64 implements Serializable {
      * primitive conversion.
      */
     public int intValue() {
-        return (int)sum();
+        return (int) sum();
     }
 
     /**
@@ -205,7 +213,7 @@ public class LongAdder extends Striped64 implements Serializable {
      * after a widening primitive conversion.
      */
     public float floatValue() {
-        return (float)sum();
+        return (float) sum();
     }
 
     /**
@@ -213,12 +221,13 @@ public class LongAdder extends Striped64 implements Serializable {
      * primitive conversion.
      */
     public double doubleValue() {
-        return (double)sum();
+        return (double) sum();
     }
 
     /**
      * Serialization proxy, used to avoid reference to the non-public
      * Striped64 superclass in serialized forms.
+     *
      * @serial include
      */
     private static class SerializationProxy implements Serializable {
@@ -226,6 +235,7 @@ public class LongAdder extends Striped64 implements Serializable {
 
         /**
          * The current value returned by sum().
+         *
          * @serial
          */
         private final long value;
@@ -266,7 +276,7 @@ public class LongAdder extends Striped64 implements Serializable {
      * @throws java.io.InvalidObjectException always
      */
     private void readObject(java.io.ObjectInputStream s)
-        throws java.io.InvalidObjectException {
+            throws java.io.InvalidObjectException {
         throw new java.io.InvalidObjectException("Proxy required");
     }
 
