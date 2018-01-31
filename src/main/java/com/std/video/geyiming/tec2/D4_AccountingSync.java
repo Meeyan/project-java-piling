@@ -6,7 +6,7 @@ package com.std.video.geyiming.tec2;
  * @author zhaojy
  * @createTime 2017-04-19
  */
-public class AccountingSyc2 implements Runnable {
+public class D4_AccountingSync implements Runnable {
 
     private static int count = 0;
 
@@ -26,13 +26,13 @@ public class AccountingSyc2 implements Runnable {
 
     public static void main(String[] args) throws InterruptedException {
 
-        AccountingSyc2 instance = new AccountingSyc2();
+        D4_AccountingSync instance = new D4_AccountingSync();
         Thread t1 = new Thread(instance);
         Thread t2 = new Thread(instance);
 
         // 注意：如下写法无法达到同步的目的，由于实例不同，则锁不同
-        // Thread t3 = new Thread(new AccountingSyc2());
-        // Thread t4 = new Thread(new AccountingSyc2());
+        // Thread t3 = new Thread(new D4_AccountingSync());
+        // Thread t4 = new Thread(new D4_AccountingSync());
 
         t1.start();
         t2.start();

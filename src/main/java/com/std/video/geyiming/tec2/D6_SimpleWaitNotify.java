@@ -6,7 +6,7 @@ package com.std.video.geyiming.tec2;
  * @author zhaojy
  * @createTime 2017-04-28
  */
-public class SimpleWaitNotify {
+public class D6_SimpleWaitNotify {
 
     // 声明一把锁，object
     final static Object object = new Object();  // 锁
@@ -17,16 +17,22 @@ public class SimpleWaitNotify {
     public static class T1 extends Thread {
         @Override
         public void run() {
+            String name = Thread.currentThread().getName();
+            // (1) 获取锁
             synchronized (object) {
-                System.out.println(System.currentTimeMillis() + " : T1 start.");
+                System.out.println(name + " start.");
                 try {
-                    System.out.println(System.currentTimeMillis() + " : T1 wait from object.");
-                    object.wait();  // 线程进入等待，释放object监视器。
+                    System.out.println(name + " wait from object.");
+                    System.out.println(Thread.currentThread().getName() + " - 开始进入等待状态，同时释放锁");
+                    long startWTime = System.currentTimeMillis();
+                    object.wait();  // (2) 线程进入等待，释放object监视器。
+                    long endWTime = System.currentTimeMillis();
+                    System.out.println(Thread.currentThread().getName() + " - 被唤醒，继续执行，等待时长：" + (endWTime - startWTime));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                System.out.println(System.currentTimeMillis() + " : T1 end.");
+                System.out.println(name + " end.");
             }
         }
     }
@@ -38,15 +44,18 @@ public class SimpleWaitNotify {
 
         @Override
         public void run() {
+            // (1) 获取锁
             synchronized (object) {
-                System.out.println(System.currentTimeMillis() + " : T2 start! notify one thread!");
+                String name = Thread.currentThread().getName();
+                System.out.println(name + " start! notify one thread!");
                 object.notify();    // 唤醒等待在object监视器上的线程,释放锁
-                System.out.println(System.currentTimeMillis() + " : T2 end. Monitor will be released 2s later");
+                System.out.println(name + ", Monitor will be released 2s later");
                 try {
                     Thread.sleep(2000); // 睡2秒后，再释放锁
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                System.out.println(name + " end..");
             }
         }
     }

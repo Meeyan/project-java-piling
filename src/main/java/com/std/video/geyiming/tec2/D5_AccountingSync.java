@@ -6,9 +6,12 @@ package com.std.video.geyiming.tec2;
  * @author zhaojy
  * @createTime 2017-04-19
  */
-public class AccountingSyncClass implements Runnable {
+public class D5_AccountingSync implements Runnable {
     private static int count = 0;
 
+    /**
+     * 对静态方法加锁，可以实现线程安全
+     */
     public static synchronized void increase() {
         count++;
     }
@@ -22,8 +25,8 @@ public class AccountingSyncClass implements Runnable {
 
     public static void main(String[] args) throws InterruptedException {
         // 此时，全局共享一把锁，业务实例不做影响
-        Thread t1 = new Thread(new AccountingSyncClass());
-        Thread t2 = new Thread(new AccountingSyncClass());
+        Thread t1 = new Thread(new D5_AccountingSync());
+        Thread t2 = new Thread(new D5_AccountingSync());
 
         t1.start();
         t2.start();
