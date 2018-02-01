@@ -7,7 +7,7 @@ package com.std.video.geyiming.tec2;
  * @author zhaojy
  * @createTime 2017-05-17
  */
-public class SimpleWaitNotifyAll {
+public class D7_SimpleWaitNotifyAll {
 
     // 生命一把锁，object
     final static Object object = new Object();  // 锁
