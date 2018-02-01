@@ -20,7 +20,7 @@ public class D6_SimpleWaitNotify {
             String name = Thread.currentThread().getName();
             // (1) 获取锁
             synchronized (object) {
-                System.out.println(name + " start.");
+                System.out.println(name + " get the lock and start.");
                 try {
                     System.out.println(name + " wait from object.");
                     System.out.println(Thread.currentThread().getName() + " - 开始进入等待状态，同时释放锁");
@@ -39,6 +39,7 @@ public class D6_SimpleWaitNotify {
 
     /**
      * notify()执行前需要获取监视器（即锁）
+     * 如果T2先锁，T1就会进入一直wait状态（因为没有notify）
      */
     public static class T2 extends Thread {
 
@@ -47,10 +48,9 @@ public class D6_SimpleWaitNotify {
             // (1) 获取锁
             synchronized (object) {
                 String name = Thread.currentThread().getName();
-                System.out.println(name + " start! notify one thread!");
+                System.out.println(name + " get lock and start! notify one thread!");
                 object.notify();    // 唤醒等待在object监视器上的线程,释放锁
                 System.out.println(name + ", Monitor will be released 2s later");
-
 
                 try {
                     Thread.sleep(2000); // 睡2秒后，再释放锁
