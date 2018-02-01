@@ -50,6 +50,8 @@ public class D6_SimpleWaitNotify {
                 System.out.println(name + " start! notify one thread!");
                 object.notify();    // 唤醒等待在object监视器上的线程,释放锁
                 System.out.println(name + ", Monitor will be released 2s later");
+
+
                 try {
                     Thread.sleep(2000); // 睡2秒后，再释放锁
                 } catch (Exception e) {
