@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  * @author zhaojy
  * @createTime 2017-06-02
  */
-public class AtomicIntegerFieldUpdaterDemo {
+public class D7_AtomicIntegerFieldUpdaterDemo {
 
     public static class Candidate {
         int id;

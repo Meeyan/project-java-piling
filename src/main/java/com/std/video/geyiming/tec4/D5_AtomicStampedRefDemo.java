@@ -11,12 +11,16 @@ import java.util.concurrent.atomic.AtomicStampedReference;
  * @author zhaojy
  * @createTime 2017-05-27
  */
-public class AtomicStampedRefDemo {
+public class D5_AtomicStampedRefDemo {
 
     // 第二个参数是stamped，用于标识过程中的状态
     static AtomicStampedReference<Integer> money = new AtomicStampedReference<>(19, 0);
 
     public static void main(String[] args) {
+
+        /**
+         * 3个线程负责充值
+         */
         for (int i = 0; i < 3; i++) {
 
             // 生产线程

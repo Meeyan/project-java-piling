@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author zhaojy
  * @createTime 2017-05-27
  */
-public class AtomicReferencePersonDemo {
+public class D4_AtomicReferencePersonDemo {
     // 初始期望值
     static Person oldPerson = new Person("张三", 18);
     static AtomicReference<Person> atomPerson = new AtomicReference<>(oldPerson);   // 设定初始值
@@ -36,7 +36,7 @@ public class AtomicReferencePersonDemo {
                      *    原因：atomPerson本身所hold的对象已经被修改为newPer，其他线程再用oldPerson来和atomPerson本身hold的对象做对比，显然false
                      *  2. if (atomPerson.compareAndSet(person, newPer)) : 所有的线程都可以修改，因为每一次获取的对象都是在新修改的基础上做的。
                      */
-                    if (atomPerson.compareAndSet(person, newPer)) {
+                    if (atomPerson.compareAndSet(oldPerson, newPer)) {
                         System.out.println(atomPerson.get().getName());
                         System.out.println(Thread.currentThread().getId() + " changed value succeed ");
                     } else {

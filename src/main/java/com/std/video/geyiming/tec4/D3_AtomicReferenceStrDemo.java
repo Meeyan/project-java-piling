@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author zhaojy
  * @createTime 2017-12-21
  */
-public class AtomicReferenceStrDemo extends Thread {
+public class D3_AtomicReferenceStrDemo extends Thread {
     static AtomicReference<String> atomStr = new AtomicReference<>("abc");
 
     @Override
@@ -26,7 +26,7 @@ public class AtomicReferenceStrDemo extends Thread {
 
     public static void main(String[] args) {
         for (int i = 0; i < 10; i++) {
-            new AtomicReferenceStrDemo().start();
+            new D3_AtomicReferenceStrDemo().start();
         }
     }
 }
