@@ -24,6 +24,8 @@ public class TestAll {
 
         System.out.println(0x61c88647); // ThreadLocal中使用的16进制
 
+        System.out.println(0x7fffffff);
+
         for (int i = 0; i < 10; i++) {
             System.out.println(nextHashCode());
         }
