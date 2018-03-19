@@ -7,7 +7,7 @@ package com.std.gof23.L019_templete;
 public abstract class Account {
 
     /**
-     * 模板方法，计算利息金额
+     * 模板方法，计算利息金额，逻辑规则已经定好，子类负责实现各自的需求即可
      *
      * @return
      */
@@ -44,6 +44,7 @@ public abstract class Account {
 
     /**
      * 钩子方法，子类可以加以扩展
+     * 打印凭条
      */
     protected void printInfo() {
     }
