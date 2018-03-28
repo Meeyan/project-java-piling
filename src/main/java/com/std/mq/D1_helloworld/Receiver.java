@@ -28,6 +28,7 @@ public class Receiver {
         // 消费端
         MessageConsumer consumer = session.createConsumer(destination);
 
+        // 实际环境中千万不要这么写，很low的一种行为
         while (true) {
             TextMessage receive = (TextMessage) consumer.receive();
             String text = receive.getText();
