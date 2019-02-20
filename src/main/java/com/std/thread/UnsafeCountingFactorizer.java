@@ -22,14 +22,17 @@ public class UnsafeCountingFactorizer implements Servlet {
         return count;
     }
 
+    @Override
     public void init(ServletConfig servletConfig) throws ServletException {
 
     }
 
+    @Override
     public ServletConfig getServletConfig() {
         return null;
     }
 
+    @Override
     public void destroy() {
 
     }
@@ -42,6 +45,7 @@ public class UnsafeCountingFactorizer implements Servlet {
      * @throws ServletException
      * @throws IOException
      */
+    @Override
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         BigInteger i = extractFromRequest(servletRequest);
         BigInteger[] factors = factor(i);
@@ -53,6 +57,7 @@ public class UnsafeCountingFactorizer implements Servlet {
         writer.close();
     }
 
+    @Override
     public String getServletInfo() {
         return null;
     }

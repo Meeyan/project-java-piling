@@ -63,7 +63,8 @@ public class TestSingleRedis {
         String userStr_1 = objToJson(user_1);
 
         dataMap.put(id_1, userStr_1);
-        useSexMaleList.add(id_1);   // male
+        // male
+        useSexMaleList.add(id_1);
 
         String id_2 = UUID.randomUUID().toString();
         User user_2 = new User(id_2, "lisi", 18, "male");
