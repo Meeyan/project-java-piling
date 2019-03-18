@@ -8,7 +8,7 @@ import java.util.ArrayList;
  *   产生bug的原理：在add方中，在List需要扩容前的最后一次add操作时，th1走到了‘elementData[size++] = e;’停了下来，而th2进入add开始跑完，
  *  add完成(size已经被增加)；然后th1继续，就会引发异常。
  * @author zhaojy
- * @create-time 2018-01-17
+ * @date 2018-01-17
  */
 public class D1_UnsafeArrayList {
 

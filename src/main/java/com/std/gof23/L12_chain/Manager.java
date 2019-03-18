@@ -4,7 +4,7 @@ package com.std.gof23.L12_chain;
  * 经历
  *
  * @author zhaojy
- * @create-time 2018-03-13
+ * @date 2018-03-13
  */
 public class Manager extends Leader {
     public Manager(String name) {

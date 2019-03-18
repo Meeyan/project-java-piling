@@ -4,7 +4,7 @@ package com.std.gof23.L04_Builder;
  * 飞创对象，包含3个大的组件
  *
  * @author zhaojy
- * @create-time 2018-03-07
+ * @date 2018-03-07
  */
 public class AirShip {
     private OrbitalModule orbitalModule;

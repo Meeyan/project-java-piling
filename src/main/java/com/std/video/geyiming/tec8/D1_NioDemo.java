@@ -10,7 +10,7 @@ import java.nio.channels.FileChannel;
  * nio-demo
  *
  * @author zhaojy
- * @create-time 2017-12-28
+ * @date 2017-12-28
  */
 public class D1_NioDemo {
 

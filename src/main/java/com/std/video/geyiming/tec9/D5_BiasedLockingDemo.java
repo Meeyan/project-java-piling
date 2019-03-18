@@ -8,7 +8,7 @@ import java.util.Vector;
  *  测试时，要先开启偏向锁模式： -XX:+UseBiasedLocking -XX:BiasedLockingStartupDelay=0
  *          关闭偏向锁：-XX:-UseBiasedLocking
  * @author zhaojy
- * @create-time 2018-01-10
+ * @date 2018-01-10
  */
 public class D5_BiasedLockingDemo {
     static List<Integer> numberList = new Vector<>();

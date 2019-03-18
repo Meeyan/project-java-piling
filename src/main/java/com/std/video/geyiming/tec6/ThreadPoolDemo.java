@@ -7,7 +7,7 @@ import java.util.Vector;
  * 模拟线程池的实现
  *
  * @author zhaojy
- * @create-time 2017-12-26
+ * @date 2017-12-26
  */
 public class ThreadPoolDemo {
     // 线程池

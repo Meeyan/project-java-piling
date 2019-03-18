@@ -7,7 +7,7 @@ import java.util.List;
  * 聚合类
  *
  * @author zhaojy
- * @create-time 2018-03-13
+ * @date 2018-03-13
  */
 public class ConcreteMyAggregate {
     private List<Object> list = new ArrayList<>();

@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
  * 通过反射破解单例【我的实验不成功，不能适用懒汉式？】
  *
  * @author zhaojy
- * @create-time 2018-03-05
+ * @date 2018-03-05
  */
 public class D6_AntiSingleton {
     private static D6_AntiSingleton instance = null;

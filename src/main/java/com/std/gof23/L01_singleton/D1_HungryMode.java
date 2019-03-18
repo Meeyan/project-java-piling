@@ -5,7 +5,7 @@ package com.std.gof23.L01_singleton;
  * 由于类初始化时就创建了对象，所以无需锁，提高性能。
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public class D1_HungryMode {
     private D1_HungryMode() {

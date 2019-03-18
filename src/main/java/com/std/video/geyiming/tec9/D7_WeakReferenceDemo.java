@@ -6,7 +6,7 @@ import java.lang.ref.WeakReference;
  * WeakReference示例
  *
  * @author zhaojy
- * @create-time 2018-01-15
+ * @date 2018-01-15
  */
 public class D7_WeakReferenceDemo {
 

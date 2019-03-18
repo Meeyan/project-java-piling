@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  * 模拟多线程问题：未使用NIO之前
  *
  * @author zhaojy
- * @create-time 2017-12-29
+ * @date 2017-12-29
  */
 public class D2_MultiThreadEchoServer {
 

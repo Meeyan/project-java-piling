@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 死锁jstack演示
  *
  * @author zhaojy
- * @create-time 2018-01-18
+ * @date 2018-01-18
  */
 public class D2_DeadLocker extends Thread {
     protected Object myDirect;

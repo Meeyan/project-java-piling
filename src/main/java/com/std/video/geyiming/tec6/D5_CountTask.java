@@ -9,7 +9,7 @@ import java.util.concurrent.RecursiveTask;
  * 计算累加【任务分解】
  *
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public class D5_CountTask extends RecursiveTask<Long> {
     private static final int THRESHOLD = 10000;

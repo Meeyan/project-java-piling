@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
  * 基于NIO优化的socket
  *
  * @author zhaojy
- * @create-time 2018-01-03
+ * @date 2018-01-03
  */
 public class D2_MultiThreadNioEchoServer {
 

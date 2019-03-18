@@ -5,7 +5,7 @@ package com.std.gof23.L01_singleton;
  * 由于编译器优化原因和jvm底层内部模型原因，偶尔会出问题，不建议使用。
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public class D3_DoubleLockMode {
     private D3_DoubleLockMode() {

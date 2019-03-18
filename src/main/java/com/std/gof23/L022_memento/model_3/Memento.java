@@ -7,7 +7,7 @@ import java.util.List;
  * 备忘录角色：每一个备忘录角色都包含很多状态（点）
  *
  * @author zhaojy
- * @create-time 2018-03-20
+ * @date 2018-03-20
  */
 public class Memento {
 

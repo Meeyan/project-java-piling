@@ -6,7 +6,7 @@ import javax.jms.*;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-22
+ * @date 2018-03-22
  */
 public class Consumer {
     // 选择器，类似sql选择条件

@@ -3,7 +3,7 @@ package com.std.video.geyiming.tec9;
 /**
  * 演示一个错误的使用锁的案例
  * @author zhaojy
- * @create-time 2018-01-10
+ * @date 2018-01-10
  */
 public class D6_IntegerLock {
     static Integer i = 0;

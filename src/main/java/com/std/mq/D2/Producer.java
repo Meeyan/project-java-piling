@@ -6,7 +6,7 @@ import javax.jms.*;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-22
+ * @date 2018-03-22
  */
 public class Producer {
     private ConnectionFactory connectionFactory;

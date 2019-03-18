@@ -4,7 +4,7 @@ package com.std.gof23.L06_adapter;
  * usb适配器
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class UsbAdapter implements UsbPort {
     @Override

@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
  * 使用ThreadLocal对SimpleDateFormat进行包装处理，<b>为每一个线程分配一个实例</b>
  *
  * @author zhaojy
- * @create-time 2018-01-14
+ * @date 2018-01-14
  */
 public class D7_ThreadLocalParseDate {
 

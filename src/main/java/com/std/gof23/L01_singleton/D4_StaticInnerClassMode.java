@@ -5,7 +5,7 @@ package com.std.gof23.L01_singleton;
  * 兼顾延迟加载和并发性能，线程安全
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public class D4_StaticInnerClassMode {
     private D4_StaticInnerClassMode() {

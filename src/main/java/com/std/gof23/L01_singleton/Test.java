@@ -3,7 +3,7 @@ package com.std.gof23.L01_singleton;
 /**
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public class Test {
     public static void main(String[] args) {

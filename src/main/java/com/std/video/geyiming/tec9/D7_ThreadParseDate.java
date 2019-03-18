@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
  * sdf并不是线程安全的，如果要增加线程安全的控制，需要对sdf进行包装处理，对parse代码块做同步处理。这样性能就会降低。
  *
  * @author zhajy
- * @create-time 2018-01-14
+ * @date 2018-01-14
  */
 public class D7_ThreadParseDate {
     // 为什么不把对象放到线程内部处理？

@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * 演示使用CompletableFuture
  * @author zhaojy
- * @create-time 2018-01-18
+ * @date 2018-01-18
  */
 public class D3_AskThread implements Runnable {
     CompletableFuture<Integer> re = null;

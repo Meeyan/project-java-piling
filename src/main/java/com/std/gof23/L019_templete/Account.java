@@ -2,7 +2,7 @@ package com.std.gof23.L019_templete;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-15
+ * @date 2018-03-15
  */
 public abstract class Account {
 

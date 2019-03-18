@@ -2,7 +2,7 @@ package com.std.video.geyiming.tec6;
 
 /**
  * @author zhaojy
- * @create-time 2017-12-26
+ * @date 2017-12-26
  */
 public class Worker extends Thread {
 

@@ -11,7 +11,7 @@ import java.util.concurrent.locks.StampedLock;
  * 参考：http://ifeve.com/jdk8%E4%B8%ADstampedlock%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A9%B6/
  *
  * @author zhaojy
- * @create-time 2018-01-18
+ * @date 2018-01-18
  */
 public class D4_StampedLock {
 

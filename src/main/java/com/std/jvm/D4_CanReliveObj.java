@@ -3,7 +3,7 @@ package com.std.jvm;
 /**
  * finalize后，对象还能被复活，finalize方法在开发中要慎用
  * @author zhaojy
- * @create-time 2018-02-26
+ * @date 2018-02-26
  */
 public class D4_CanReliveObj {
     static D4_CanReliveObj obj;

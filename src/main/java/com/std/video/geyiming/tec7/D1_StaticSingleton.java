@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec7;
  * 无锁的懒汉式单例模式
  *
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public class D1_StaticSingleton {
 

@@ -2,7 +2,7 @@ package com.std.gof23.L08_bridge;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-09
+ * @date 2018-03-09
  */
 public class Computer {
     private Brand brand;

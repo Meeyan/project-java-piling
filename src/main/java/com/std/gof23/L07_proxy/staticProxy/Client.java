@@ -5,7 +5,7 @@ package com.std.gof23.L07_proxy.staticProxy;
  * 客户想听周几轮唱歌，通过代理人实现
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class Client {
     public static void main(String[] args) {

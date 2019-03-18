@@ -5,7 +5,7 @@ package com.std.gof23.L022_memento.model_1;
  * 发起人角色利用一个新创建的备忘录对象将自己的内部状态存储起来。
  *
  * @author zhaojy
- * @create-time 2018-03-20
+ * @date 2018-03-20
  */
 public class Originator {
     private String state;

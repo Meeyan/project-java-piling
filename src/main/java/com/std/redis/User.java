@@ -2,7 +2,7 @@ package com.std.redis;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-26
+ * @date 2018-03-26
  */
 public class User {
     private String id;

@@ -4,7 +4,7 @@ package com.std.test;
  * 测试静态内部类:不依赖外部类的实例【关键就是这一点】
  *
  * @author zhaojy
- * @create-time 2018-01-17
+ * @date 2018-01-17
  */
 public class TestStaticInnerClass {
 

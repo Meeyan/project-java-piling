@@ -13,7 +13,7 @@ import java.util.concurrent.locks.LockSupport;
  * 模拟客户端，有异常的
  *
  * @author zhaojy
- * @create-time 2017-12-29
+ * @date 2017-12-29
  */
 public class D2_HeavySocketClient {
 

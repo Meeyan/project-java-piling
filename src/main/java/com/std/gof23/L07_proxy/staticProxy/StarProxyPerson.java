@@ -2,7 +2,7 @@ package com.std.gof23.L07_proxy.staticProxy;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class StarProxyPerson implements Star {
     Star star;

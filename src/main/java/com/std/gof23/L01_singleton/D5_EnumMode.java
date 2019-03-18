@@ -8,7 +8,7 @@ package com.std.gof23.L01_singleton;
  * 但是：无法延迟加载
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public enum D5_EnumMode {
     // 枚举

@@ -6,7 +6,7 @@ import java.util.concurrent.*;
  * Future模式的执行路径：使用线程池方式完成
  *
  * @author zhaojy
- * @create-time 2018-01-24
+ * @date 2018-01-24
  */
 public class D1_FutureDemo {
 

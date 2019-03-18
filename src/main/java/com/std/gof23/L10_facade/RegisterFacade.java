@@ -4,7 +4,7 @@ package com.std.gof23.L10_facade;
  * 外观模式（门面模式），功能类似中间代理商（不是代理模式）
  *
  * @author zhaojy
- * @create-time 2018-03-13
+ * @date 2018-03-13
  */
 public class RegisterFacade {
     static void register() {

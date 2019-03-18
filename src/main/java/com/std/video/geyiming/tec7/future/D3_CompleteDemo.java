@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
  * 参考：https://www.jianshu.com/p/6f3ee90ab7d3
  *
  * @author zhaojy
- * @create-time 2018-01-24
+ * @date 2018-01-24
  */
 public class D3_CompleteDemo {
     public static void main(String[] args) throws InterruptedException {

@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
  * FileChannel示例
  *
  * @author zhaojy
- * @create-time 2018-01-05
+ * @date 2018-01-05
  */
 public class D1_FileChannelDemo {
     public static void main(String[] args) throws IOException {

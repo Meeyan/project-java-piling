@@ -6,7 +6,7 @@ import java.util.concurrent.*;
  * 任务拒绝 : 拒绝策略？
  *
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public class D4_RejectThreadPoolDemo {
     static class MyTask implements Runnable {

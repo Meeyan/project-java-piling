@@ -74,6 +74,13 @@
             <version>5.15.3</version>
         </dependency>
 
+        <!-- lombok注解，需要安装lombok插件 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

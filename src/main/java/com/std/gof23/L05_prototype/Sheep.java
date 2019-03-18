@@ -10,7 +10,7 @@ import java.util.Date;
  * 原型模式
  *
  * @author zhaojy
- * @create-time 2018-03-07
+ * @date 2018-03-07
  */
 public class Sheep implements Cloneable, Serializable {
 

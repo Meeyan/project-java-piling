@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public class D2_ScheduleExecutorService {
     public static void main(String[] args) {

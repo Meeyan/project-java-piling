@@ -2,7 +2,7 @@ package com.std.gof23.L04_Builder;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-07
+ * @date 2018-03-07
  */
 public class Client {
     public static void main(String[] args) {

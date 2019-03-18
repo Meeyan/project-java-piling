@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
  * 使用ThreadLocal的基本示例 ，各个线程，对自己的变量做累加操作，互不影响
  *
  * @author zhaojy
- * @create-time 2018-01-15
+ * @date 2018-01-15
  */
 public class D7_ThreadLocalInteger {
     private static ThreadLocal<Integer> countTl = new ThreadLocal<Integer>() {

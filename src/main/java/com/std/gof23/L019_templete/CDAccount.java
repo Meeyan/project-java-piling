@@ -2,7 +2,7 @@ package com.std.gof23.L019_templete;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-16
+ * @date 2018-03-16
  */
 public class CDAccount extends Account {
     @Override

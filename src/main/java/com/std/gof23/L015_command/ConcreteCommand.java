@@ -4,7 +4,7 @@ package com.std.gof23.L015_command;
  * 命令实现类，服务于某一个命令模式
  *
  * @author zhaojy
- * @create-time 2018-03-14
+ * @date 2018-03-14
  */
 public class ConcreteCommand implements Command {
 

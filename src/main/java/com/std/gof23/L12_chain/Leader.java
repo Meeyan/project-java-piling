@@ -4,7 +4,7 @@ package com.std.gof23.L12_chain;
  * 领导的抽象类
  *
  * @author zhaojy
- * @create-time 2018-03-13
+ * @date 2018-03-13
  */
 public abstract class Leader {
     protected String name;

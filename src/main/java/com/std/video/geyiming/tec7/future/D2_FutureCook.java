@@ -9,7 +9,7 @@ import java.util.concurrent.FutureTask;
  * 来源：https://www.cnblogs.com/cz123/p/7693064.html
  *
  * @author zhaojy
- * @create-time 2018-01-22
+ * @date 2018-01-22
  */
 public class D2_FutureCook {
     public static void main(String[] args) throws ExecutionException, InterruptedException {

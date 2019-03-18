@@ -7,7 +7,7 @@ import java.util.Map;
  * 投票管理器
  *
  * @author zhaojy
- * @create-time 2018-03-16
+ * @date 2018-03-16
  */
 public class VoteManager {
     private VoteState voteState;

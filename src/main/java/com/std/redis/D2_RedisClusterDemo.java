@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * 使用集群-redis
  * @author zhaojy
- * @create-time 2018-03-28
+ * @date 2018-03-28
  */
 public class D2_RedisClusterDemo {
 

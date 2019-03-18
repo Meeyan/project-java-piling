@@ -4,7 +4,7 @@ package com.std.gof23.L015_command;
  * 命令的调用者和发起者
  *
  * @author zhaojy
- * @create-time 2018-03-14
+ * @date 2018-03-14
  */
 public class Invoker {
 

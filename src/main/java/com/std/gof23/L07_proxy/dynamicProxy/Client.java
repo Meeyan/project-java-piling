@@ -6,7 +6,7 @@ import java.lang.reflect.Proxy;
  * 客户端，模拟顾客
  *
  * @author zhaojy
- * @create-time 2018-03-09
+ * @date 2018-03-09
  */
 public class Client {
     public static void main(String[] args) {

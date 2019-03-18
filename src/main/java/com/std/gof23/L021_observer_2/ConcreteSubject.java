@@ -6,7 +6,7 @@ import java.util.Observable;
  * 使用jdk内部的分装类来完成观察者模式
  *
  * @author zhaojy
- * @create-time 2018-03-19
+ * @date 2018-03-19
  */
 public class ConcreteSubject extends Observable {
     private int state;

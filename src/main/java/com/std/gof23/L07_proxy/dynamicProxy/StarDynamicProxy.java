@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
  * 动态代理模式：明星代理人
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class StarDynamicProxy implements InvocationHandler {
 

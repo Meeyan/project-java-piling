@@ -2,7 +2,7 @@ package com.std.gof23.L13_iterator;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-13
+ * @date 2018-03-13
  */
 public class Client {
     public static void main(String[] args) {

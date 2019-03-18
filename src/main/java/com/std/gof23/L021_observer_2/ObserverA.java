@@ -7,7 +7,7 @@ import java.util.Observer;
  * 观察者
  *
  * @author zhaojy
- * @create-time 2018-03-19
+ * @date 2018-03-19
  */
 public class ObserverA implements Observer {
     private int myState;

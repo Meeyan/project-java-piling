@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 代码来源于ThreadLocal中
  * @author zhaojy
- * @create-time 2018-01-16
+ * @date 2018-01-16
  */
 public class TestAll {
     private static final int HASH_INCREMENT = 0x61c88647;

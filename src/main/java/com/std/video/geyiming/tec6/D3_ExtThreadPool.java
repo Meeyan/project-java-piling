@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  * 线程池扩展:捕获线程池工作状态的信息
  *
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public class D3_ExtThreadPool {
     static class MyThread implements Runnable {

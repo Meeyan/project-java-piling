@@ -12,7 +12,7 @@ import java.util.Date;
  * 序列化和反序列化实现深复制：通过序列化和反序列化可以达到深复制的目的。不用在对象中做额外操作
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class ClientDeepClone_2 {
     public static void main(String[] args) throws Exception {

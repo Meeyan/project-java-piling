@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec7.future;
  * FutureData中的设计有问题，因为构造先于getResult运行，所以无法进入notifyAll
  *
  * @author zhaojy
- * @create-time 2017-12-28
+ * @date 2017-12-28
  */
 public class Run {
     public static void main(String[] args) {

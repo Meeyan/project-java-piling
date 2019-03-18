@@ -22,7 +22,7 @@ import java.util.*;
  * 模拟spring的流程
  *
  * @author zhaojy
- * @create-time 2018-03-28
+ * @date 2018-03-28
  */
 public class GPDispatcherServlet extends HttpServlet {
     private Properties properties = new Properties();

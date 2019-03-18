@@ -2,7 +2,7 @@ package com.std.gof23.L021_observer_2;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-19
+ * @date 2018-03-19
  */
 public class Client {
     public static void main(String[] args) {

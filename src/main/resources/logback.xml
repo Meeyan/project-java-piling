@@ -2,101 +2,79 @@
 <configuration debug="false">
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
     <property name="LOG_SYSTEM" value="javaStudy"/>
-    <property name="LOG_HOME" value="/mnt/logs/${LOG_SYSTEM}/"/>
+    <property name="LOG_HOME" value="/mnt/logs/${LOG_SYSTEM}"/>
     <!-- 控制台输出 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] %-5level ${LOG_SYSTEM} [%logger{50}_%M] - %msg%n</pattern>
         </encoder>
     </appender>
     <!-- 按照每天生成日志文件 -->
     <appender name="serviceAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/${LOG_SYSTEM}-service.log</file>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
+            <!-- rollover daily -->
             <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-service-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
+
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] %-5level ${LOG_SYSTEM} [%logger{50}_%M] - %msg%n</pattern>
         </encoder>
-    </appender>
-    <!-- 按照每天生成日志文件 -->
-    <appender name="daoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_HOME}/${LOG_SYSTEM}-dao.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-dao-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
-        </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
-        </encoder>
+
     </appender>
     <!-- 按照每天生成日志文件 -->
     <appender name="controllerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/${LOG_SYSTEM}-controller.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
+            <!-- rollover daily -->
             <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-controller-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
-        </encoder>
-    </appender>
-    <!-- 按照每天生成日志文件 -->
-    <appender name="integrationAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_HOME}/${LOG_SYSTEM}-integration.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-integration-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
-        </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}-[%X{X-B3-TraceId:-}]-[%X{X-B3-SpanId:-}] %-5level ${LOG_SYSTEM} [%logger{50}_%M] - %msg%n</pattern>
         </encoder>
     </appender>
     <!-- 按照每天生成日志文件 -->
     <appender name="commonAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/${LOG_SYSTEM}-common.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
+            <!-- rollover daily -->
             <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-common-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}-[%X{X-B3-TraceId:-}]-[%X{X-B3-SpanId:-}] %-5level ${LOG_SYSTEM} [%logger{50}_%M] - %msg%n
+            </pattern>
         </encoder>
     </appender>
     <appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_HOME}/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}-[%X{X-B3-TraceId:-}]-[%X{X-B3-SpanId:-}] %-5level ${LOG_SYSTEM} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
@@ -107,30 +85,32 @@
     <appender name="defaultAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/default.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_HOME}/default-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-default-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %X{X-B3-TraceId:-}-%X{X-B3-SpanId:-} %level ${LOG_SYSTEM} [%logger{10}_%M] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}-[%X{X-B3-TraceId:-}]-[%X{X-B3-SpanId:-}] %-5level ${LOG_SYSTEM} [%logger{50}_%M] - %msg%n</pattern>
         </encoder>
     </appender>
     <!-- 按照每天生成日志文件 -->
     <appender name="digestAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/digest.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!--日志文件输出的文件名 -->
-            <fileNamePattern>${LOG_HOME}/digest-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/${LOG_SYSTEM}-digest-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
             <maxFileSize>500MB</maxFileSize>
-            <!--日志文件保留天数 -->
-            <MaxHistory>15</MaxHistory>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--格式化输出：%d表示日期，%thread表示线程名，%level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %level ${LOG_SYSTEM} %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${LOG_SYSTEM} %msg%n</pattern>
         </encoder>
     </appender>
     <logger name="com.std" level="INFO" additivity="false">
@@ -138,9 +118,14 @@
         <!-- TODO:控制台输出只用在开发阶段，上线时请删除 STDOUT -->
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="org.spring" level="INFO" additivity="false">
+        <appender-ref ref="defaultAppender"/>
+        <!-- TODO:控制台输出只用在开发阶段，上线时请删除 STDOUT -->
+        <appender-ref ref="STDOUT"/>
+    </logger>
 
     <!-- 日志输出级别 -->
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="defaultAppender"/>
         <appender-ref ref="errorAppender"/>

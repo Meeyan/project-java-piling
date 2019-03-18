@@ -5,7 +5,7 @@ package com.std.gof23.L06_adapter;
  * 模式1：继承模式
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class AdapterModel_1 extends UsbAdapter implements PS2Port {
     @Override

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.LongAdder;
  * 演示使用LongAdder【自己编写】
  *
  * @author zhaojy
- * @create-time 2018-01-19
+ * @date 2018-01-19
  */
 public class D5_LongAdderDemo {
     static class ThreadCounter extends Thread {

@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec9;
  * 锁优化
  *
  * @author zhaojy
- * @create-time 2018-01-10
+ * @date 2018-01-10
  */
 public class Demo4_LockMore {
 

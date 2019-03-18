@@ -6,7 +6,7 @@ package com.std.gof23.L01_singleton;
  * 但是，并发效率低【有锁】
  *
  * @author zhaojy
- * @create-time 2018-03-02
+ * @date 2018-03-02
  */
 public class D2_LazyLoadMode {
     private D2_LazyLoadMode() {

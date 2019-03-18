@@ -8,7 +8,7 @@ import javax.jms.*;
  * 消息接收者
  *
  * @author:zhoajy
- * @create-time:2018/3/11 20:17
+ * @date:2018/3/11 20:17
  */
 public class Receiver {
     public static void main(String[] args) throws JMSException {

@@ -12,7 +12,7 @@ import java.util.*;
  * redis测试
  *
  * @author zhaojy
- * @create-time 2018-03-26
+ * @date 2018-03-26
  */
 public class TestSingleRedis {
     private static Jedis jedis;     // 单独链接一台机器

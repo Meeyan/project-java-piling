@@ -4,7 +4,7 @@ package com.std.gof23.L07_proxy.staticProxy;
  * 周杰伦是个明星
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public class ZhouJieLun implements Star {
     @Override

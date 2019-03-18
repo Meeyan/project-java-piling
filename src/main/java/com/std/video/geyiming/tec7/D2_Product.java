@@ -5,7 +5,7 @@ package com.std.video.geyiming.tec7;
  * 类为final确保无子类
  *
  * @author zhaojy
- * @create-time 2017-12-27
+ * @date 2017-12-27
  */
 public final class D2_Product {
     // 所有字段都为final，保证不会被2次赋值

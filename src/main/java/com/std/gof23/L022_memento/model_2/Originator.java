@@ -2,7 +2,7 @@ package com.std.gof23.L022_memento.model_2;
 
 /**
  * @author zhaojy
- * @create-time 2018-03-20
+ * @date 2018-03-20
  */
 public class Originator {
 

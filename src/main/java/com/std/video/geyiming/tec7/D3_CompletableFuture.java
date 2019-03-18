@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
  * 来源：https://www.jianshu.com/p/4897ccdcb278
  *
  * @author zhaojy
- * @create-time 2018-01-25
+ * @date 2018-01-25
  */
 public class D3_CompletableFuture {
 

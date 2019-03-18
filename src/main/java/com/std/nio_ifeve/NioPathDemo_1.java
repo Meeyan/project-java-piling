@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 /**
  * nio.path 演示
  * @author zhaojy
- * @create-time 2018-01-10
+ * @date 2018-01-10
  */
 public class NioPathDemo_1 {
     public static void main(String[] args) {

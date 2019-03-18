@@ -4,7 +4,7 @@ package com.std.gof23.L07_proxy.staticProxy;
  * 明星可以干的事儿
  *
  * @author zhaojy
- * @create-time 2018-03-08
+ * @date 2018-03-08
  */
 public interface Star {
     /**
