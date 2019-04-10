@@ -1,0 +1,31 @@
+{
+  "groups": [
+    {
+      "name": "config.user",
+      "type": "com.std.springboot.common.bo.ConfigUser",
+      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+    }
+  ],
+  "properties": [
+    {
+      "name": "config.user.user-name",
+      "type": "java.lang.String",
+      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+    },
+    {
+      "name": "config.user.gender",
+      "type": "java.lang.String",
+      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+    },
+    {
+      "name": "config.user.user-email",
+      "type": "java.lang.String",
+      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+    },
+    {
+      "name": "config.user.phone",
+      "type": "java.util.List",
+      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+    }
+  ]
+}
