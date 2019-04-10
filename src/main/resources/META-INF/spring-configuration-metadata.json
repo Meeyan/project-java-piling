@@ -10,22 +10,26 @@
     {
       "name": "config.user.user-name",
       "type": "java.lang.String",
-      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+      "sourceType": "com.std.springboot.common.bo.ConfigUser",
+      "description": "用户的名称"
     },
     {
       "name": "config.user.gender",
       "type": "java.lang.String",
-      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+      "sourceType": "com.std.springboot.common.bo.ConfigUser",
+      "description": "用户的性别"
     },
     {
       "name": "config.user.user-email",
       "type": "java.lang.String",
-      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+      "sourceType": "com.std.springboot.common.bo.ConfigUser",
+      "description": "用户的邮箱"
     },
     {
       "name": "config.user.phone",
       "type": "java.util.List",
-      "sourceType": "com.std.springboot.common.bo.ConfigUser"
+      "sourceType": "com.std.springboot.common.bo.ConfigUser",
+      "description": "用户的手机号"
     }
   ]
 }
