@@ -4,7 +4,6 @@ package com.std.springboot.filter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import java.io.IOException;
 
 /**
@@ -14,16 +13,14 @@ import java.io.IOException;
  * 使用FilterRegistrationBean实现
  *
  * @author zhaojy
- * @date 2019-03-18
+ * @date 2019-04-19
  */
-@WebFilter(urlPatterns = {"/*"}, filterName = "customerFilter")
 @Slf4j
-public class CustomerFilter implements Filter {
-
+public class ChainFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("filter 初始化");
+        log.info("ChainFilter 初始化");
     }
 
     /**
@@ -39,7 +36,7 @@ public class CustomerFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws
             IOException, ServletException {
         log.info("-----------");
-        servletRequest.setAttribute("attrId", "filter put 123123");
+        servletRequest.setAttribute("chainFilter", System.currentTimeMillis());
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }
