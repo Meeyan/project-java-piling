@@ -22,4 +22,11 @@ public class UserController {
     public String getCfgUserInfo() {
         return JSONUtil.toJsonStr(configUser);
     }
+
+
+    @RequestMapping("/testException")
+    public String testException() {
+        System.out.println(1 / 0);
+        return "";
+    }
 }
