@@ -1,5 +1,8 @@
 package com.Interview.thread;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+
 /**
  * 创建多线程的方式
  *
@@ -10,7 +13,7 @@ public class L1_CreateThread {
 
 
     public static void main(String[] args) {
-        createThreadMethod_2();
+        createThreadMethod_3();
     }
 
     /**
@@ -32,6 +35,25 @@ public class L1_CreateThread {
         // 启动线程
         new Thread(runnableThread).start();
 
+        System.out.println("main Thread finished-" + Thread.currentThread().getName());
+    }
+
+
+    /**
+     * 方法二
+     */
+    public static void createThreadMethod_3() {
+        // 构造线程核心业务对象
+        Callable<Boolean> callable = new CallThread();
+
+        // 将核心业务方法交给futureTask处理，FutureTask重写了run方法
+        FutureTask<Boolean> futureTask = new FutureTask<>(callable);
+
+        Thread th1 = new Thread(futureTask);
+        th1.start();
+        
+        Thread th2 = new Thread(futureTask);
+        th2.start();
         System.out.println("main Thread finished-" + Thread.currentThread().getName());
     }
 }
@@ -64,5 +86,21 @@ class RunnableThread implements Runnable {
         for (int i = 0; i < 100; i++) {
             System.out.println(Thread.currentThread().getName() + "_" + i);
         }
+    }
+
+}
+
+/**
+ * 创建线程方式三：
+ * 1. 实现Callable，重写call方法
+ */
+class CallThread implements Callable<Boolean> {
+
+    @Override
+    public Boolean call() throws Exception {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(Thread.currentThread().getName() + "_" + i);
+        }
+        return true;
     }
 }
