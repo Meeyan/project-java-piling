@@ -13,7 +13,49 @@ package com.leetcode;
  * @date 2019-05-21
  */
 public class L001_TwoSum {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) throws Exception {
+        int[] arr = {2, 8, 9, 10, 3, 3, 29, 2989, 2890, 28};
+        int target = 13;
+        long start = System.currentTimeMillis();
+        Integer[] integers = method_1(arr, target);
+        System.out.println("cost:" + (System.currentTimeMillis() - start) + " ms");
+        System.out.println(integers);
+    }
+
+    /**
+     * 双层遍历
+     *
+     * @param array  int[] 数组元素
+     * @param target int 目标值
+     * @return
+     */
+    public static Integer[] method_1(int[] array, int target) throws Exception {
+        for (int i = 0; i < array.length; i++) {
+            for (int j = i + 1; j < array.length; j++) {
+                if (array[j] == target - array[i]) {
+                    return new Integer[]{array[i], array[j]};
+                }
+            }
+        }
+        throw new Exception("not found");
+    }
+
+    /**
+     * 双层遍历
+     *
+     * @param array  int[] 数组元素
+     * @param target int 目标值
+     * @return
+     */
+    public static Integer[] method_2(int[] array, int target) throws Exception {
+        for (int i = 0; i < array.length; i++) {
+            for (int j = i + 1; j < array.length; j++) {
+                if (array[j] == target - array[i]) {
+                    return new Integer[]{array[i], array[j]};
+                }
+            }
+        }
+        throw new Exception("not found");
     }
 }
