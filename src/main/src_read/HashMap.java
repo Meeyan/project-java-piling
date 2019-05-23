@@ -700,38 +700,55 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
         int oldThr = threshold;
         int newCap, newThr = 0;
+
+        // 是否存在老空间？即：是否是要在老的基础上扩张容积。
         if (oldCap > 0) {
+            // 若是老的空间已经大于等于Integer.MAX_VALUE，则线程最大值为：Integer.MAX_VALUE，返回当前老的node
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
-            } else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
-                    oldCap >= DEFAULT_INITIAL_CAPACITY)
+            } else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY && oldCap >= DEFAULT_INITIAL_CAPACITY) {
+                // 若是老空间扩一倍仍未到达最大限制，并且老空间大于初始值，则新的空间要扩一倍
                 newThr = oldThr << 1; // double threshold
-        } else if (oldThr > 0) // initial capacity was placed in threshold
+            }
+        } else if (oldThr > 0) {
+            // 老的空间<=0,意味着初始状态，
+            // initial capacity was placed in threshold
             newCap = oldThr;
-        else {               // zero initial threshold signifies using defaults
+        } else { // zero initial threshold signifies using defaults
             newCap = DEFAULT_INITIAL_CAPACITY;
             newThr = (int) (DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
+
         if (newThr == 0) {
             float ft = (float) newCap * loadFactor;
             newThr = (newCap < MAXIMUM_CAPACITY && ft < (float) MAXIMUM_CAPACITY ?
                     (int) ft : Integer.MAX_VALUE);
         }
+
         threshold = newThr;
+
+        // 创建新的数组
         @SuppressWarnings({"rawtypes", "unchecked"})
         Node<K, V>[] newTab = (Node<K, V>[]) new Node[newCap];
         table = newTab;
+
+        // 若老的数据存在？
         if (oldTab != null) {
+
             for (int j = 0; j < oldCap; ++j) {
                 Node<K, V> e;
                 if ((e = oldTab[j]) != null) {
+                    // 释放老的节点
                     oldTab[j] = null;
-                    if (e.next == null)
+                    if (e.next == null) {
+                        // 没有下一个节点
                         newTab[e.hash & (newCap - 1)] = e;
-                    else if (e instanceof TreeNode)
+                    } else if (e instanceof TreeNode) {
+                        // 有下一个节点，并且该节点是个树
                         ((TreeNode<K, V>) e).split(this, newTab, j, oldCap);
-                    else { // preserve order
+                    } else { // preserve order
+                        // 有下一个节点，但不是treeNode
                         Node<K, V> loHead = null, loTail = null;
                         Node<K, V> hiHead = null, hiTail = null;
                         Node<K, V> next;
@@ -751,10 +768,12 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                                 hiTail = e;
                             }
                         } while ((e = next) != null);
+
                         if (loTail != null) {
                             loTail.next = null;
                             newTab[j] = loHead;
                         }
+
                         if (hiTail != null) {
                             hiTail.next = null;
                             newTab[j + oldCap] = hiHead;
@@ -2209,9 +2228,9 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          * see above discussion about split bits and indices.
          *
          * @param map   the map
-         * @param tab   the table for recording bin heads
-         * @param index the index of the table being split
-         * @param bit   the bit of hash to split on
+         * @param tab   the table for recording bin heads 新的空间表
+         * @param index the index of the table being split 当前位置
+         * @param bit   the bit of hash to split on 老的数量
          */
         final void split(HashMap<K, V> map, Node<K, V>[] tab, int index, int bit) {
             TreeNode<K, V> b = this;
@@ -2219,7 +2238,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             TreeNode<K, V> loHead = null, loTail = null;
             TreeNode<K, V> hiHead = null, hiTail = null;
             int lc = 0, hc = 0;
-            for (TreeNode<K, V> e = b, next; e != null; e = next) {
+            for (TreeNode<K, V> e = b, *-; e != null; e = next) {
                 next = (TreeNode<K, V>) e.next;
                 e.next = null;
                 if ((e.hash & bit) == 0) {
@@ -2262,8 +2281,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         /* ------------------------------------------------------------ */
         // Red-black tree methods, all adapted from CLR
 
-        static <K, V> TreeNode<K, V> rotateLeft(TreeNode<K, V> root,
-                                                TreeNode<K, V> p) {
+        static <K, V> TreeNode<K, V> rotateLeft(TreeNode<K, V> root, TreeNode<K, V> p) {
             TreeNode<K, V> r, pp, rl;
             if (p != null && (r = p.right) != null) {
                 if ((rl = p.right = r.left) != null)
@@ -2280,8 +2298,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             return root;
         }
 
-        static <K, V> TreeNode<K, V> rotateRight(TreeNode<K, V> root,
-                                                 TreeNode<K, V> p) {
+        static <K, V> TreeNode<K, V> rotateRight(TreeNode<K, V> root, TreeNode<K, V> p) {
             TreeNode<K, V> l, pp, lr;
             if (p != null && (l = p.left) != null) {
                 if ((lr = p.left = l.right) != null)
@@ -2298,8 +2315,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             return root;
         }
 
-        static <K, V> TreeNode<K, V> balanceInsertion(TreeNode<K, V> root,
-                                                      TreeNode<K, V> x) {
+        static <K, V> TreeNode<K, V> balanceInsertion(TreeNode<K, V> root, TreeNode<K, V> x) {
             x.red = true;
             for (TreeNode<K, V> xp, xpp, xppl, xppr; ; ) {
                 if ((xp = x.parent) == null) {
