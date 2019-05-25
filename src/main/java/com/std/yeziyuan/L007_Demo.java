@@ -50,7 +50,7 @@ public class L007_Demo {
         new Thread(task).start();
 
         System.out.println(Thread.currentThread().getName() + "---main thread continues");
-
+        System.out.println("do something else.");
         System.out.println(task.get());
     }
 }
