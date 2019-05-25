@@ -1,5 +1,8 @@
 package com.leetcode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Given an array of integers, return indices of the two numbers such that they add up to a specific target.
  * You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -25,6 +28,8 @@ public class L001_TwoSum {
 
     /**
      * 双层遍历
+     * 时间复杂度：o(n^2)
+     * 空间复杂度：o(1)
      *
      * @param array  int[] 数组元素
      * @param target int 目标值
@@ -49,11 +54,15 @@ public class L001_TwoSum {
      * @return
      */
     public static Integer[] method_2(int[] array, int target) throws Exception {
+        Map<Integer, Integer> keyMap = new HashMap<>(array.length);
+        for (int index = 0; index < array.length; index++) {
+            keyMap.put(array[index], index);
+        }
+
         for (int i = 0; i < array.length; i++) {
-            for (int j = i + 1; j < array.length; j++) {
-                if (array[j] == target - array[i]) {
-                    return new Integer[]{array[i], array[j]};
-                }
+            int tempValue = target - array[i];
+            if (keyMap.containsKey(tempValue) && keyMap.get(tempValue) != i) {
+                return new Integer[]{tempValue, array[i]};
             }
         }
         throw new Exception("not found");
