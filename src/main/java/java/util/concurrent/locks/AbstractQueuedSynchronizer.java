@@ -383,7 +383,7 @@ public abstract class AbstractQueuedSynchronizer
     static final class Node {
 
         /**
-         * Marker to indicate a node is waiting in shared mode
+         * Marker to indicate a node is waiting in shared mode ： 共享模式
          */
         static final Node SHARED = new Node();
 
@@ -398,11 +398,13 @@ public abstract class AbstractQueuedSynchronizer
         static final int CANCELLED = 1;
 
         /**
+         * successor's thread：后续线程
          * waitStatus value to indicate successor's thread needs unparking ：开始被调度
          */
         static final int SIGNAL = -1;
 
         /**
+         * 等待条件，即在condition阻塞
          * waitStatus value to indicate thread is waiting on condition
          */
         static final int CONDITION = -2;
@@ -422,15 +424,22 @@ public abstract class AbstractQueuedSynchronizer
          * first indicate they need a signal,
          * then retry the atomic acquire, and then,
          * on failure, block.
+         * <p>
+         * 当前节点的后继节点已经被（或将被）阻塞。所以，当当前节点释放锁或者被取消时，必须将后继节点unpark。
+         * <p>
          * CANCELLED:  This node is cancelled due to timeout or interrupt.
          * Nodes never leave this state. In particular,
          * a thread with cancelled node never again blocks.
+         * <p>
+         * <p>
          * CONDITION:  This node is currently on a condition queue.
          * It will not be used as a sync queue node
          * until transferred, at which time the status
          * will be set to 0. (Use of this value here has
          * nothing to do with the other uses of the
          * field, but simplifies mechanics.)
+         * <p>
+         * <p>
          * PROPAGATE:  A releaseShared should be propagated to other
          * nodes. This is set (for head node only) in
          * doReleaseShared to ensure propagation
@@ -693,6 +702,8 @@ public abstract class AbstractQueuedSynchronizer
         Node s = node.next;
         if (s == null || s.waitStatus > 0) {
             s = null;
+
+            // 从队尾开始遍历，搞到最新进入队列的节点，然后unpark
             for (Node t = tail; t != null && t != node; t = t.prev)
                 if (t.waitStatus <= 0)
                     s = t;
@@ -1331,8 +1342,9 @@ public abstract class AbstractQueuedSynchronizer
     public final boolean release(int arg) {
         if (tryRelease(arg)) {
             Node h = head;
-            if (h != null && h.waitStatus != 0)
+            if (h != null && h.waitStatus != 0) {
                 unparkSuccessor(h);
+            }
             return true;
         }
         return false;
@@ -1588,8 +1600,14 @@ public abstract class AbstractQueuedSynchronizer
         Node t = tail; // Read fields in reverse initialization order
         Node h = head;
         Node s;
-        return h != t &&
-                ((s = h.next) == null || s.thread != Thread.currentThread());
+        /**
+         * 1. 头节点和尾节点不同
+         *   头节点的后置节点为空，则视为有等待节点
+         *  或者
+         *   当前线程和头节点的后置节点的线程不同，视为有等待的节点
+         *
+         */
+        return h != t && ((s = h.next) == null || s.thread != Thread.currentThread());
     }
 
 

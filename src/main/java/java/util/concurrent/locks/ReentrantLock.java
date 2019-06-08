@@ -159,13 +159,24 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             return false;
         }
 
+        /**
+         * 释放锁
+         *
+         * @param releases
+         * @return
+         */
         protected final boolean tryRelease(int releases) {
             int c = getState() - releases;
-            if (Thread.currentThread() != getExclusiveOwnerThread())
+            if (Thread.currentThread() != getExclusiveOwnerThread()) {
                 throw new IllegalMonitorStateException();
+            }
+
             boolean free = false;
+
             if (c == 0) {
                 free = true;
+
+                // 排他锁置为null，释放
                 setExclusiveOwnerThread(null);
             }
             setState(c);
@@ -227,7 +238,6 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             } else {
                 acquire(1);
             }
-
         }
 
         /**
@@ -259,8 +269,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             final Thread current = Thread.currentThread();
             int c = getState();
             if (c == 0) {
-                if (!hasQueuedPredecessors() &&
-                        compareAndSetState(0, acquires)) {
+                if (!hasQueuedPredecessors() && compareAndSetState(0, acquires)) {
                     setExclusiveOwnerThread(current);
                     return true;
                 }
