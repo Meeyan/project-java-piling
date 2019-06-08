@@ -700,13 +700,21 @@ public abstract class AbstractQueuedSynchronizer
          * non-cancelled successor.
          */
         Node s = node.next;
+
+        // 如果当前节点的下一个节点为null 或者 已经被取消
         if (s == null || s.waitStatus > 0) {
+
             s = null;
 
-            // 从队尾开始遍历，搞到最新进入队列的节点，然后unpark
-            for (Node t = tail; t != null && t != node; t = t.prev)
-                if (t.waitStatus <= 0)
+            // todo 思考：为什么不从头部开始拿呢？
+
+            // 从队尾开始遍历，搞到最早进入队列的有效的节点，然后unpark
+            for (Node t = tail; t != null && t != node; t = t.prev) {
+                if (t.waitStatus <= 0) {
                     s = t;
+                }
+            }
+
         }
         if (s != null)
             LockSupport.unpark(s.thread);
