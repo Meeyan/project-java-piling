@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  * activeMQ-helloWorld - 消息生产者
  *
  * @author zhaojy
- * @date: 2018-03-11
+ * @date 2018-03-11
  */
 public class Sender {
     public static void main(String[] args) throws JMSException, InterruptedException {
