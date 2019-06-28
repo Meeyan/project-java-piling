@@ -398,7 +398,9 @@ public abstract class AbstractQueuedSynchronizer
         static final int CANCELLED = 1;
 
         /**
-         * successor's thread：后续线程
+         * 后继线程需要被唤醒（后继节点应该要处于等待状态）
+         * <p>
+         * successor's thread：后续线程 (successor 后续者，后继的事物)
          * waitStatus value to indicate successor's thread needs unparking ：开始被调度
          */
         static final int SIGNAL = -1;
@@ -662,6 +664,7 @@ public abstract class AbstractQueuedSynchronizer
 
         // 入队
         enq(node);
+
         return node;
     }
 
@@ -858,14 +861,18 @@ public abstract class AbstractQueuedSynchronizer
         // 前一个节点的状态
         int ws = pred.waitStatus;
 
-        if (ws == Node.SIGNAL)
+        if (ws == Node.SIGNAL) {
             /*
              * This node has already set status asking a release
              * to signal it, so it can safely park.
              */
             return true;
+        }
+
+
         if (ws > 0) {
             /*
+             * 前任节点被取消
              * Predecessor was cancelled. Skip over predecessors and
              * indicate retry.
              */
@@ -899,6 +906,7 @@ public abstract class AbstractQueuedSynchronizer
      * @return {@code true} if interrupted
      */
     private final boolean parkAndCheckInterrupt() {
+        // 当前线程禁止调度
         LockSupport.park(this);
         return Thread.interrupted();
     }
@@ -913,6 +921,8 @@ public abstract class AbstractQueuedSynchronizer
      */
 
     /**
+     * 对于在队列中的线程，以排他不可中断的方式获取锁。
+     * <p>
      * Acquires in exclusive uninterruptible mode for thread already in
      * queue. Used by condition wait methods as well as acquire.
      *
@@ -926,6 +936,7 @@ public abstract class AbstractQueuedSynchronizer
             // 是否被中断？
             boolean interrupted = false;
             for (; ; ) {
+
                 // 当前节点的前一个节点
                 final Node p = node.predecessor();
 
@@ -933,16 +944,20 @@ public abstract class AbstractQueuedSynchronizer
                  * 如果前一个节点为head节点？
                  *    是：则试着加锁
                  *          加锁成功：则当前节点成为新的head节点，没有被中断，直接返回。
-                 *          加锁失败：
-                 *    否：？？？？
+                 *          加锁失败：看是否需要park
+                 *    否：看是否需要park
                  */
                 if (p == head && tryAcquire(arg)) {
                     setHead(node);
-                    p.next = null; // help GC
+                    // help GC
+                    p.next = null;
                     failed = false;
                     return interrupted;
                 }
 
+                /**
+                 * 前任节点不是head节点或者抢锁失败。
+                 */
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt()) {
                     interrupted = true;
                 }
@@ -989,34 +1004,45 @@ public abstract class AbstractQueuedSynchronizer
      * @param nanosTimeout max wait time
      * @return {@code true} if acquired
      */
-    private boolean doAcquireNanos(int arg, long nanosTimeout)
-            throws InterruptedException {
-        if (nanosTimeout <= 0L)
+    private boolean doAcquireNanos(int arg, long nanosTimeout) throws InterruptedException {
+        if (nanosTimeout <= 0L) {
             return false;
+        }
         final long deadline = System.nanoTime() + nanosTimeout;
         final Node node = addWaiter(Node.EXCLUSIVE);
         boolean failed = true;
         try {
             for (; ; ) {
+                // 当前节点的前一个节点
                 final Node p = node.predecessor();
+
+                // 前一个节点是头结点，则尝试获取锁
                 if (p == head && tryAcquire(arg)) {
+
                     setHead(node);
-                    p.next = null; // help GC
+                    // help GC
+                    p.next = null;
                     failed = false;
                     return true;
                 }
+
                 nanosTimeout = deadline - System.nanoTime();
-                if (nanosTimeout <= 0L)
+                if (nanosTimeout <= 0L) {
                     return false;
-                if (shouldParkAfterFailedAcquire(p, node) &&
-                        nanosTimeout > spinForTimeoutThreshold)
+                }
+
+                if (shouldParkAfterFailedAcquire(p, node) && nanosTimeout > spinForTimeoutThreshold) {
                     LockSupport.parkNanos(this, nanosTimeout);
-                if (Thread.interrupted())
+                }
+
+                if (Thread.interrupted()) {
                     throw new InterruptedException();
+                }
             }
         } finally {
-            if (failed)
+            if (failed) {
                 cancelAcquire(node);
+            }
         }
     }
 
@@ -1331,10 +1357,12 @@ public abstract class AbstractQueuedSynchronizer
      */
     public final boolean tryAcquireNanos(int arg, long nanosTimeout)
             throws InterruptedException {
-        if (Thread.interrupted())
+        if (Thread.interrupted()) {
             throw new InterruptedException();
-        return tryAcquire(arg) ||
-                doAcquireNanos(arg, nanosTimeout);
+        }
+
+        // 先尝试获取一次锁，不行就再次尝试超时获取
+        return tryAcquire(arg) || doAcquireNanos(arg, nanosTimeout);
     }
 
     /**

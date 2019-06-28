@@ -1,4 +1,4 @@
-package com.std.BFBCDYS.chapter004;
+package com.std.BFBCDYS.chapter004.connpool;
 
 import java.util.concurrent.TimeUnit;
 

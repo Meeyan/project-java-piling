@@ -1,4 +1,4 @@
-package com.std.BFBCDYS.chapter004;
+package com.std.BFBCDYS.chapter004.connpool;
 
 /**
  * 自定义链接
