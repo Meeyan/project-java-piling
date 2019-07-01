@@ -412,6 +412,7 @@ public abstract class AbstractQueuedSynchronizer
         static final int CONDITION = -2;
 
         /**
+         * 等待状态值表明：下一个获取共享锁（操作）应该被无条件的传播
          * waitStatus value to indicate the next acquireShared should
          * unconditionally propagate
          */
@@ -420,43 +421,43 @@ public abstract class AbstractQueuedSynchronizer
         /**
          * Status field, taking on only the values:
          * SIGNAL:     The successor of this node is (or will soon be)
-         * blocked (via park), so the current node must
-         * unpark its successor when it releases or
-         * cancels. To avoid races, acquire methods must
-         * first indicate they need a signal,
-         * then retry the atomic acquire, and then,
-         * on failure, block.
-         * <p>
-         * 当前节点的后继节点已经被（或将被）阻塞。所以，当当前节点释放锁或者被取消时，必须将后继节点unpark。
-         * <p>
+         * -           - blocked (via park), so the current node must
+         * -           - unpark its successor when it releases or
+         * -           - cancels. To avoid races, acquire methods must
+         * -           - first indicate they need a signal,
+         * -           - then retry the atomic acquire, and then,
+         * -           - on failure, block.
+         * -           - <p>
+         * -           -当前节点的后继节点已经被（或将被）阻塞。所以，在当前节点释放锁或者被取消时，必须将后继节点unpark。
+         * -           -为了避免竞争，acquire方法必须表明竞争线程需要一个信号量，然后尝试原子获取锁，或者失败后block。
+         * -           -<p>
          * CANCELLED:  This node is cancelled due to timeout or interrupt.
-         * Nodes never leave this state. In particular,
-         * a thread with cancelled node never again blocks.
-         * <p>
-         * <p>
+         * -           - Nodes never leave this state. In particular,
+         * -           - a thread with cancelled node never again blocks.
+         * -           - <p>
+         * -           - <p>
          * CONDITION:  This node is currently on a condition queue.
-         * It will not be used as a sync queue node
-         * until transferred, at which time the status
-         * will be set to 0. (Use of this value here has
-         * nothing to do with the other uses of the
-         * field, but simplifies mechanics.)
-         * <p>
+         * -           - It will not be used as a sync queue node
+         * -           - until transferred, at which time the status
+         * -           - will be set to 0. (Use of this value here has
+         * -           - nothing to do with the other uses of the
+         * -           - field, but simplifies mechanics.)
          * <p>
          * PROPAGATE:  A releaseShared should be propagated to other
-         * nodes. This is set (for head node only) in
-         * doReleaseShared to ensure propagation
-         * continues, even if other operations have
-         * since intervened.
-         * 0:          None of the above
+         * -           - nodes. This is set (for head node only) in
+         * -           - doReleaseShared to ensure propagation
+         * -           - continues, even if other operations have
+         * -           - since intervened.
+         * -           - 0:          None of the above
          * <p>
-         * The values are arranged numerically to simplify use.
-         * Non-negative values mean that a node doesn't need to
-         * signal. So, most code doesn't need to check for particular
-         * values, just for sign.
-         * <p>
-         * The field is initialized to 0 for normal sync nodes, and
-         * CONDITION for condition nodes.  It is modified using CAS
-         * (or when possible, unconditional volatile writes).
+         * -           - The values are arranged numerically to simplify use.
+         * -           - Non-negative values mean that a node doesn't need to
+         * -           - signal. So, most code doesn't need to check for particular
+         * -           - values, just for sign.
+         * -           - <p>
+         * -           - The field is initialized to 0 for normal sync nodes, and
+         * -           - CONDITION for condition nodes.  It is modified using CAS
+         * -           - (or when possible, unconditional volatile writes).
          */
         volatile int waitStatus;
 
@@ -600,6 +601,9 @@ public abstract class AbstractQueuedSynchronizer
     // Queuing utilities
 
     /**
+     * 用于快速自旋而不是使用timed park（阻塞）的纳秒总数。一种粗略的预估旨在改善程序在段时间内的响应能力。
+     * （理解：在小鱼1000纳秒的区间内，程序不在做park操作，而是直接自旋。主要用于控制是自旋或者park）
+     * <p>
      * The number of nanoseconds for which it is faster to spin
      * rather than to use timed park. A rough estimate suffices
      * to improve responsiveness with very short timeouts.
@@ -618,11 +622,11 @@ public abstract class AbstractQueuedSynchronizer
             Node t = tail;
             /*
              * 尾节点存在?
-             *     不存在：初始化一个head节点出来，并把head标记为tail节点，继续下一次自旋。
-             *     存在：新node的前一个节点设置为旧的tail节点，新node设置为tail节点，旧tail节点的下一个节点设置为新创建的节点，入队成功，返回。
+             *   不存在：初始化一个head节点出来（改节点非传入的node），并把head标记为tail节点，继续下一次自旋。
+             *   存在：新node的前置节点设置为旧的tail节点，新node cas设置为tail节点，旧tail节点的后置节点设置为新创建的节点，入队成功，返回。
              */
             if (t == null) {
-                // Must initialize
+                // Must initialize，注意此处，创建的节点不是传入的node，而是新建的一个node
                 if (compareAndSetHead(new Node())) {
                     tail = head;
                 }
@@ -637,6 +641,10 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 增加一个waiter节点：
+     * 1. 存在tail节点，则将新节点的前置节点为原有的tail节点，原有的tail节点的后置节点为新的节点，cas更改新节点为tail节点，返回。
+     * 2. 不存在tail节点：创建一个node节点（非传入节点，标记使用），同时cas设置head节点（head节点和tail节点为同一个节点），
+     * 继续自旋，cas将当前node放到tail节点处，完成入队，返回。
      * Creates and enqueues node for current thread and given mode.
      *
      * @param mode Node.EXCLUSIVE for exclusive, Node.SHARED for shared
@@ -651,7 +659,7 @@ public abstract class AbstractQueuedSynchronizer
         /**
          * 存在尾节点？
          *   存在：把尾节点设置为新创建节点的前一个节点，把新创建节点设置为尾节点，
-         *      把新创建节点设置为旧尾节点下一个节点，节点创建完成。（cas操作）
+         *      把新创建节点设置为旧尾节点下一个节点，节点创建完成。（cas操作），返回该节点。
          *   不存在：enq(node)：头节点入队操作
          */
         if (pred != null) {
@@ -849,6 +857,11 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 检查并更新一个抢锁失败节点的信号量。
+     * 返回true表示该节点需要block
+     * 在所有的抢锁循环中，该方法是控制信号量的最重要的方法
+     * <p>
+     * <p>
      * Checks and updates status for a node that failed to acquire.
      * Returns true if thread should block. This is the main signal
      * control in all acquire loops.  Requires that pred == node.prev.
@@ -861,6 +874,8 @@ public abstract class AbstractQueuedSynchronizer
         // 前一个节点的状态
         int ws = pred.waitStatus;
 
+
+        // 如果前任节点处于：需要唤醒后继节点 的状态，那么后继节点可以park（即：后置节点将进入park状态，直到前置节点唤醒后置节点）
         if (ws == Node.SIGNAL) {
             /*
              * This node has already set status asking a release
@@ -869,7 +884,7 @@ public abstract class AbstractQueuedSynchronizer
             return true;
         }
 
-
+        // 前置节点是否被取消？
         if (ws > 0) {
             /*
              * 前任节点被取消
@@ -883,6 +898,7 @@ public abstract class AbstractQueuedSynchronizer
             // 前一个节点（原"前一个节点的前一个节点"）的下一个节点设置为当前节点（node）
             pred.next = node;
         } else {
+            // ws < 0 && ws != -1
             /*
              * waitStatus must be 0 or PROPAGATE.  Indicate that we
              * need a signal, but don't park yet.  Caller will need to
@@ -1001,15 +1017,19 @@ public abstract class AbstractQueuedSynchronizer
      * Acquires in exclusive timed mode.
      *
      * @param arg          the acquire argument
-     * @param nanosTimeout max wait time
+     * @param nanosTimeout max wait time 纳秒（1纳秒=1秒的十亿分之一）
      * @return {@code true} if acquired
      */
     private boolean doAcquireNanos(int arg, long nanosTimeout) throws InterruptedException {
         if (nanosTimeout <= 0L) {
             return false;
         }
+        // 目标纳秒 = 当前的纳秒 + 等待时长
         final long deadline = System.nanoTime() + nanosTimeout;
+
+        // 1. 创建节点，并入队(自旋入队）
         final Node node = addWaiter(Node.EXCLUSIVE);
+
         boolean failed = true;
         try {
             for (; ; ) {
@@ -1019,19 +1039,26 @@ public abstract class AbstractQueuedSynchronizer
                 // 前一个节点是头结点，则尝试获取锁
                 if (p == head && tryAcquire(arg)) {
 
+                    // 获取锁成功后，把当前节点设置为头结点。
                     setHead(node);
-                    // help GC
+                    // help GC，前置节点的后继节点设置为null
                     p.next = null;
                     failed = false;
                     return true;
                 }
 
+                // 前任节点不是头结点 或者 抢锁失败。
+                // 剩余纳秒 = 目标纳秒 - 当前纳秒
                 nanosTimeout = deadline - System.nanoTime();
+
+                // 超时取锁，返回失败
                 if (nanosTimeout <= 0L) {
                     return false;
                 }
 
+                // 未超时，
                 if (shouldParkAfterFailedAcquire(p, node) && nanosTimeout > spinForTimeoutThreshold) {
+                    // 等待
                     LockSupport.parkNanos(this, nanosTimeout);
                 }
 
@@ -1398,8 +1425,9 @@ public abstract class AbstractQueuedSynchronizer
      *            and can represent anything you like.
      */
     public final void acquireShared(int arg) {
-        if (tryAcquireShared(arg) < 0)
+        if (tryAcquireShared(arg) < 0) {
             doAcquireShared(arg);
+        }
     }
 
     /**
@@ -2443,8 +2471,7 @@ public abstract class AbstractQueuedSynchronizer
     private static final boolean compareAndSetWaitStatus(Node node,
                                                          int expect,
                                                          int update) {
-        return unsafe.compareAndSwapInt(node, waitStatusOffset,
-                expect, update);
+        return unsafe.compareAndSwapInt(node, waitStatusOffset, expect, update);
     }
 
     /**

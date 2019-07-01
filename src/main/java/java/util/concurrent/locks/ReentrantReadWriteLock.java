@@ -274,7 +274,7 @@ public class ReentrantReadWriteLock
          *
          * 锁的状态被分成两部分：
          *      低16位代表排他锁的数量（写锁）
-         *      高16为代表共享锁的数量（多锁）
+         *      高16为代表共享锁的数量（读锁）
          *
          */
 
@@ -506,13 +506,11 @@ public class ReentrantReadWriteLock
              */
             Thread current = Thread.currentThread();
             int c = getState();
-            if (exclusiveCount(c) != 0 &&
-                    getExclusiveOwnerThread() != current)
+            if (exclusiveCount(c) != 0 && getExclusiveOwnerThread() != current) {
                 return -1;
+            }
             int r = sharedCount(c);
-            if (!readerShouldBlock() &&
-                    r < MAX_COUNT &&
-                    compareAndSetState(c, c + SHARED_UNIT)) {
+            if (!readerShouldBlock() && r < MAX_COUNT && compareAndSetState(c, c + SHARED_UNIT)) {
                 if (r == 0) {
                     firstReader = current;
                     firstReaderHoldCount = 1;
