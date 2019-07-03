@@ -1608,6 +1608,11 @@ public abstract class AbstractQueuedSynchronizer
      */
     final boolean apparentlyFirstQueuedIsExclusive() {
         Node h, s;
+
+        // 1. 头结点不为null
+        // 2. 头结点的后置节点不为null
+        // 3. 头结点 的后置节点 的后置等待者不是处于共享模式
+        // 4. 头结点的后置节点的线程不为null
         return (h = head) != null &&
                 (s = h.next) != null &&
                 !s.isShared() &&
@@ -1615,6 +1620,9 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     *
+     * 查询是否有其他的等待获取时长大于当前线程的线程
+     *
      * Queries whether any threads have been waiting to acquire longer
      * than the current thread.
      *
@@ -1661,14 +1669,16 @@ public abstract class AbstractQueuedSynchronizer
         // The correctness of this depends on head being initialized
         // before tail and on head.next being accurate if the current
         // thread is first in queue.
-        Node t = tail; // Read fields in reverse initialization order
+        // Read fields in reverse initialization order
+        Node t = tail;
         Node h = head;
         Node s;
         /**
-         * 1. 头节点和尾节点不同
-         *   头节点的后置节点为空，则视为有等待节点
-         *  或者
-         *   当前线程和头节点的后置节点的线程不同，视为有等待的节点
+         *
+         * 1. 头节点和尾节点不同：表明有有等待线程，若相同，则没有后续线程
+         * 2. 头节点和尾节点不同
+         *      2.1 头结点的后置节点==null，说明没有等待节点，头结点为最后节点，直接返回true
+         *      2.2 头结点的后置节点!=null，判断 后置节点的线程和当前线程是否相等，不想等，则视为有排队节点，否则，无排队节点。
          *
          */
         return h != t && ((s = h.next) == null || s.thread != Thread.currentThread());
