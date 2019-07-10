@@ -701,8 +701,9 @@ public abstract class AbstractQueuedSynchronizer
          * fails or if status is changed by waiting thread.
          */
         int ws = node.waitStatus;
-        if (ws < 0)
+        if (ws < 0) {
             compareAndSetWaitStatus(node, ws, 0);
+        }
 
         /*
          * Thread to unpark is held in successor, which is normally
@@ -727,8 +728,11 @@ public abstract class AbstractQueuedSynchronizer
             }
 
         }
-        if (s != null)
+
+        // 找到s节点，然后unpark
+        if (s != null) {
             LockSupport.unpark(s.thread);
+        }
     }
 
     /**
@@ -1403,6 +1407,7 @@ public abstract class AbstractQueuedSynchronizer
      * @return the value returned from {@link #tryRelease}
      */
     public final boolean release(int arg) {
+        // 释放锁
         if (tryRelease(arg)) {
             Node h = head;
             if (h != null && h.waitStatus != 0) {
@@ -1620,9 +1625,8 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
-     *
      * 查询是否有其他的等待获取时长大于当前线程的线程
-     *
+     * <p>
      * Queries whether any threads have been waiting to acquire longer
      * than the current thread.
      *
@@ -1787,6 +1791,8 @@ public abstract class AbstractQueuedSynchronizer
     // Internal support methods for Conditions
 
     /**
+     * 如果一个node初始时在『等待（condition）队列』中，现在正处于从新获取锁的『同步队列』中，那么该方法返回true
+     * <p>
      * Returns true if a node, always one that was initially placed on
      * a condition queue, is now waiting to reacquire on sync queue.
      *
@@ -1794,10 +1800,16 @@ public abstract class AbstractQueuedSynchronizer
      * @return true if is reacquiring
      */
     final boolean isOnSyncQueue(Node node) {
-        if (node.waitStatus == Node.CONDITION || node.prev == null)
+
+        // 要得是同步队列的node
+        if (node.waitStatus == Node.CONDITION || node.prev == null) {
             return false;
-        if (node.next != null) // If has successor, it must be on queue
+        }
+
+        // If has successor, it must be on queue
+        if (node.next != null) {
             return true;
+        }
         /*
          * node.prev can be non-null, but not yet on queue because
          * the CAS to place it on queue can fail. So we have to
@@ -1838,8 +1850,9 @@ public abstract class AbstractQueuedSynchronizer
         /*
          * If cannot change waitStatus, the node has been cancelled.
          */
-        if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))
+        if (!compareAndSetWaitStatus(node, Node.CONDITION, 0)) {
             return false;
+        }
 
         /*
          * Splice onto queue and try to set waitStatus of predecessor to
@@ -1847,10 +1860,12 @@ public abstract class AbstractQueuedSynchronizer
          * attempt to set waitStatus fails, wake up to resync (in which
          * case the waitStatus can be transiently and harmlessly wrong).
          */
+        // 将唤醒的队列放到同步队列尾部
         Node p = enq(node);
         int ws = p.waitStatus;
-        if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
+        if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL)) {
             LockSupport.unpark(node.thread);
+        }
         return true;
     }
 
@@ -1888,6 +1903,8 @@ public abstract class AbstractQueuedSynchronizer
         boolean failed = true;
         try {
             int savedState = getState();
+
+            // 释放锁
             if (release(savedState)) {
                 failed = false;
                 return savedState;
@@ -1895,8 +1912,9 @@ public abstract class AbstractQueuedSynchronizer
                 throw new IllegalMonitorStateException();
             }
         } finally {
-            if (failed)
+            if (failed) {
                 node.waitStatus = Node.CANCELLED;
+            }
         }
     }
 
@@ -2020,17 +2038,34 @@ public abstract class AbstractQueuedSynchronizer
          * @return its new wait node
          */
         private Node addConditionWaiter() {
+            /**
+             * 1. 遍历，将队列中的失效节点移除，搞到最新的尾节点
+             * 2. 创建一个节点
+             * 3. 尾接点是否存在？
+             *    3.1 不存在（等待队列空），那么尾节点和头节点都指向新建节点。
+             *    3.2 存在，新建节点变成尾接点，并和原有的尾节点关联起来。
+             * 4. 节点入队成功，返回节点
+             */
             Node t = lastWaiter;
             // If lastWaiter is cancelled, clean out.
             if (t != null && t.waitStatus != Node.CONDITION) {
+                // 移除队列中失效的节点
                 unlinkCancelledWaiters();
+
+                // 从新拿到尾节点
                 t = lastWaiter;
             }
+
+            // 创建节点
             Node node = new Node(Thread.currentThread(), Node.CONDITION);
-            if (t == null)
+
+            // 如果原尾等待节点尾null，那么尾节点指向新加入队列的节点。
+            // 否则，原尾节点的后置等待节点执行新建节点，Condition的尾节点指向新建节点
+            if (t == null) {
                 firstWaiter = node;
-            else
+            } else {
                 t.nextWaiter = node;
+            }
             lastWaiter = node;
             return node;
         }
@@ -2044,11 +2079,13 @@ public abstract class AbstractQueuedSynchronizer
          */
         private void doSignal(Node first) {
             do {
-                if ((firstWaiter = first.nextWaiter) == null)
+                // 头节点指向原头节点的后继节点
+                // 队列只有一个等待节点，那么lastWaiter置空，first.nextWaiter置空
+                if ((firstWaiter = first.nextWaiter) == null) {
                     lastWaiter = null;
+                }
                 first.nextWaiter = null;
-            } while (!transferForSignal(first) &&
-                    (first = firstWaiter) != null);
+            } while (!transferForSignal(first) && (first = firstWaiter) != null);
         }
 
         /**
@@ -2067,6 +2104,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 移除队列中不需要等待的节点
+         * <p>
          * Unlinks cancelled waiter nodes from condition queue.
          * Called only while holding lock. This is called when
          * cancellation occurred during condition wait, and upon
@@ -2081,20 +2120,40 @@ public abstract class AbstractQueuedSynchronizer
          * storms.
          */
         private void unlinkCancelledWaiters() {
+            /**
+             * 1. 取第一个等待节点
+             * 2. 如果第一个节点被取消，那么其后置等待着的引用置为null（准备移除）
+             *   2.1 如果上一个节点（trail）为null，那么后置等待节点（next）成为新的首节点
+             *   2.2 如果上一个节点（trail）不为null，那么前置等待节点的下一个节点引用为当
+             *      前节点的后置等待节点（1 --> 3，2为当前待遍历节点）
+             *   2.3 如果当前节点的后置等待节点为null，那么末尾等待节点指向上一个节点。
+             * 3. 引用t指向下一个节点，继续step 1遍历
+             */
             Node t = firstWaiter;
+
+            // 上一个节点
             Node trail = null;
             while (t != null) {
                 Node next = t.nextWaiter;
+
+                // 如果node的状态不是在等待condition，要移出队列
                 if (t.waitStatus != Node.CONDITION) {
+                    // 该节点的下一个等待者引用置空
                     t.nextWaiter = null;
-                    if (trail == null)
+                    if (trail == null) {
                         firstWaiter = next;
-                    else
+                    } else {
+                        // 把后置节点和上一个节点链接起来
                         trail.nextWaiter = next;
-                    if (next == null)
+                    }
+
+                    if (next == null) {
                         lastWaiter = trail;
-                } else
+                    }
+                } else {
                     trail = t;
+                }
+                // 指针下移一个节点
                 t = next;
             }
         }
@@ -2110,11 +2169,15 @@ public abstract class AbstractQueuedSynchronizer
          *                                      returns {@code false}
          */
         public final void signal() {
-            if (!isHeldExclusively())
+
+            // 判断当前线程是否拥有锁
+            if (!isHeldExclusively()) {
                 throw new IllegalMonitorStateException();
+            }
             Node first = firstWaiter;
-            if (first != null)
+            if (first != null) {
                 doSignal(first);
+            }
         }
 
         /**
@@ -2208,23 +2271,40 @@ public abstract class AbstractQueuedSynchronizer
          * <li> If interrupted while blocked in step 4, throw InterruptedException.
          * </ol>
          */
+        @Override
         public final void await() throws InterruptedException {
-            if (Thread.interrupted())
+            if (Thread.interrupted()) {
                 throw new InterruptedException();
+            }
+            // 创建节点
             Node node = addConditionWaiter();
+
+            // 节点释放锁
             int savedState = fullyRelease(node);
             int interruptMode = 0;
+
+
+            // 如果线程不在同步队列中，则park，否则，继续后面的操作
             while (!isOnSyncQueue(node)) {
                 LockSupport.park(this);
-                if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+
+                if ((interruptMode = checkInterruptWhileWaiting(node)) != 0) {
                     break;
+                }
             }
-            if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+
+            if (acquireQueued(node, savedState) && interruptMode != THROW_IE) {
                 interruptMode = REINTERRUPT;
-            if (node.nextWaiter != null) // clean up if cancelled
+            }
+
+            // clean up if cancelled
+            if (node.nextWaiter != null) {
                 unlinkCancelledWaiters();
-            if (interruptMode != 0)
+            }
+
+            if (interruptMode != 0) {
                 reportInterruptAfterWait(interruptMode);
+            }
         }
 
         /**
