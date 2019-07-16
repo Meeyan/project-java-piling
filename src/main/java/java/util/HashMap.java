@@ -667,14 +667,15 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             n = (tab = resize()).length;
         }
 
-        /*
+        /**
          *
          * 2种情况：
          *   1. 计算出的新的位置上没有元素，直接新建node，存入。
          *   2. 位置上有元素存在，
          *     2.1 若旧元素的hash和新的key的hash相同，且key值相同，则认为找到了节点e
          *     2.2 若节点是treeNode，在树中找到节点e（或者 新建节点，e为null）
-         *     2.3 (链表存储方式或者链表转换为树)，如果指定位置上的节点存在，但是hash不一致，或者hash相同，key值不同，这个节点不是treeNode
+         *     2.3 (链表存储方式或者链表转换为树)，如果指定位置上的节点存在，hash相同，key值不同，这个节点不是treeNode（hash必定会相同）
+         *          （思考，hash不一致的情况下，会落到同一个位置么？不会，是否存在hash不同，但是位置相同呢？）
          */
 
         // (长度 - 1) & hash = 元素在数据表中的位置
