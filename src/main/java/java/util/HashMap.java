@@ -135,6 +135,7 @@ import java.util.function.Function;
  * @see Hashtable
  * @since 1.2
  */
+@SuppressWarnings("all")
 public class HashMap<K, V> extends AbstractMap<K, V>
         implements Map<K, V>, Cloneable, Serializable {
 
@@ -2603,17 +2604,42 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         /* ------------------------------------------------------------ */
         // Red-black tree methods, all adapted from CLR
 
+        /**
+         * 左旋
+         *
+         * @param root
+         * @param p
+         * @param <K>
+         * @param <V>
+         * @return
+         */
         static <K, V> TreeNode<K, V> rotateLeft(TreeNode<K, V> root, TreeNode<K, V> p) {
+            /**
+             * 几个大点要注意：
+             *  1. p的右孩子的左孩子，左旋后，要成为p的右孩子
+             *  2. p的右孩子(p.right)成为新的子根，p成为原来p.right的左孩子
+             *  3. 左旋后，p.right的父节点，指向原p.parent
+             */
+
+            /*
+             * r : p.right
+             * pp: p.parent
+             * rl: p.right.left
+             */
             TreeNode<K, V> r, pp, rl;
             // 节点存在 且 右孩子存在（进行左旋的必要条件），同时，进行r的初始化（r=p.right),即左旋后的新的子根
             if (p != null && (r = p.right) != null) {
 
-                // p的right指向从新指向r（原p的右孩子的左子树），定义rl，指向p的新的右孩子
+                // 将p.right 指向 p.right.left，同时定义节点rl（后面左父节点关联使用）
                 if ((rl = p.right = r.left) != null) {
-                    rl.parent = p; // 新的右孩子的父节点指向p
+                    rl.parent = p;
                 }
 
-                // 如果p的父节点存在，那么，r
+                /*
+                 * 1. 如果p的父节点不存在，那么r.parent将会时null，则r成为黑色，否则，r的父节点指向原p的父节点
+                 * 2. 如果p是其父节点的左孩子，那么pp的左孩子更新成r
+                 * 3. 如果p是其父节点的右孩子，那么pp的右孩子更新成r
+                 */
                 if ((pp = r.parent = p.parent) == null) {
                     (root = r).red = false;
                 } else if (pp.left == p) {
@@ -2621,30 +2647,59 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                 } else {
                     pp.right = r;
                 }
+                // r成为了新的子根，p成为其左孩子
                 r.left = p;
                 p.parent = r;
             }
             return root;
         }
 
-        static <K, V> TreeNode<K, V> rotateRight(TreeNode<K, V> root,
-                                                 TreeNode<K, V> p) {
+        /**
+         * 右旋操作
+         *
+         * @param root
+         * @param p
+         * @param <K>
+         * @param <V>
+         * @return
+         */
+        static <K, V> TreeNode<K, V> rotateRight(TreeNode<K, V> root, TreeNode<K, V> p) {
+            /**
+             * l : p.left
+             * pp: p.parent
+             * lr: p.left.right
+             *
+             * 1. p存在，且p的左孩子存在
+             *   1.1 定义lr节点，和p.left同时指向原p.left.right节点，如果节点存在
+             *      lr节点，成为p的孩子
+             *   1.2 定义pp节点，和l.parent同时指向原p.parent
+             *      如果节点不存在，则l的颜色改成黑色，直接返回，右旋完成
+             *      如果存在，且p是父节点的右孩子，则pp的右孩子更新成l
+             *      如果存在，且p是父节点的左孩子，则pp的左孩子更新成l
+             *
+             *   l.right指向p，成为新的子根
+             *   p.parent指向l
+             */
             TreeNode<K, V> l, pp, lr;
             if (p != null && (l = p.left) != null) {
                 if ((lr = p.left = l.right) != null)
                     lr.parent = p;
-                if ((pp = l.parent = p.parent) == null)
+
+                if ((pp = l.parent = p.parent) == null) {
                     (root = l).red = false;
-                else if (pp.right == p)
+                } else if (pp.right == p) {
                     pp.right = l;
-                else
+                } else {
                     pp.left = l;
+                }
+
                 l.right = p;
                 p.parent = l;
             }
             return root;
         }
 
+        @SuppressWarnings("all")
         static <K, V> TreeNode<K, V> balanceInsertion(TreeNode<K, V> root, TreeNode<K, V> x) {
 
             x.red = true;
@@ -2656,14 +2711,46 @@ public class HashMap<K, V> extends AbstractMap<K, V>
              * xppr:x的祖父节点的右孩子
              */
             for (TreeNode<K, V> xp, xpp, xppl, xppr; ; ) {
-                // x节点没有parent节点
+
+                /**
+                 * 1. 如果x的父节点不存在，则x就是树的根，直接返回节点x
+                 * 2. 如果x的父节点不是红色（即黑色），或者x的祖父节点不存在（x的父节点红色），则无需调整（x红色，父亲黑色），直接返回root数
+                 */
                 if ((xp = x.parent) == null) {
                     x.red = false;
                     return x;
                 } else if (!xp.red || (xpp = xp.parent) == null) {
                     return root;
                 }
-                // 父节点是祖父节点的左孩子
+
+                /**
+                 * 1. 父节点是祖父节点的左孩子
+                 *    1.1 存在叔叔节点（祖父节点的右孩子），且节点颜色是红色
+                 *        叔叔节点改成黑色
+                 *        父节点改成黑色
+                 *        祖父节点改成红色
+                 *    1.2 不存在叔叔节点，或者叔叔节点颜色是黑色
+                 *        x是父节点的右孩子
+                 *           以xp为点执行左旋，同时：x指向xp，即原x的父节点
+                 *           此时，xp指向新的x的父节点（主要是新的x），xpp指向xp的父节点（这些节点都必须存在）
+                 *        如果存在xp节点（新的）
+                 *           则xp节点颜色成为黑色
+                 *           如果xpp节点存在，则xpp节点颜色改成红色，以xpp节点进行右旋
+                 *
+                 * 2. 父节点是祖父节点的右孩子
+                 *    2.1 如果祖父节点的左孩子存在（xppl）且xppl的颜色是红色
+                 *        xppl改成黑色
+                 *        xp（父节点）改成黑色
+                 *        xpp（祖父节点）改成红色
+                 *        x指向xpp，递归下一次算法
+                 *    2.2 如果xppl不存在或者xppl存在，但是颜色是黑色
+                 *        如果x节点是父节点的左孩子
+                 *          那么x指向xp，做一次右旋
+                 *          xp更新成新的x的父节点（原xpp），xpp更新成xp的父节点（原xppp，假设说法）
+                 *        如果xp存在
+                 *          xp的颜色改成黑色
+                 *          如果xpp存在，xpp的颜色改成红色，以xpp节点执行左旋
+                 */
                 if (xp == (xppl = xpp.left)) {
                     // 存在叔叔节点，且颜色是红色
                     if ((xppr = xpp.right) != null && xppr.red) {
@@ -2678,9 +2765,15 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
                         // x是父节点的you右孩子
                         if (x == xp.right) {
-                            root = rotateLeft(root, x = xp);    // 以父节点进行左旋
+                            // 以父节点进行左旋
+                            root = rotateLeft(root, x = xp);
+
+                            // 上一步，x已经指向xp，那么，xp要随机更新（即，指向原x的xpp）
+                            // 这一步的要点：将xp和xpp同步向上一级，因为x已经更新成xp
                             xpp = (xp = x.parent) == null ? null : xp.parent;
                         }
+
+                        // 此时，新的x已经成为新的p的左子，执行右旋
                         if (xp != null) {
                             xp.red = false;
                             if (xpp != null) {
@@ -2698,10 +2791,13 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                         xpp.red = true;
                         x = xpp;
                     } else {
+
                         if (x == xp.left) {
                             root = rotateRight(root, x = xp);
                             xpp = (xp = x.parent) == null ? null : xp.parent;
                         }
+
+                        // 此时，新的x成为新的p的右子，执行左旋
                         if (xp != null) {
                             xp.red = false;
                             if (xpp != null) {
