@@ -670,11 +670,11 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         /*
          *
          * 2种情况：
-         *   1. 计算出的新的位置上没有元素，直接存入。
-         *   2. 有元素存在
+         *   1. 计算出的新的位置上没有元素，直接新建node，存入。
+         *   2. 位置上有元素存在，
          *     2.1 若旧元素的hash和新的key的hash相同，且key值相同，则认为找到了节点e
          *     2.2 若节点是treeNode，在树中找到节点e（或者 新建节点，e为null）
-         *     2.3 定位节点或者新建一个节点存入链表中
+         *     2.3 (链表存储方式或者链表转换为树)，如果指定位置上的节点存在，但是hash不一致，或者hash相同，key值不同，这个节点不是treeNode
          */
 
         // (长度 - 1) & hash = 元素在数据表中的位置
@@ -706,8 +706,9 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                  *   2. 如果存在一个hash冲突的节点，定位到该节点，交给外层处理。
                  */
                 for (int binCount = 0; ; ++binCount) {
-                    // node的next节点为null，则新建节点，直接做链表
-                    // 那么外层的 if (e != null) 分支不回执行
+
+
+                    // node的next节点为null，那么新建节点，e指向该节点，在外层将value赋值给e.value，即便转换成树，value也没有作赋值操作
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
 
@@ -719,8 +720,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                         break;
                     }
 
-                    // 节点不为null，那么遍历的目的便是为了找到节点e，在外层处理赋值操作
-                    // hash相同，且key值相同，不做操作，直接中断，视为找到了节点e
+                    // 节点不为null，hash相同，且key值相同，不做操作，直接中断，视为找到了节点e，在外层作覆盖值操作
                     if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
                         break;
                     }
@@ -737,6 +737,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                 if (!onlyIfAbsent || oldValue == null) {
                     e.value = value;
                 }
+
+                // 方法为空，不用看
                 afterNodeAccess(e);
                 return oldValue;
             }
@@ -746,6 +748,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         if (++size > threshold) {
             resize();
         }
+
+        // 方法为空，不用看
         afterNodeInsertion(evict);
         return null;
     }
@@ -2137,6 +2141,10 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          * Finds the node starting at root p with the given hash and key.
          * The kc argument caches comparableClassFor(key) upon first use
          * comparing keys.
+         *
+         * @param h  新key的hash值
+         * @param k  新key的值
+         * @param kc
          */
         final TreeNode<K, V> find(int h, Object k, Class<?> kc) {
             // 当前node节点赋值给p
@@ -2165,7 +2173,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                     // 返回节点，意味着找到了节点
                     return p;
                 }
-                // 如果左孩子为空
+                // 如果左孩子为空（hash值相同，key值不同）
                 else if (pl == null) {
                     // p指向右孩子，紧接着就是下一轮循环了
                     p = pr;
@@ -2292,9 +2300,9 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          *
          * @param map
          * @param tab
-         * @param h
-         * @param k
-         * @param v
+         * @param h   新key的hash
+         * @param k   新key
+         * @param v   新key的value
          * @return TreeNode
          */
         final TreeNode<K, V> putTreeVal(HashMap<K, V> map, Node<K, V>[] tab, int h, K k, V v) {
@@ -2309,11 +2317,11 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                 int dir, ph;
                 K pk;
 
-                /*
+                /**
                  * 四种情况：
                  *   1. 旧节点的hash > 新节点hash，带有赋值ph操作 左孩子节点
                  *   2. 旧节点的hash < 新节点hash，右孩子结点
-                 *   3. 两者hash相同，且key值相同，直接返回
+                 *   3. 两者hash相同，且key值相同，直接返回，在外围进行值覆盖操作
                  *   4. hash相同，但是key值不同
                  *
                  */
