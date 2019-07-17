@@ -269,6 +269,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
     static final int TREEIFY_THRESHOLD = 8;
 
     /**
+     * 反树化操作，当树的节点数量小于该值时，将会退化成链表
+     * <p>
      * The bin count threshold for untreeifying a (split) bin during a
      * resize operation. Should be less than TREEIFY_THRESHOLD, and at
      * most 6 to mesh with shrinkage detection under removal.
@@ -346,6 +348,9 @@ public class HashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Static utilities -------------- */
 
     /**
+     * 计算hash值，把高位传播到低位
+     * collide : 冲突，碰撞
+     * <p>
      * Computes key.hashCode() and spreads (XORs) higher bits of hash
      * to lower.  Because the table uses power-of-two masking, sets of
      * hashes that vary only in bits above the current mask will
@@ -643,6 +648,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * previously associated <tt>null</tt> with <tt>key</tt>.)
      */
     public V put(K key, V value) {
+        // 取key的hash值
         return putVal(hash(key), key, value, false, true);
     }
 
@@ -684,12 +690,14 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             // 新的位置上没有元素，直接添加进去
             tab[i] = newNode(hash, key, value, null);
         } else {
-            // 有元素，表示hash冲突了。
+            // 有元素，表示hash冲突
 
             Node<K, V> e;
             K k;
 
             /*
+             * hash相同且key值相同
+             *
              * p.hash == hash: 哈希相同
              * ((k = p.key) == key || (key != null && key.equals(k))) : 将原有节点的key赋值给k，同时判断原有的k和新的key是否相同
              */
@@ -765,6 +773,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * @return the table
      */
     final Node<K, V>[] resize() {
+
         Node<K, V>[] oldTab = table;
         // 旧的容量
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
@@ -840,7 +849,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                         // 没有下一个元素，那么把node存入新的数据表黄总
                         newTab[e.hash & (newCap - 1)] = e;
                     } else if (e instanceof TreeNode) {
-                        // 如果node是树，则需要扩容树
+                        // 如果node是树，则需要计算树中节点新的分布情况
                         ((TreeNode<K, V>) e).split(this, newTab, j, oldCap);
                     } else {
                         // preserve order
@@ -2104,25 +2113,60 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         }
 
         /**
+         * 把建好树的root节点，移动到tab中分支的头节点（这些hash值都是相同的）
+         * <p>
          * Ensures that the given root is the first node of its bin.
          */
         static <K, V> void moveRootToFront(Node<K, V>[] tab, TreeNode<K, V> root) {
+
+            /**
+             * 假设root所在的链表中在tab中3处位置（root本身是一个红黑树，已经包含了a,b,c三个节点）
+             * tab[3] = a -> b -> root -> c
+             * 那么，需要调整成
+             * tab[3] = root -> a ->b -> c
+             * 需要将b和c建立链式关系，root和a建立链式关系
+             *
+             * 以下操作，主要实现该目的
+             */
+
             int n;
             if (root != null && tab != null && (n = tab.length) > 0) {
+
+                // 确定整棵树在tab中的位置
                 int index = (n - 1) & root.hash;
+
+                // 取出节点
                 TreeNode<K, V> first = (TreeNode<K, V>) tab[index];
+
+                // 树的root节点和tab中树的第一个节点不同
                 if (root != first) {
                     Node<K, V> rn;
                     tab[index] = root;
+
                     TreeNode<K, V> rp = root.prev;
-                    if ((rn = root.next) != null)
+
+                    /**
+                     * root从链表中脱离出来，则需要把root.prev和root.next建立联系
+                     */
+
+                    // root存在next节点，把rn赋给rp节点上
+                    if ((rn = root.next) != null) {
                         ((TreeNode<K, V>) rn).prev = rp;
-                    if (rp != null)
+                    }
+
+                    // 如果rp节点存在，那么让rp.next 指向rn，root从链表中脱离
+                    if (rp != null) {
                         rp.next = rn;
-                    if (first != null)
+                    }
+
+                    if (first != null) {
                         first.prev = root;
+                    }
+
+                    // root成为头结点
                     root.next = first;
                     root.prev = null;
+
                 }
                 assert checkInvariants(root);
             }
@@ -2225,8 +2269,9 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          */
         static int tieBreakOrder(Object a, Object b) {
             int d;
-            if (a == null || b == null ||
-                    (d = a.getClass().getName().compareTo(b.getClass().getName())) == 0) {
+            if (a == null
+                    || b == null
+                    || (d = a.getClass().getName().compareTo(b.getClass().getName())) == 0) {
 
                 d = (System.identityHashCode(a) <= System.identityHashCode(b) ? -1 : 1);
 
@@ -2235,22 +2280,36 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         }
 
         /**
+         * 链表-->树
+         * <p>
          * Forms tree of the nodes linked from this node.
          */
         final void treeify(Node<K, V>[] tab) {
             TreeNode<K, V> root = null;
+
             for (TreeNode<K, V> x = this, next; x != null; x = next) {
                 next = (TreeNode<K, V>) x.next;
+
                 x.left = x.right = null;
+
+                // 初始化root节点
                 if (root == null) {
                     x.parent = null;
                     x.red = false;
                     root = x;
                 } else {
+
                     K k = x.key;
                     int h = x.hash;
                     Class<?> kc = null;
+
+                    // 遍历，确定以后的节点在tree中的位置
                     for (TreeNode<K, V> p = root; ; ) {
+                        /**
+                         * dir > 0 左子
+                         * dir < 0 右子
+                         * hash相同时，使用比较器比较key值
+                         */
                         int dir, ph;
                         K pk = p.key;
                         if ((ph = p.hash) > h)
@@ -2263,6 +2322,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                             dir = tieBreakOrder(k, pk);
 
                         TreeNode<K, V> xp = p;
+
+                        // 子树上没有节点，则直接放进去，完成建树，然后平衡树
                         if ((p = (dir <= 0) ? p.left : p.right) == null) {
                             x.parent = xp;
                             if (dir <= 0)
@@ -2275,22 +2336,37 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                     }
                 }
             }
+
             moveRootToFront(tab, root);
         }
 
         /**
+         * 反树化，即树变链表操作
+         * <p>
          * Returns a list of non-TreeNodes replacing those linked from
          * this node.
          */
         final Node<K, V> untreeify(HashMap<K, V> map) {
+
+            /**
+             * hd ： 意义类似于链表头结点
+             * tl ： 临时变量，总是指向下一个节点
+             */
             Node<K, V> hd = null, tl = null;
 
+            /**
+             * 循环完成后，treeNode将变成一个链表
+             */
             for (Node<K, V> q = this; q != null; q = q.next) {
+
+                // replacementNode 是实例函数，必须传入map引用
+                // 该方法就是创建一个node节点，其next引用为null
                 Node<K, V> p = map.replacementNode(q, null);
-                if (tl == null)
+                if (tl == null) {
                     hd = p;
-                else
+                } else {
                     tl.next = p;
+                }
                 tl = p;
             }
             return hd;
@@ -2513,6 +2589,58 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             TreeNode<K, V> hiHead = null, hiTail = null;
             int lc = 0, hc = 0;
 
+            /**
+             * 遍历当前树节点，将node转换成链表操作
+             *  e.hash和原有长度进行与操作（表扩充后）
+             *   1. 如果结果为0，那么该节点没有高位，全在低位，则位置不变
+             *   2. 如果结果不为0，那么该节点有高位，则其在新的表中的位置为index+bit
+             */
+
+            // 以下讲解，在resize方法内部也有说明
+            // 原表长度：16，即bit
+            // case 1，一个节点的hash值为0000 1100，其在原表中的位置
+            //    0000 1100   hash
+            //  & 0000 1111   bit-1
+            //  = 0000 1100  -> 12
+
+            // tab扩充一倍后，长度成为32，其在新表中的位置还是12
+            //    0000 1100
+            //  & 0001 1111
+            //  = 0000 1100  -> 12
+
+            //    0000 1100  hash
+            //  & 0001 0000  bit
+            //  = 0000 0000  -> 0  等于0，不需要变化位置
+
+            // case 2, 一个节点的hash值为0001 1100，其在原表中的位置
+            //    0001 1100   hash
+            //  & 0000 1111   bit-1
+            //  = 0000 1100  -> 12  （出现了hash冲突）
+
+            // tab扩充一倍后，长度成为32，其在新表中的位置：28
+            //    0001 1100
+            //  & 0001 1111
+            //  = 0001 1100  -> 28  （该节点需要重新定位）
+
+            //    0001 1100  hash
+            //  & 0001 0000  bit
+            //  = 0001 0000  -> 16  大于0，需要重新定位
+
+            // case 3, 一个节点的hash值为0011 1100，其在原表中的位置
+            //    0011 1100   hash
+            //  & 0000 1111   bit-1
+            //  = 0000 1100  -> 12  （出现了hash冲突，同时和case2，case1情况冲突）
+
+            // tab扩充一倍后，长度成为32，其在新表中的位置：28
+            //    0011 1100
+            //  & 0001 1111
+            //  = 0001 1100  -> 28  （该节点需要重新定位，由12变成28，但是在新表中和情况2依旧发生冲突，需要组成同一课树）
+
+            //    0011 1100  hash
+            //  & 0001 0000  bit
+            //  = 0001 0000  -> 16  大于0，需要重新定位
+
+
             for (TreeNode<K, V> e = b, next; e != null; e = next) {
                 next = (TreeNode<K, V>) e.next;
 
@@ -2586,6 +2714,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             }
 
             if (loHead != null) {
+
+                // 未超过6个，使用链表存储
                 if (lc <= UNTREEIFY_THRESHOLD) {
                     // 反树化，转为一个链表存储
                     tab[index] = loHead.untreeify(map);
