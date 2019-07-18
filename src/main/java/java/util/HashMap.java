@@ -664,11 +664,17 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      */
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
+        // 方法为final，禁止覆盖
         Node<K, V>[] tab;
         Node<K, V> p;
         int n, i;
 
-        // 扩容tab
+        /**
+         * 1. 初始化或者扩容tab，如果是扩容的话，内部包含节点的重新定位、移动操作，resize方法是核心方法，必须懂
+         * 2. 定位元素在表中的位置，然后存入
+         */
+
+        // tab为空先初始化：resize
         if ((tab = table) == null || (n = tab.length) == 0) {
             n = (tab = resize()).length;
         }
@@ -677,11 +683,13 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          *
          * 2种情况：
          *   1. 计算出的新的位置上没有元素，直接新建node，存入。
-         *   2. 位置上有元素存在，
-         *     2.1 若旧元素的hash和新的key的hash相同，且key值相同，则认为找到了节点e
-         *     2.2 若节点是treeNode，在树中找到节点e（或者 新建节点，e为null）
-         *     2.3 (链表存储方式或者链表转换为树)，如果指定位置上的节点存在，hash相同，key值不同，这个节点不是treeNode（hash必定会相同）
-         *          （思考，hash不一致的情况下，会落到同一个位置么？不会，是否存在hash不同，但是位置相同呢？）
+         *   2. 位置上有元素存在，则hash冲突，但hash值不一定相同
+         *    hash值相同，且key值相同
+         *     2.1 若旧元素的hash和新的key的hash相同，且key值相同，则认为找到了节点e（覆盖操作）
+         *    hash值相同，key值不同或者 hash值不同
+         *     2.2 否则，若节点是treeNode，在树中找到节点e（或者 新建节点，e为null）
+         *     2.3 否则(链表存储方式或者链表转换为树)，指定位置上的节点存在，hash相同，key值不同，或hash不同，这个节点不是treeNode（hash必定会相同）
+         *          （思考，hash不一致的情况下，会落到同一个位置么？会，高位不同，低位相同，则会落到同一个位置，但是此时hash并不相同）
          */
 
         // (长度 - 1) & hash = 元素在数据表中的位置
@@ -774,6 +782,22 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      */
     final Node<K, V>[] resize() {
 
+        /**
+         * 目标：初始化或者扩容tab
+         *
+         * 总体流程：
+         *
+         * 1. 计算新tab的容量
+         *   1.1 如果存在已有数据表（老的容量），则扩充一倍
+         *   1.2 如果老容量不存在，但是老的临界值存在，则新表长度使用老的临界值（显示指定map初始大小时存在这种情况）
+         *   1.3 老容量不存在，且临界值不存在，使用默认参数初始化新表空间
+         *
+         * 2. 老的数据表存在，要执行扩容后的移动操作
+         *   2.1 节点的next节点不存在，表示该位置在老的数据表中不存在hash冲突，则直接计算在新表中的位置，存放节点
+         *   2.2 节点的next节点存在，同时该节点是TreeNode，需要将树中的元素处理一遍，将hash不冲突的元素移到新表中的其他位置，split方法是核心方法，必须懂
+         *   2.3 节点的next节点存在，但节点不是TreeNode，此时是链表，hash冲突并不严重，则遍历链表，计算每个元素在新空间中的位置
+         */
+
         Node<K, V>[] oldTab = table;
         // 旧的容量
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
@@ -797,10 +821,6 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                 newThr = oldThr << 1;
             }
         } else if (oldThr > 0) {
-            /*
-             * 老的容量为空或者=0，但是老的临界值已赋值
-             *   那么新的容量使用老的临界值
-             */
             // initial capacity was placed in threshold
             newCap = oldThr;
         } else {
@@ -835,14 +855,6 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
                 // 取出元素
                 if ((e = oldTab[j]) != null) {
-
-                    /*
-                     * 三种情况：
-                     *   1. node的next节点为null，直接存放到新的数据表
-                     *   2. node为tree结构
-                     *   3. node的next节点不为null，且不是tree结构，还是按照链表的结构存储，但是需要计算元素在新数据表中的位置
-                     */
-
                     // 释放旧有位置，gc
                     oldTab[j] = null;
                     if (e.next == null) {
@@ -857,6 +869,13 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                         Node<K, V> hiHead = null, hiTail = null;
                         Node<K, V> next;
                         do {
+                            // 参考split方法内部的注释
+                            // 如原空间16 ->  0000 1111  (cap-1)  hash & (cap-1) = 元素在表中的位置
+                            //   新空间32 ->  0001 1111  (cap-1)
+                            // 那么   16 ->  0001 0000   (cap)   hash & cap = 节点是否有高位hash，有就需要变动位置，否则不变
+
+                            // 记住：hash & cap          得到的是节点是否需要变动位置
+                            //      hash & (cap - 1)    得到的是节点在表中的位置
 
                             // 注意：不是(e.hash & (oldCap-1));而是(e.hash & oldCap)
 
@@ -1030,7 +1049,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * @param hash       hash for key
      * @param key        the key
      * @param value      the value to match if matchValue, else ignored
-     * @param matchValue if true only remove if value is equal
+     * @param matchValue if true only remove if value is equal true：匹配value值，false：不匹配value值
      * @param movable    if false do not move other nodes while removing
      * @return the node, or null if none
      */
@@ -1039,15 +1058,22 @@ public class HashMap<K, V> extends AbstractMap<K, V>
         Node<K, V>[] tab;
         Node<K, V> p;
         int n, index;
-        if ((tab = table) != null && (n = tab.length) > 0 &&
-                (p = tab[index = (n - 1) & hash]) != null) {
+
+        // 表存在，找到了元素
+        // 1. hash相同，key值相同，视为找到了节点
+        // 2. hash相同key值不同或者hash不同，但是存在next节点，
+        //    2.1 p是TreeNode，遍历找到node节点
+        //    2.2 p是链表，遍历找到node
+        if ((tab = table) != null
+                && (n = tab.length) > 0
+                && (p = tab[index = (n - 1) & hash]) != null) {
             Node<K, V> node = null, e;
             K k;
             V v;
-            if (p.hash == hash &&
-                    ((k = p.key) == key || (key != null && key.equals(k))))
+            if (p.hash == hash
+                    && ((k = p.key) == key || (key != null && key.equals(k)))) {
                 node = p;
-            else if ((e = p.next) != null) {
+            } else if ((e = p.next) != null) {
                 if (p instanceof TreeNode)
                     node = ((TreeNode<K, V>) p).getTreeNode(hash, key);
                 else {
@@ -1062,16 +1088,25 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                     } while ((e = e.next) != null);
                 }
             }
+
+            // node存在 并且 （ 不匹配value 或者 value和node.value相同 或者 value和node.value的值相同）
+            // 1. node是treenode，从树中删除节点，移除tab中的节点
+            // 2. node不是TreeNode，但是和p相同，则直接将原表中的位置上的p节点指向node的next节点，node被删除。
+            // 3. node不是TreeNode，且和p不同（p和node hash冲突），则p.next指向node.next，删除node节点。
             if (node != null && (!matchValue || (v = node.value) == value ||
                     (value != null && value.equals(v)))) {
-                if (node instanceof TreeNode)
+
+                if (node instanceof TreeNode) {
                     ((TreeNode<K, V>) node).removeTreeNode(this, tab, movable);
-                else if (node == p)
+                } else if (node == p) {
                     tab[index] = node.next;
-                else
+                } else {
                     p.next = node.next;
+                }
                 ++modCount;
                 --size;
+
+                // 空方法
                 afterNodeRemoval(node);
                 return node;
             }
@@ -2254,6 +2289,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          * Calls find for root node.
          */
         final TreeNode<K, V> getTreeNode(int h, Object k) {
+            // 父节点不为空，就找root节点 否则 以自身作为root查找
             return ((parent != null) ? root() : this).find(h, k, null);
         }
 
@@ -2399,8 +2435,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                  *   1. 旧节点的hash > 新节点hash，带有赋值ph操作 左孩子节点
                  *   2. 旧节点的hash < 新节点hash，右孩子结点
                  *   3. 两者hash相同，且key值相同，直接返回，在外围进行值覆盖操作
-                 *   4. hash相同，但是key值不同
-                 *
+                 *   4. hash相同，但是key值不同，则比较key值
                  */
                 if ((ph = p.hash) > h) {
                     dir = -1;
@@ -2411,7 +2446,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                     return p;
                 } else if ((kc == null && (kc = comparableClassFor(k)) == null)
                         || (dir = compareComparables(kc, k, pk)) == 0) {
-                    // 走到这里说明：指定key没有实现comparable接口   或者   实现了comparable接口并且和当前节点的键对象比较之后相等（仅限第一次循环）
+                    // 走到这里说明：指定key没有实现comparable接口   或者   实现了comparable接口并且和当前
+                    // 节点的键对象比较之后相等（仅限第一次循环）
 
                     if (!searched) {
                         TreeNode<K, V> q, ch;
@@ -2472,8 +2508,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          * the bin is converted back to a plain bin. (The test triggers
          * somewhere between 2 and 6 nodes, depending on tree structure).
          */
-        final void removeTreeNode(HashMap<K, V> map, Node<K, V>[] tab,
-                                  boolean movable) {
+        final void removeTreeNode(HashMap<K, V> map, Node<K, V>[] tab, boolean movable) {
             int n;
             if (tab == null || (n = tab.length) == 0)
                 return;
@@ -2575,7 +2610,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          * or untreeifies if now too small. Called only from resize;
          * see above discussion about split bits and indices.
          *
-         * @param map   the map
+         * @param map   the map 主要作为引用使用，内部有些方法是实例方法
          * @param tab   the table for recording bin heads 新数据表
          * @param index the index of the table being split 当前元素在旧表中的位置
          * @param bit   the bit of hash to split on 老的数据表的长度
@@ -2590,7 +2625,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
             int lc = 0, hc = 0;
 
             /**
-             * 遍历当前树节点，将node转换成链表操作
+             * 遍历当前树节点，将hash不冲突的节点放到数据表中，hash冲突的，继续留在树内（不从树内删除么？）
              *  e.hash和原有长度进行与操作（表扩充后）
              *   1. 如果结果为0，那么该节点没有高位，全在低位，则位置不变
              *   2. 如果结果不为0，那么该节点有高位，则其在新的表中的位置为index+bit
@@ -2754,7 +2789,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          */
         static <K, V> TreeNode<K, V> rotateLeft(TreeNode<K, V> root, TreeNode<K, V> p) {
             /**
-             * 几个大点要注意：
+             * 几个大点要注意：以p为中心，进行左旋
+             *
              *  1. p的右孩子的左孩子，左旋后，要成为p的右孩子
              *  2. p的右孩子(p.right)成为新的子根，p成为原来p.right的左孩子
              *  3. 左旋后，p.right的父节点，指向原p.parent
@@ -2853,7 +2889,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
 
                 /**
                  * 1. 如果x的父节点不存在，则x就是树的根，直接返回节点x
-                 * 2. 如果x的父节点不是红色（即黑色），或者x的祖父节点不存在（x的父节点红色），则无需调整（x红色，父亲黑色），直接返回root数
+                 * 2. 如果x的父节点不是红色（即黑色），或者x的祖父节点不存在（x的父节点红色），则
+                 * 无需调整（x红色，父亲黑色），直接返回root树
                  */
                 if ((xp = x.parent) == null) {
                     x.red = false;
@@ -2872,7 +2909,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                  *        x是父节点的右孩子
                  *           以xp为点执行左旋，同时：x指向xp，即原x的父节点
                  *           此时，xp指向新的x的父节点（主要是新的x），xpp指向xp的父节点（这些节点都必须存在）
-                 *        如果存在xp节点（新的）
+                 *        如果存在xp节点（新的）: 如果x,xp,xpp都存在，则三者处于同一侧，且是左子关系，以xpp右旋
                  *           则xp节点颜色成为黑色
                  *           如果xpp节点存在，则xpp节点颜色改成红色，以xpp节点进行右旋
                  *
@@ -2884,11 +2921,11 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                  *        x指向xpp，递归下一次算法
                  *    2.2 如果xppl不存在或者xppl存在，但是颜色是黑色
                  *        如果x节点是父节点的左孩子
-                 *          那么x指向xp，做一次右旋
-                 *          xp更新成新的x的父节点（原xpp），xpp更新成xp的父节点（原xppp，假设说法）
-                 *        如果xp存在
-                 *          xp的颜色改成黑色
-                 *          如果xpp存在，xpp的颜色改成红色，以xpp节点执行左旋
+                 *           那么x指向xp，做一次右旋
+                 *           xp更新成新的x的父节点（原xpp），xpp更新成xp的父节点（原xppp，假设说法）
+                 *        如果xp存在：如果x,xp,xpp同时存在，则三者处于同一侧，且是右子关系，以xpp执行左旋
+                 *           xp的颜色改成黑色
+                 *           如果xpp存在，xpp的颜色改成红色，以xpp节点执行左旋
                  */
                 if (xp == (xppl = xpp.left)) {
                     // 存在叔叔节点，且颜色是红色
@@ -2905,6 +2942,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                         // x是父节点的you右孩子
                         if (x == xp.right) {
                             // 以父节点进行左旋
+                            // 左旋后，旧的xp成为旧的x的左子，旧的x成为旧的xpp的左子，下一次遍历时需要以xpp右旋
                             root = rotateLeft(root, x = xp);
 
                             // 上一步，x已经指向xp，那么，xp要随机更新（即，指向原x的xpp）
@@ -2912,7 +2950,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
                             xpp = (xp = x.parent) == null ? null : xp.parent;
                         }
 
-                        // 此时，新的x已经成为新的p的左子，执行右旋
+                        // 若同时存在x,xp,xpp三个节点，则都是左子，
+                        // 此时，新的x已经成为新的xp的左子，执行右旋，
                         if (xp != null) {
                             xp.red = false;
                             if (xpp != null) {
