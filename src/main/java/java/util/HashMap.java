@@ -2789,8 +2789,8 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          */
         static <K, V> TreeNode<K, V> rotateLeft(TreeNode<K, V> root, TreeNode<K, V> p) {
             /**
-             * 几个大点要注意：以p为中心，进行左旋
-             *
+             * 几个大点要注意：
+             *  0. 以p为中心，进行左旋
              *  1. p的右孩子的左孩子，左旋后，要成为p的右孩子
              *  2. p的右孩子(p.right)成为新的子根，p成为原来p.right的左孩子
              *  3. 左旋后，p.right的父节点，指向原p.parent
@@ -2840,25 +2840,26 @@ public class HashMap<K, V> extends AbstractMap<K, V>
          */
         static <K, V> TreeNode<K, V> rotateRight(TreeNode<K, V> root, TreeNode<K, V> p) {
             /**
+             * 以p为点执行右旋
              * l : p.left
              * pp: p.parent
              * lr: p.left.right
              *
-             * 1. p存在，且p的左孩子存在
-             *   1.1 定义lr节点，和p.left同时指向原p.left.right节点，如果节点存在
-             *      lr节点，成为p的孩子
+             * 1. p存在，且p的左孩子存在,l指向p的左子
+             *   1.1 定义lr节点，和p.left同时指向原p.left.right节点
              *   1.2 定义pp节点，和l.parent同时指向原p.parent
-             *      如果节点不存在，则l的颜色改成黑色，直接返回，右旋完成
-             *      如果存在，且p是父节点的右孩子，则pp的右孩子更新成l
-             *      如果存在，且p是父节点的左孩子，则pp的左孩子更新成l
+             *      如果pp节点不存在，则l的颜色改成黑色(意味着，右旋后l成为root）
+             *      如果存在，且p是pp的右孩子，则pp的右孩子更新成l
+             *      如果存在，且p是pp的左孩子，则pp的左孩子更新成l
              *
              *   l.right指向p，成为新的子根
              *   p.parent指向l
              */
             TreeNode<K, V> l, pp, lr;
             if (p != null && (l = p.left) != null) {
-                if ((lr = p.left = l.right) != null)
+                if ((lr = p.left = l.right) != null){
                     lr.parent = p;
+                }
 
                 if ((pp = l.parent = p.parent) == null) {
                     (root = l).red = false;
