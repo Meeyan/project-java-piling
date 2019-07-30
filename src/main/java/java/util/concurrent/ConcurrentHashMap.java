@@ -555,12 +555,16 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     private static int RESIZE_STAMP_BITS = 16;
 
     /**
+     * (1 << (32-16)) - 1 = 65535
+     * <p>
      * The maximum number of threads that can help resize.
      * Must fit in 32 - RESIZE_STAMP_BITS bits.
      */
     private static final int MAX_RESIZERS = (1 << (32 - RESIZE_STAMP_BITS)) - 1;
 
     /**
+     * 固定值16
+     * <p>
      * The bit shift for recording size stamp in sizeCtl.
      */
     private static final int RESIZE_STAMP_SHIFT = 32 - RESIZE_STAMP_BITS;
@@ -672,6 +676,9 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Static utilities -------------- */
 
     /**
+     * hash扰动函数
+     * 该函数返回的结果总是正数。在ConcurrentHashMap中，负数（负hash）有特别的用途
+     * <p>
      * Spreads (XORs) higher bits of hash to lower and also forces top
      * bit to 0(强制首位为0，也就是由负数变成正数).
      * Because the table uses power-of-two masking, sets of
@@ -698,6 +705,10 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     /**
+     * 根据传入的数字，计算出大于等于值c的最小2的n次方数
+     * 5 -> 8           2^3
+     * 9,10,11.. -> 16  2^4
+     * <p>
      * Returns a power of two table size for the given desired capacity.
      * See Hackers Delight, sec 3.2
      */
@@ -770,8 +781,21 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         return (Node<K, V>) U.getObjectVolatile(tab, ((long) i << ASHIFT) + ABASE);
     }
 
-    static final <K, V> boolean casTabAt(Node<K, V>[] tab, int i,
-                                         Node<K, V> c, Node<K, V> v) {
+    /**
+     * cas设置元素
+     *
+     * @param tab hash桶
+     * @param i   位置
+     * @param c   期望值
+     * @param v   新值
+     * @param <K> key
+     * @param <V> value
+     * @return
+     */
+    static final <K, V> boolean casTabAt(Node<K, V>[] tab,
+                                         int i,
+                                         Node<K, V> c,
+                                         Node<K, V> v) {
         return U.compareAndSwapObject(tab, ((long) i << ASHIFT) + ABASE, c, v);
     }
 
@@ -915,6 +939,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         if (initialCapacity < concurrencyLevel)   // Use at least as many bins
             initialCapacity = concurrencyLevel;   // as estimated threads
         long size = (long) (1.0 + (long) initialCapacity / loadFactor);
+        // cap总是2的n次方，sizeCtl也是
         int cap = (size >= (long) MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : tableSizeFor((int) size);
         this.sizeCtl = cap;
     }
@@ -1036,7 +1061,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             throw new NullPointerException();
         }
 
-        // 对hash做散列运算
+        // 对hash做散列运算，结果总是正数
         int hash = spread(key.hashCode());
 
         int binCount = 0;
@@ -1048,8 +1073,9 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
             /**
              * 1. tab不存在，就初始化tab，继续后续循环
-             * 2. 指定位置上元素为空，则存储进去
-             * 3.
+             * 2. 指定位置上元素为空，则cas存储，赋值i，值为元素在tab中的位置，设置成功后，结束遍历，put结束
+             * 3. f(node)在步骤2中找到，但是f的hash处于moved中（负数hash的特殊使用），则当前线程也加入
+             *  到帮助转移的操作中
              */
             if (tab == null || (n = tab.length) == 0) {
                 tab = initTable();
@@ -2263,12 +2289,17 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Table Initialization and Resizing -------------- */
 
     /**
+     * n = 16 32795
+     * n = 32 32794
+     * n = 64 32793
+     * <p>
      * Returns the stamp bits for resizing a table of size n.
      * Must be negative when shifted left by RESIZE_STAMP_SHIFT.
      */
     static final int resizeStamp(int n) {
         /**
          * Integer.numberOfLeadingZeros(n) : 获取前导0的个数
+         * (1 << (RESIZE_STAMP_BITS - 1)) : 1 << 15位，恒定值
          */
         return Integer.numberOfLeadingZeros(n) | (1 << (RESIZE_STAMP_BITS - 1));
     }
@@ -2285,11 +2316,14 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             /**
              * 1. sc < 0 则让出cpu？sizeCtl < 0 表示在初始化或者扩容，所以要yield
              * 2. 否则，将sc（sizeCtl）cas设定为-1，表示在初始化
+             *    设定tab长度16，执行tab赋值操作
+             *
              */
             if ((sc = sizeCtl) < 0)
                 // 线程让出cpu
                 Thread.yield(); // lost initialization race; just spin
             else if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
+                //SIZECTL 改成-1 ，表示在初始化
                 try {
                     // 如果tab不存在
                     if ((tab = table) == null || tab.length == 0) {
@@ -2299,7 +2333,9 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         @SuppressWarnings("unchecked")
                         Node<K, V>[] nt = (Node<K, V>[]) new Node<?, ?>[n];
                         table = tab = nt;
-                        // sc 总是 n的1/4
+                        // sc 总是 n的1/4，为啥？
+                        // n=16  sc=12
+                        // n=32  sc=24
                         sc = n - (n >>> 2);
                     }
                 } finally {
@@ -2370,14 +2406,22 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         int sc;
 
         /**
-         * tab存在，且f是ForwardingNode，并且f中的nextTable存在
+         * 三个条件：
+         *  1. tab存在
+         *  2. f是ForwardingNode
+         *  3. f中的nextTable存在
+         *
          */
         if (tab != null && (f instanceof ForwardingNode) && (nextTab = ((ForwardingNode<K, V>) f).nextTable) != null) {
             int rs = resizeStamp(tab.length);
-            while (nextTab == nextTable && table == tab &&
-                    (sc = sizeCtl) < 0) {
-                if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
-                        sc == rs + MAX_RESIZERS || transferIndex <= 0)
+            /**
+             * sizeCtl = -1时， sc >>> RESIZE_STAMP_SHIFT = 65535
+             */
+            while (nextTab == nextTable && table == tab && (sc = sizeCtl) < 0) {
+                if ((sc >>> RESIZE_STAMP_SHIFT) != rs
+                        || sc == rs + 1
+                        || sc == rs + MAX_RESIZERS
+                        || transferIndex <= 0)
                     break;
                 if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1)) {
                     transfer(tab, nextTab);
@@ -2440,9 +2484,15 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      */
     private final void transfer(Node<K, V>[] tab, Node<K, V>[] nextTab) {
         int n = tab.length, stride;
+        /**
+         * 如果每个tab.length分给每个cpu的数量小于16，则每个cpu的数量就改为16
+         */
         if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
             stride = MIN_TRANSFER_STRIDE; // subdivide range
-        if (nextTab == null) {            // initiating
+
+        if (nextTab == null) {
+            // nextTab不存在，则，初始nextTable，容量为tab的两倍
+            // initiating
             try {
                 @SuppressWarnings("unchecked")
                 Node<K, V>[] nt = (Node<K, V>[]) new Node<?, ?>[n << 1];
@@ -2454,13 +2504,16 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             nextTable = nextTab;
             transferIndex = n;
         }
+
         int nextn = nextTab.length;
         ForwardingNode<K, V> fwd = new ForwardingNode<K, V>(nextTab);
         boolean advance = true;
         boolean finishing = false; // to ensure sweep before committing nextTab
+
         for (int i = 0, bound = 0; ; ) {
             Node<K, V> f;
             int fh;
+
             while (advance) {
                 int nextIndex, nextBound;
                 if (--i >= bound || finishing)
@@ -2477,6 +2530,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     advance = false;
                 }
             }
+
             if (i < 0 || i >= n || i + n >= nextn) {
                 int sc;
                 if (finishing) {
@@ -6592,11 +6646,24 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     private static final long BASECOUNT;
     private static final long CELLSBUSY;
     private static final long CELLVALUE;
+    // array base
     private static final long ABASE;
+    // array shift 偏移量的意思
     private static final int ASHIFT;
 
     static {
         try {
+            /**
+             * 关于Unsafe的理解，参考：https://www.cnblogs.com/mickole/articles/3757278.html
+             *
+             * 重点理解：
+             * Unsafe类中有很多以BASE_OFFSET结尾的常量，比如ARRAY_INT_BASE_OFFSET，ARRAY_BYTE_BASE_OFFSET等，
+             * 这些常量值是通过arrayBaseOffset方法得到的。arrayBaseOffset方法是一个本地方法，可以获取数组第一个
+             * 元素的偏移地址。Unsafe类中还有很多以INDEX_SCALE结尾的常量，比如 ARRAY_INT_INDEX_SCALE ，
+             * ARRAY_BYTE_INDEX_SCALE等，这些常量值是通过arrayIndexScale方法得到的。arrayIndexScale方法
+             * 也是一个本地方法，可以获取数组的转换因子，也就是数组中元素的增量地址。将arrayBaseOffset
+             * 与arrayIndexScale配合使用，可以定位数组中每个元素在内存中的位置。
+             */
             U = sun.misc.Unsafe.getUnsafe();
             Class<?> k = ConcurrentHashMap.class;
             SIZECTL = U.objectFieldOffset
@@ -6610,8 +6677,11 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             Class<?> ck = CounterCell.class;
             CELLVALUE = U.objectFieldOffset
                     (ck.getDeclaredField("value"));
+
             Class<?> ak = Node[].class;
             ABASE = U.arrayBaseOffset(ak);
+
+            // 获取数组元素的大小？
             int scale = U.arrayIndexScale(ak);
             if ((scale & (scale - 1)) != 0)
                 throw new Error("data type scale not a power of two");

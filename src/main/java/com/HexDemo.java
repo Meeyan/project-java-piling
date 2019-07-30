@@ -1,16 +1,20 @@
 package com;
 
-import org.junit.Test;
-
 public class HexDemo {
     public static void main(String[] args) {
-        System.out.println(System.nanoTime());
-        System.out.println(System.currentTimeMillis());
+//        System.out.println(System.nanoTime());
+//        System.out.println(System.currentTimeMillis());
+        System.out.println(resizeStamp(16));
+        System.out.println(resizeStamp(32));
+        System.out.println(27 | 1 << 15);
+        System.out.println(Integer.toBinaryString(-1));
+        System.out.println(-1 >>> 16);
     }
 
-    @Test
     public void test() {
         System.out.println(0x7fffffff);
+
+        System.out.println("-----" + (1 << 16));
 
 
         String abc = "adasdfa";
@@ -64,4 +68,24 @@ public class HexDemo {
         }
         return sb.toString();
     }
+
+    /**
+     * The number of bits used for generation stamp in sizeCtl.
+     * Must be at least 6 for 32bit arrays.
+     */
+    private static int RESIZE_STAMP_BITS = 16;
+
+
+    /**
+     * Returns the stamp bits for resizing a table of size n.
+     * Must be negative when shifted left by RESIZE_STAMP_SHIFT.
+     */
+    static final int resizeStamp(int n) {
+        /**
+         * Integer.numberOfLeadingZeros(n) : 获取前导0的个数
+         * (1 << (RESIZE_STAMP_BITS - 1)) : 1 << 15位，恒定值
+         */
+        return Integer.numberOfLeadingZeros(n) | (1 << (RESIZE_STAMP_BITS - 1));
+    }
+
 }
