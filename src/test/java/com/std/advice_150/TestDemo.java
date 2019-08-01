@@ -13,4 +13,11 @@ public class TestDemo {
         System.out.println(1 << 30);
         System.out.println(Integer.MAX_VALUE);
     }
+
+    @Test
+    public void testUser() {
+        System.out.println(~2);
+    }
+
 }
+

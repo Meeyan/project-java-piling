@@ -1561,8 +1561,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                             p.next = first;
                             TreeNode<K, V> hd = null, tl = null;
                             for (q = p; q != null; q = q.next) {
-                                TreeNode<K, V> t = new TreeNode<K, V>
-                                        (q.hash, q.key, q.val, null, null);
+                                TreeNode<K, V> t = new TreeNode<K, V>(q.hash, q.key, q.val, null, null);
                                 if ((t.prev = tl) == null)
                                     hd = t;
                                 else
@@ -2218,12 +2217,16 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Special Nodes -------------- */
 
     /**
+     * 在tab扩容转换的过程中，一个node会被插入到容器的头结点
+     * <p>
      * A node inserted at head of bins during transfer operations.
      */
     static final class ForwardingNode<K, V> extends Node<K, V> {
+
         final Node<K, V>[] nextTable;
 
         ForwardingNode(Node<K, V>[] tab) {
+            // 初始化hash都是-1，移动中
             super(MOVED, null, null, null);
             this.nextTable = tab;
         }
@@ -2241,7 +2244,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     return null;
                 }
 
-                // 找到了元素e
+                // 找到了元素e，判断hash是否一致
                 for (; ; ) {
                     int eh;
                     K ek;
@@ -2251,7 +2254,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         return e;
                     }
 
-                    // eh怎么还小于0？
+                    // eh < 0 : 说明节点处于transfer中
                     if (eh < 0) {
                         /**
                          *  1. 如果是ForwardingNode，递归查找
@@ -2845,6 +2848,10 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- TreeBins -------------- */
 
     /**
+     * TreeNode使用在容器的头节点为止。TreeBin并不会持有用户的key或者value，相反，
+     * 会指向TreeNode集合和他们的根节点。TreeBin也会维护一把读写锁，在树结构未调整好之前，
+     * 写锁会等待读锁完成。
+     * <p>
      * TreeNodes used at the heads of bins. TreeBins do not hold user
      * keys or values, but instead point to list of TreeNodes and
      * their root. They also maintain a parasitic read-write lock
@@ -2852,9 +2859,13 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * not) to complete before tree restructuring operations.
      */
     static final class TreeBin<K, V> extends Node<K, V> {
+        // root节点
         TreeNode<K, V> root;
+        // 第一个节点（不一定时头节点？）
         volatile TreeNode<K, V> first;
         volatile Thread waiter;
+
+        // 锁状态
         volatile int lockState;
         // values for lockState
         static final int WRITER = 1; // set while holding write lock
@@ -2871,23 +2882,34 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         static int tieBreakOrder(Object a, Object b) {
             int d;
             if (a == null || b == null ||
-                    (d = a.getClass().getName().
-                            compareTo(b.getClass().getName())) == 0)
+                    (d = a.getClass().getName().compareTo(b.getClass().getName())) == 0)
                 d = (System.identityHashCode(a) <= System.identityHashCode(b) ?
                         -1 : 1);
             return d;
         }
 
         /**
+         * 传入一个TreeNode
+         * 1. 将该TreeNode处理一遍，平衡红黑树操作
+         * 2. 找到平衡后的树的root节点
+         * <p>
          * Creates bin with initial set of nodes headed by b.
          */
         TreeBin(TreeNode<K, V> b) {
             super(TREEBIN, null, null, null);
             this.first = b;
             TreeNode<K, V> r = null;
+
             for (TreeNode<K, V> x = b, next; x != null; x = next) {
+
                 next = (TreeNode<K, V>) x.next;
+
+                /**
+                 * todo 为什么时left 和 right都是null？？
+                 * 理解：清除原来该节点上左右子树的关系，依靠next节点做遍历操作
+                 */
                 x.left = x.right = null;
+
                 if (r == null) {
                     x.parent = null;
                     x.red = false;
@@ -2896,6 +2918,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                     K k = x.key;
                     int h = x.hash;
                     Class<?> kc = null;
+
+                    // 从root开始遍历，组装树、平衡树
                     for (TreeNode<K, V> p = r; ; ) {
                         int dir, ph;
                         K pk = p.key;
@@ -2907,19 +2931,25 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                                 (kc = comparableClassFor(k)) == null) ||
                                 (dir = compareComparables(kc, k, pk)) == 0)
                             dir = tieBreakOrder(k, pk);
+
                         TreeNode<K, V> xp = p;
+
+                        // 把x节点插入到xp节点（即r节点）的子树上，关联xp与x的关系
                         if ((p = (dir <= 0) ? p.left : p.right) == null) {
                             x.parent = xp;
                             if (dir <= 0)
                                 xp.left = x;
                             else
                                 xp.right = x;
+
+                            // 平衡红黑树操作
                             r = balanceInsertion(r, x);
                             break;
                         }
                     }
                 }
             }
+
             this.root = r;
             assert checkInvariants(root);
         }
@@ -2945,6 +2975,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         private final void contendedLock() {
             boolean waiting = false;
             for (int s; ; ) {
+                // ~WAITER = -3
+
                 if (((s = lockState) & ~WAITER) == 0) {
                     if (U.compareAndSwapInt(this, LOCKSTATE, s, WRITER)) {
                         if (waiting)
