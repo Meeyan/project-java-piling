@@ -16,6 +16,8 @@ import javax.annotation.PostConstruct;
 
 /**
  * 启动类
+ *
+ * @author zhaojy
  */
 @PropertySource(value = "classpath:my.properties", encoding = Constants.CHAR_SET.UTF_8)
 @ServletComponentScan(basePackages = "com.std")
