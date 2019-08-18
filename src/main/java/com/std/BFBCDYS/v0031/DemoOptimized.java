@@ -1,50 +1,64 @@
 package com.std.BFBCDYS.v0031;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 要求：三个线程依次执行a，b，c
- * 使用：synchronized、wait、notifyAll实现
+ * 使用：ReentrantLock、await、signal实现
+ * 1. 创建锁
+ * 2. 搞三个condition
+ * 3. 依次await和signal
  *
  * @author zhaojy
- * @date 2019/8/14 23:54
+ * @date 2019/8/15 23:54
  */
-public class Demo {
+public class DemoOptimized {
 
     private int signal;
 
-    public synchronized void a() {
+    private Lock lock = new ReentrantLock();
+    private Condition conditionA = lock.newCondition();
+    private Condition conditionB = lock.newCondition();
+    private Condition conditionC = lock.newCondition();
+
+    public void a() {
+        lock.lock();
         while (signal != 0) {
             try {
-                wait();
+                conditionA.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         System.out.println("a");
         signal++;
-        // 叫醒所有线程
-        notifyAll();
+        conditionB.signal();
+        lock.unlock();
     }
 
-    public synchronized void b() {
+    public void b() {
+        lock.lock();
         while (signal != 1) {
             try {
-                wait();
+                conditionB.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         System.out.println("b");
         signal++;
-        // 叫醒所有线程
-        notifyAll();
+        conditionC.signal();
+        lock.unlock();
     }
 
-    public synchronized void c() {
+    public void c() {
+        lock.lock();
         while (signal != 2) {
             try {
-                wait();
+                conditionC.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -52,25 +66,26 @@ public class Demo {
         System.out.println("c");
         System.out.println("");
         signal = 0;
-        notifyAll();
+        conditionA.signal();
+        lock.unlock();
     }
 
     public static void main(String[] args) {
-        Demo demo = new Demo();
-        A a = new A(demo);
-        B b = new B(demo);
-        C c = new C(demo);
+        DemoOptimized demo = new DemoOptimized();
+        AA a = new AA(demo);
+        BB b = new BB(demo);
+        CC c = new CC(demo);
         new Thread(a).start();
         new Thread(b).start();
         new Thread(c).start();
     }
 }
 
-class A implements Runnable {
+class AA implements Runnable {
 
-    private Demo demo;
+    private DemoOptimized demo;
 
-    public A(Demo demo) {
+    public AA(DemoOptimized demo) {
         this.demo = demo;
     }
 
@@ -88,11 +103,11 @@ class A implements Runnable {
 }
 
 
-class B implements Runnable {
+class BB implements Runnable {
 
-    private Demo demo;
+    private DemoOptimized demo;
 
-    public B(Demo demo) {
+    public BB(DemoOptimized demo) {
         this.demo = demo;
     }
 
@@ -109,11 +124,11 @@ class B implements Runnable {
     }
 }
 
-class C implements Runnable {
+class CC implements Runnable {
 
-    private Demo demo;
+    private DemoOptimized demo;
 
-    public C(Demo demo) {
+    public CC(DemoOptimized demo) {
         this.demo = demo;
     }
 
