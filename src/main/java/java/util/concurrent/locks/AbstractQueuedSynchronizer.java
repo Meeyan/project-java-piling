@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
  * value manipulated using methods {@link #getState}, {@link
  * #setState} and {@link #compareAndSetState} is tracked with respect
  * to synchronization.
- *
+ * <p>
  * <p>Subclasses should be defined as non-public internal helper
  * classes that are used to implement the synchronization properties
  * of their enclosing class.  Class
@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * {@link #acquireInterruptibly} that can be invoked as
  * appropriate by concrete locks and related synchronizers to
  * implement their public methods.
- *
+ * <p>
  * <p>This class supports either or both a default <em>exclusive</em>
  * mode and a <em>shared</em> mode. When acquired in exclusive mode,
  * attempted acquires by other threads cannot succeed. Shared mode
@@ -78,7 +78,7 @@ import java.util.concurrent.TimeUnit;
  * one of these modes, but both can come into play for example in a
  * {@link ReadWriteLock}. Subclasses that support only exclusive or
  * only shared modes need not define the methods supporting the unused mode.
- *
+ * <p>
  * <p>This class defines a nested {@link ConditionObject} class that
  * can be used as a {@link Condition} implementation by subclasses
  * supporting exclusive mode for which method {@link
@@ -91,26 +91,26 @@ import java.util.concurrent.TimeUnit;
  * condition, so if this constraint cannot be met, do not use it.  The
  * behavior of {@link ConditionObject} depends of course on the
  * semantics of its synchronizer implementation.
- *
+ * <p>
  * <p>This class provides inspection, instrumentation, and monitoring
  * methods for the internal queue, as well as similar methods for
  * condition objects. These can be exported as desired into classes
  * using an {@code AbstractQueuedSynchronizer} for their
  * synchronization mechanics.
- *
+ * <p>
  * <p>Serialization of this class stores only the underlying atomic
  * integer maintaining state, so deserialized objects have empty
  * thread queues. Typical subclasses requiring serializability will
  * define a {@code readObject} method that restores this to a known
  * initial state upon deserialization.
- *
+ * <p>
  * <h3>Usage</h3>
- *
+ * <p>
  * <p>To use this class as the basis of a synchronizer, redefine the
  * following methods, as applicable, by inspecting and/or modifying
  * the synchronization state using {@link #getState}, {@link
  * #setState} and/or {@link #compareAndSetState}:
- *
+ * <p>
  * <ul>
  * <li> {@link #tryAcquire}
  * <li> {@link #tryRelease}
@@ -125,17 +125,17 @@ import java.util.concurrent.TimeUnit;
  * not block. Defining these methods is the <em>only</em> supported
  * means of using this class. All other methods are declared
  * {@code final} because they cannot be independently varied.
- *
+ * <p>
  * <p>You may also find the inherited methods from {@link
  * AbstractOwnableSynchronizer} useful to keep track of the thread
  * owning an exclusive synchronizer.  You are encouraged to use them
  * -- this enables monitoring and diagnostic tools to assist users in
  * determining which threads hold locks.
- *
+ * <p>
  * <p>Even though this class is based on an internal FIFO queue, it
  * does not automatically enforce FIFO acquisition policies.  The core
  * of exclusive synchronization takes the form:
- *
+ * <p>
  * <pre>
  * Acquire:
  *     while (!tryAcquire(arg)) {
@@ -149,7 +149,7 @@ import java.util.concurrent.TimeUnit;
  * </pre>
  * <p>
  * (Shared mode is similar but may involve cascading signals.)
- *
+ * <p>
  * <p id="barging">Because checks in acquire are invoked before
  * enqueuing, a newly acquiring thread may <em>barge</em> ahead of
  * others that are blocked and queued.  However, you can, if desired,
@@ -160,7 +160,7 @@ import java.util.concurrent.TimeUnit;
  * to return {@code false} if {@link #hasQueuedPredecessors} (a method
  * specifically designed to be used by fair synchronizers) returns
  * {@code true}.  Other variations are possible.
- *
+ * <p>
  * <p>Throughput and scalability are generally highest for the
  * default barging (also known as <em>greedy</em>,
  * <em>renouncement</em>, and <em>convoy-avoidance</em>) strategy.
@@ -177,7 +177,7 @@ import java.util.concurrent.TimeUnit;
  * "fast-path" checks, possibly prechecking {@link #hasContended}
  * and/or {@link #hasQueuedThreads} to only do so if the synchronizer
  * is likely not to be contended.
- *
+ * <p>
  * <p>This class provides an efficient and scalable basis for
  * synchronization in part by specializing its range of use to
  * synchronizers that can rely on {@code int} state, acquire, and
@@ -186,9 +186,9 @@ import java.util.concurrent.TimeUnit;
  * {@link java.util.concurrent.atomic atomic} classes, your own custom
  * {@link java.util.Queue} classes, and {@link LockSupport} blocking
  * support.
- *
+ * <p>
  * <h3>Usage Examples</h3>
- *
+ * <p>
  * <p>Here is a non-reentrant mutual exclusion lock class that uses
  * the value zero to represent the unlocked state, and one to
  * represent the locked state. While a non-reentrant lock
@@ -196,7 +196,7 @@ import java.util.concurrent.TimeUnit;
  * thread, this class does so anyway to make usage easier to monitor.
  * It also supports conditions and exposes
  * one of the instrumentation methods:
- *
+ * <p>
  * <pre> {@code
  * class Mutex implements Lock, java.io.Serializable {
  *
@@ -254,13 +254,13 @@ import java.util.concurrent.TimeUnit;
  *     return sync.tryAcquireNanos(1, unit.toNanos(timeout));
  *   }
  * }}</pre>
- *
+ * <p>
  * <p>Here is a latch class that is like a
  * {@link java.util.concurrent.CountDownLatch CountDownLatch}
  * except that it only requires a single {@code signal} to
  * fire. Because a latch is non-exclusive, it uses the {@code shared}
  * acquire and release methods.
- *
+ * <p>
  * <pre> {@code
  * class BooleanLatch {
  *
@@ -303,7 +303,7 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * Wait queue node class.
-     *
+     * <p>
      * <p>The wait queue is a variant of a "CLH" (Craig, Landin, and
      * Hagersten) lock queue. CLH locks are normally used for
      * spinlocks.  We instead use them for blocking synchronizers, but
@@ -318,7 +318,7 @@ public abstract class AbstractQueuedSynchronizer
      * first in the queue. But being first does not guarantee success;
      * it only gives the right to contend.  So the currently released
      * contender thread may need to rewait.
-     *
+     * <p>
      * <p>To enqueue into a CLH lock, you atomically splice it in as new
      * tail. To dequeue, you just set the head field.
      * <pre>
@@ -326,7 +326,7 @@ public abstract class AbstractQueuedSynchronizer
      * head |      | <---- |     | <---- |     |  tail
      *      +------+       +-----+       +-----+
      * </pre>
-     *
+     * <p>
      * <p>Insertion into a CLH queue requires only a single atomic
      * operation on "tail", so there is a simple atomic point of
      * demarcation from unqueued to queued. Similarly, dequeuing
@@ -334,14 +334,14 @@ public abstract class AbstractQueuedSynchronizer
      * more work for nodes to determine who their successors are,
      * in part to deal with possible cancellation due to timeouts
      * and interrupts.
-     *
+     * <p>
      * <p>The "prev" links (not used in original CLH locks), are mainly
      * needed to handle cancellation. If a node is cancelled, its
      * successor is (normally) relinked to a non-cancelled
      * predecessor. For explanation of similar mechanics in the case
      * of spin locks, see the papers by Scott and Scherer at
      * http://www.cs.rochester.edu/u/scott/synchronization/
-     *
+     * <p>
      * <p>We also use "next" links to implement blocking mechanics.
      * The thread id for each node is kept in its own node, so a
      * predecessor signals the next node to wake up by traversing
@@ -352,7 +352,7 @@ public abstract class AbstractQueuedSynchronizer
      * updated "tail" when a node's successor appears to be null.
      * (Or, said differently, the next-links are an optimization
      * so that we don't usually need a backward scan.)
-     *
+     * <p>
      * <p>Cancellation introduces some conservatism to the basic
      * algorithms.  Since we must poll for cancellation of other
      * nodes, we can miss noticing whether a cancelled node is
@@ -360,13 +360,13 @@ public abstract class AbstractQueuedSynchronizer
      * successors upon cancellation, allowing them to stabilize on
      * a new predecessor, unless we can identify an uncancelled
      * predecessor who will carry this responsibility.
-     *
+     * <p>
      * <p>CLH queues need a dummy header node to get started. But
      * we don't create them on construction, because it would be wasted
      * effort if there is never contention. Instead, the node
      * is constructed and head and tail pointers are set upon first
      * contention.
-     *
+     * <p>
      * <p>Threads waiting on Conditions use the same nodes, but
      * use an additional link. Conditions only need to link nodes
      * in simple (non-concurrent) linked queues because they are
@@ -374,7 +374,7 @@ public abstract class AbstractQueuedSynchronizer
      * inserted into a condition queue.  Upon signal, the node is
      * transferred to the main queue.  A special value of status
      * field is used to mark which queue a node is on.
-     *
+     * <p>
      * <p>Thanks go to Dave Dice, Mark Moir, Victor Luchangco, Bill
      * Scherer and Michael Scott, along with members of JSR-166
      * expert group, for helpful ideas, discussions, and critiques
@@ -1188,13 +1188,13 @@ public abstract class AbstractQueuedSynchronizer
      * Attempts to acquire in exclusive mode. This method should query
      * if the state of the object permits it to be acquired in the
      * exclusive mode, and if so to acquire it.
-     *
+     * <p>
      * <p>This method is always invoked by the thread performing
      * acquire.  If this method reports failure, the acquire method
      * may queue the thread, if it is not already queued, until it is
      * signalled by a release from some other thread. This can be used
      * to implement method {@link Lock#tryLock()}.
-     *
+     * <p>
      * <p>The default
      * implementation throws {@link UnsupportedOperationException}.
      *
@@ -1217,9 +1217,9 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Attempts to set the state to reflect a release in exclusive
      * mode.
-     *
+     * <p>
      * <p>This method is always invoked by the thread performing release.
-     *
+     * <p>
      * <p>The default implementation throws
      * {@link UnsupportedOperationException}.
      *
@@ -1244,12 +1244,12 @@ public abstract class AbstractQueuedSynchronizer
      * Attempts to acquire in shared mode. This method should query if
      * the state of the object permits it to be acquired in the shared
      * mode, and if so to acquire it.
-     *
+     * <p>
      * <p>This method is always invoked by the thread performing
      * acquire.  If this method reports failure, the acquire method
      * may queue the thread, if it is not already queued, until it is
      * signalled by a release from some other thread.
-     *
+     * <p>
      * <p>The default implementation throws {@link
      * UnsupportedOperationException}.
      *
@@ -1278,9 +1278,9 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * Attempts to set the state to reflect a release in shared mode.
-     *
+     * <p>
      * <p>This method is always invoked by the thread performing release.
-     *
+     * <p>
      * <p>The default implementation throws
      * {@link UnsupportedOperationException}.
      *
@@ -1306,7 +1306,7 @@ public abstract class AbstractQueuedSynchronizer
      * respect to the current (calling) thread.  This method is invoked
      * upon each call to a non-waiting {@link ConditionObject} method.
      * (Waiting methods instead invoke {@link #release}.)
-     *
+     * <p>
      * <p>The default implementation throws {@link
      * UnsupportedOperationException}. This method is invoked
      * internally only within {@link ConditionObject} methods, so need
@@ -1505,7 +1505,7 @@ public abstract class AbstractQueuedSynchronizer
      * because cancellations due to interrupts and timeouts may occur
      * at any time, a {@code true} return does not guarantee that any
      * other thread will ever acquire.
-     *
+     * <p>
      * <p>In this implementation, this operation returns in
      * constant time.
      *
@@ -1518,7 +1518,7 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Queries whether any threads have ever contended to acquire this
      * synchronizer; that is if an acquire method has ever blocked.
-     *
+     * <p>
      * <p>In this implementation, this operation returns in
      * constant time.
      *
@@ -1531,7 +1531,7 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Returns the first (longest-waiting) thread in the queue, or
      * {@code null} if no threads are currently queued.
-     *
+     * <p>
      * <p>In this implementation, this operation normally returns in
      * constant time, but may iterate upon contention if other threads are
      * concurrently modifying the queue.
@@ -1585,7 +1585,7 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * Returns true if the given thread is currently queued.
-     *
+     * <p>
      * <p>This implementation traverses the queue to determine
      * presence of the given thread.
      *
@@ -1629,20 +1629,20 @@ public abstract class AbstractQueuedSynchronizer
      * <p>
      * Queries whether any threads have been waiting to acquire longer
      * than the current thread.
-     *
+     * <p>
      * <p>An invocation of this method is equivalent to (but may be
      * more efficient than):
      * <pre> {@code
      * getFirstQueuedThread() != Thread.currentThread() &&
      * hasQueuedThreads()}</pre>
-     *
+     * <p>
      * <p>Note that because cancellations due to interrupts and
      * timeouts may occur at any time, a {@code true} return does not
      * guarantee that some other thread will acquire before the current
      * thread.  Likewise, it is possible for another thread to win a
      * race to enqueue after this method has returned {@code false},
      * due to the queue being empty.
-     *
+     * <p>
      * <p>This method is designed to be used by a fair synchronizer to
      * avoid <a href="AbstractQueuedSynchronizer#barging">barging</a>.
      * Such a synchronizer's {@link #tryAcquire} method should return
@@ -1651,7 +1651,7 @@ public abstract class AbstractQueuedSynchronizer
      * (unless this is a reentrant acquire).  For example, the {@code
      * tryAcquire} method for a fair, reentrant, exclusive mode
      * synchronizer might look like this:
-     *
+     * <p>
      * <pre> {@code
      * protected boolean tryAcquire(int arg) {
      *   if (isHeldExclusively()) {
@@ -2002,14 +2002,14 @@ public abstract class AbstractQueuedSynchronizer
      * Condition implementation for a {@link
      * AbstractQueuedSynchronizer} serving as the basis of a {@link
      * Lock} implementation.
-     *
+     * <p>
      * <p>Method documentation for this class describes mechanics,
      * not behavioral specifications from the point of view of Lock
      * and Condition users. Exported versions of this class will in
      * general need to be accompanied by documentation describing
      * condition semantics that rely on those of the associated
      * {@code AbstractQueuedSynchronizer}.
-     *
+     * <p>
      * <p>This class is Serializable, but all fields are transient,
      * so deserialized conditions have no waiters.
      */
@@ -2056,7 +2056,7 @@ public abstract class AbstractQueuedSynchronizer
                 t = lastWaiter;
             }
 
-            // 创建节点
+            // 创建节点，基于Condition的node
             Node node = new Node(Thread.currentThread(), Node.CONDITION);
 
             // 如果原尾等待节点尾null，那么尾节点指向新加入队列的节点。
@@ -2122,7 +2122,8 @@ public abstract class AbstractQueuedSynchronizer
         private void unlinkCancelledWaiters() {
             /**
              * 1. 取第一个等待节点
-             * 2. 如果第一个节点被取消，那么其后置等待着的引用置为null（准备移除）
+             * 2. 如果第一个节点不是Condition等待节点，那么该节点的后置等待节点的引用指向null（准备移除）
+             *      （注意：每一个node都会持有后置等待节点的引用）
              *   2.1 如果上一个节点（trail）为null，那么后置等待节点（next）成为新的首节点
              *   2.2 如果上一个节点（trail）不为null，那么前置等待节点的下一个节点引用为当
              *      前节点的后置等待节点（1 --> 3，2为当前待遍历节点）
@@ -2131,7 +2132,32 @@ public abstract class AbstractQueuedSynchronizer
              */
             Node t = firstWaiter;
 
-            // 上一个节点
+            /**
+             * trial的作用：总是指向队列中等待Condition的节点，从头到尾，依次变化，直到队列尾部。
+             *  因为lastWaiter总是指向队列的尾节点，所以一旦发现尾节点实效，需要及时更新lastWaiter
+             *
+             *  举例：
+             *  一个队列：case1
+             *    1  == condition 第一次：trial 指向1
+             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
+             *    3  == condition 第三次：trial指向3
+             *    4  == condition 第四次：trial指向4，删除了2节点
+             *
+             *  一个队列：case2
+             *    1  == condition 第一次：trial 指向1
+             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
+             *    3  != condition 第三次：trial为1，1.nextWaiter指向4
+             *    4  == condition 第四次：trial指向4，删除了2，3节点
+             *
+             *  一个队列：case3
+             *    1  == condition 第一次：trial 指向1
+             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
+             *    3  != condition 第三次：trial为1，1.nextWaiter指向4
+             *    4  == condition 第四次：trial指向4
+             *    5  != condition 第五次：trial为4，4.nextWaiter指向next，next为null，那么lastWaiter指向trial（4）
+             *  ...
+             */
+            // 上一个有效的等待节点
             Node trail = null;
             while (t != null) {
                 Node next = t.nextWaiter;
@@ -2168,6 +2194,7 @@ public abstract class AbstractQueuedSynchronizer
          * @throws IllegalMonitorStateException if {@link #isHeldExclusively}
          *                                      returns {@code false}
          */
+        @Override
         public final void signal() {
 
             // 判断当前线程是否拥有锁
