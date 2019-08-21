@@ -11,6 +11,7 @@ public class JoinDemo {
         System.out.println("method a process - start");
         System.out.println(Thread.currentThread().getName());
         System.out.println(joinThread.getName());
+        // start方法同样会获取锁，线程异步启动完成后，会立即释放锁，所以下面的join方法能立即拿到锁
         joinThread.start();
         try {
             /**
