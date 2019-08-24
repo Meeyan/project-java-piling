@@ -806,6 +806,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Fields -------------- */
 
     /**
+     * 数据容器，归属与ConcurrentHashMap，而不是node，但是table的每一个桶都是node
+     * <p>
      * The array of bins. Lazily initialized upon first insertion.
      * Size is always a power of two. Accessed directly by iterators.
      */
@@ -2426,6 +2428,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         || sc == rs + MAX_RESIZERS
                         || transferIndex <= 0)
                     break;
+
+                // 所以看，sc+1 = 在做transfer的线程数，如果sc<0,那么线程数为（sc+1) 或者 (-sc-1)
                 if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1)) {
                     transfer(tab, nextTab);
                     break;
@@ -2482,10 +2486,18 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
     }
 
     /**
+     * stride：步幅的意思
+     * <p>
      * Moves and/or copies the nodes in each bin to new table. See
      * above for explanation.
      */
     private final void transfer(Node<K, V>[] tab, Node<K, V>[] nextTab) {
+
+        /**
+         * tab: hashMap本身的数据桶，未扩容前
+         * nextTab: 新桶，原tab长度的2倍
+         */
+
         int n = tab.length, stride;
         /**
          * 如果每个tab.length分给每个cpu的数量小于16，则每个cpu的数量就改为16
@@ -2493,6 +2505,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
             stride = MIN_TRANSFER_STRIDE; // subdivide range
 
+        // 如果nextTab不存在，初始化nextTab，长度为tab的2倍
         if (nextTab == null) {
             // nextTab不存在，则，初始nextTable，容量为tab的两倍
             // initiating
@@ -2524,10 +2537,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                 else if ((nextIndex = transferIndex) <= 0) {
                     i = -1;
                     advance = false;
-                } else if (U.compareAndSwapInt
-                        (this, TRANSFERINDEX, nextIndex,
-                                nextBound = (nextIndex > stride ?
-                                        nextIndex - stride : 0))) {
+                } else if (U.compareAndSwapInt(this, TRANSFERINDEX, nextIndex,
+                        nextBound = (nextIndex > stride ? nextIndex - stride : 0))) {
                     bound = nextBound;
                     i = nextIndex - 1;
                     advance = false;
@@ -2593,8 +2604,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                             int lc = 0, hc = 0;
                             for (Node<K, V> e = t.first; e != null; e = e.next) {
                                 int h = e.hash;
-                                TreeNode<K, V> p = new TreeNode<K, V>
-                                        (h, e.key, e.val, null, null);
+                                TreeNode<K, V> p = new TreeNode<K, V>(h, e.key, e.val, null, null);
                                 if ((h & n) == 0) {
                                     if ((p.prev = loTail) == null)
                                         lo = p;
