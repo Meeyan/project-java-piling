@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * CountDownLatch 的使用
+ * 给CountDownLatch一个初始数（大于0），等CountDownLatch等于0时，标识任务完成
  *
  * @author zhaojy
  * @date 2019/9/6 23:29
@@ -50,11 +51,8 @@ public class CountFileSum {
 
         for (int i = 0; i < lineCount; i++) {
             final int j = i;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    fileSum.calc(allLines.get(j), j, latch);
-                }
+            new Thread(() -> {
+                fileSum.calc(allLines.get(j), j, latch);
             }).start();
         }
 

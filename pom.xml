@@ -9,7 +9,7 @@
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.study.javaMutiThreads</groupId>
+    <groupId>com.study.java</groupId>
     <artifactId>javaStudy</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
