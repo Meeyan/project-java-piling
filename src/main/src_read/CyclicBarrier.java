@@ -273,9 +273,11 @@ public class CyclicBarrier {
                     }
                 }
 
+                // 如果被中断了，则抛出异常
                 if (g.broken)
                     throw new BrokenBarrierException();
 
+                // 已经被重置了，则认为执行完毕
                 if (g != generation)
                     return index;
 
