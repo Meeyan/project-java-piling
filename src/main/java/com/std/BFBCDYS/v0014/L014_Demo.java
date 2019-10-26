@@ -1,4 +1,4 @@
-package com.std.yeziyuan;
+package com.std.BFBCDYS.v0014;
 
 /**
  * synchronized 关键字的解读

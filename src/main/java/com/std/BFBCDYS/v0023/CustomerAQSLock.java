@@ -1,4 +1,4 @@
-package com.std.yeziyuan.L023;
+package com.std.BFBCDYS.v0023;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
