@@ -381,6 +381,17 @@ public class FutureTask<V> implements RunnableFuture<V> {
      */
     private void finishCompletion() {
         // assert state > COMPLETING;
+        /**
+         * 目的：遍历队列，全部唤醒
+         *  1. 获取当前处于等待节点WaitNode
+         *   1.1 如果等待偏移量不是，继续for循环
+         *   1.2 如果等待偏移量是q，则把等待偏移量设置为null
+         *      获取当前节点的等待线程
+         *      唤醒线程t（unpark)
+         *      获取拿到下一个等待节点，q指向下一个等待节点
+         *      继续，直到next为null，唤醒所有的node完成
+         *
+         */
         for (WaitNode q; (q = waiters) != null; ) {
             if (UNSAFE.compareAndSwapObject(this, waitersOffset, q, null)) {
                 for (; ; ) {
