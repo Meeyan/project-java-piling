@@ -65,6 +65,9 @@ public class Mutex implements Lock {
         }
     }
 
+    /**
+     * 仅需要将操作代理到sync上即可
+     */
     private final Sync sync = new Sync();
 
 
