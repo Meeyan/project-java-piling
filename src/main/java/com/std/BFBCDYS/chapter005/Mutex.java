@@ -23,7 +23,11 @@ public class Mutex implements Lock {
          */
         @Override
         protected boolean tryAcquire(int arg) {
-            return getState() == 1;
+            if (compareAndSetState(0, 1)) {
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -34,21 +38,6 @@ public class Mutex implements Lock {
          */
         @Override
         protected boolean tryRelease(int arg) {
-            if (compareAndSetState(0, 1)) {
-                setExclusiveOwnerThread(Thread.currentThread());
-                return true;
-            }
-
-            return false;
-        }
-
-        /**
-         * 释放锁，将状态设置为0
-         *
-         * @return
-         */
-        @Override
-        protected boolean isHeldExclusively() {
             if (getState() == 0) {
                 throw new IllegalMonitorStateException();
             }
@@ -58,8 +47,17 @@ public class Mutex implements Lock {
 
             // 释放锁
             setState(0);
-
             return true;
+        }
+
+        /**
+         * 释放锁，将状态设置为0
+         *
+         * @return
+         */
+        @Override
+        protected boolean isHeldExclusively() {
+            return getState() == 1;
         }
 
         Condition newCondition() {
