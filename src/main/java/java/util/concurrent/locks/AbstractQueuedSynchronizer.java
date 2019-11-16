@@ -288,6 +288,7 @@ import java.util.concurrent.TimeUnit;
  * @author Doug Lea
  * @since 1.5
  */
+@SuppressWarnings("all")
 public abstract class AbstractQueuedSynchronizer
         extends AbstractOwnableSynchronizer
         implements java.io.Serializable {
@@ -602,7 +603,7 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * 用于快速自旋而不是使用timed park（阻塞）的纳秒总数。一种粗略的预估旨在改善程序在段时间内的响应能力。
-     * （理解：在小鱼1000纳秒的区间内，程序不在做park操作，而是直接自旋。主要用于控制是自旋或者park）
+     * （理解：在小于1000纳秒的区间内，程序不再做park操作，而是直接自旋。主要用于控制是自旋或者park）
      * <p>
      * The number of nanoseconds for which it is faster to spin
      * rather than to use timed park. A rough estimate suffices
@@ -690,11 +691,18 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 唤醒后继者
      * Wakes up node's successor, if one exists.
      *
      * @param node the node
      */
     private void unparkSuccessor(Node node) {
+        /**
+         * 1. 如果node的状态<0（Signal，Condition，Propagate）,则将其设置为0（初始状态）
+         * 2. 如果node存在next节点，并且next节点已经处于取消状态，则从队尾向上遍历，找到离node最近的一个不是处于cancle状态节点，然后unpark
+         * 3. 如果node的next节点存在，但并不是处于cancle状态，直接unpark
+         * 4. 如果node的next节点不存在，方法结束
+         */
         /*
          * If status is negative (i.e., possibly needing signal) try
          * to clear in anticipation of signalling.  It is OK if this
@@ -718,9 +726,9 @@ public abstract class AbstractQueuedSynchronizer
 
             s = null;
 
-            // todo 思考：为什么不从头部开始拿呢？
+            //  思考：为什么不从头部开始拿呢？ 因为调用unparkSuccessor()方法的节点可能是Head节点，其不会再有前置节点。
 
-            // 从队尾开始遍历，搞到最早进入队列的有效的节点，然后unpark
+            // 从队尾开始遍历，搞到离node最近的一个有效的节点，将其unpark
             for (Node t = tail; t != null && t != node; t = t.prev) {
                 if (t.waitStatus <= 0) {
                     s = t;
@@ -796,8 +804,11 @@ public abstract class AbstractQueuedSynchronizer
          * racing acquires/releases, so most need signals now or soon
          * anyway.
          */
-        if (propagate > 0 || h == null || h.waitStatus < 0 ||
-                (h = head) == null || h.waitStatus < 0) {
+        if (propagate > 0
+                || h == null
+                || h.waitStatus < 0
+                || (h = head) == null
+                || h.waitStatus < 0) {
             Node s = node.next;
             if (s == null || s.isShared())
                 doReleaseShared();
@@ -831,6 +842,7 @@ public abstract class AbstractQueuedSynchronizer
         // predNext is the apparent node to unsplice. CASes below will
         // fail if not, in which case, we lost race vs another cancel
         // or signal, so no further action is necessary.
+        // predNext一定是cancle的节点
         Node predNext = pred.next;
 
         // Can use unconditional write instead of CAS here.
@@ -838,6 +850,13 @@ public abstract class AbstractQueuedSynchronizer
         // Before, we are free of interference from other threads.
         node.waitStatus = Node.CANCELLED;
 
+        /**
+         * 1. 如果node是tail节点，并且CAS设置新的Tail成功，那么将pred的next节点设置为null
+         * 2. CAS设置tail节点失败（会失败么？不会） 或者 node不是tail节点
+         *   case 2.1 pred不是head节点 且 pred处于Signal(或者被设置为Signal)状态 且 pred的线程存在，那么把pred的next节点指向node的next节点，
+         *      node节点出队。
+         *   case 2.2 ：case2.1失败，则
+         */
         // If we are the tail, remove ourselves.
         if (node == tail && compareAndSetTail(node, pred)) {
             compareAndSetNext(pred, predNext, null);
@@ -870,14 +889,21 @@ public abstract class AbstractQueuedSynchronizer
      * Returns true if thread should block. This is the main signal
      * control in all acquire loops.  Requires that pred == node.prev.
      *
-     * @param pred node's predecessor holding status
-     * @param node the node
+     * @param pred node's predecessor holding status 当前节点的前任节点
+     * @param node the node 当前节点
      * @return {@code true} if thread should block
      */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         // 前一个节点的状态
         int ws = pred.waitStatus;
-
+        /**
+         * 1. 前置节点状态
+         *   1.1 为 Node.SIGNAL ：意味着前置节点处于被通知状态，后置节点的也需要进入park状态，等待前置节点主动唤醒
+         *   1.2 status > 0 (意味着前置节点被取消) ：那么需要从当前节点开始向前遍历，找到最近的一个不是处于cancle状态的节点，然后移除当前节点
+         *      的前置节点(可能是多个连续的处于cancle状态节点)。
+         *   1.3 status <= 0 (初始状态 或者 等待Condition 或者 Propagate) : 前置节点只能是初始状态（为什么？），然后前置节点设置为被通知状态
+         *      即前置节点不是处于被通知状态，同时没有被取消，则将其设置为被通知状态
+         */
 
         // 如果前任节点处于：需要唤醒后继节点 的状态，那么后继节点可以park（即：后置节点将进入park状态，直到前置节点唤醒后置节点）
         if (ws == Node.SIGNAL) {
@@ -891,7 +917,7 @@ public abstract class AbstractQueuedSynchronizer
         // 前置节点是否被取消？
         if (ws > 0) {
             /*
-             * 前任节点被取消
+             * 前任节点被取消后，需要将其从队列里移出去
              * Predecessor was cancelled. Skip over predecessors and
              * indicate retry.
              */
@@ -955,18 +981,29 @@ public abstract class AbstractQueuedSynchronizer
         try {
             // 是否被中断？
             boolean interrupted = false;
-            for (; ; ) {
 
+            /**
+             * 如果当前节点的前一个节点为head节点？
+             *    是：则试着加锁
+             *         加锁成功：则当前节点成为新的head节点，没有被中断，直接返回。
+             *         加锁失败：
+             *           step 3: shouldParkAfterFailedAcquire()内部逻辑：
+             *             1. 前置节点处于Signal状态，意味着前置节点等待通知被唤醒，那么当前节点需要进入park等待。
+             *             2. 前置节点被取消(status>0)，则向前遍历，找到最近的一个不是处于cancle状态的节点，移除
+             *                  前置节点（处于cancle状态，可能是多个连续的处于cancle状态的节点）
+             *             3. 前置节点处于initial状态，则设置其处于Signal状态，当前节点park
+             *           parkAndCheckInterrupt(): 如果shouldParkAfterFailedAcquire返回true，则当前节点开始park，然后检查是否被中断
+             *
+             *    否：同step 3
+             *
+             * ****** 注意：
+             * 1. 只有前置节点(pred)处于Signal时，当前节点(node)才能park。如果当前node时tail节点，那么新加入的节点，也会走到
+             *  shouldParkAfterFailedAcquire内部，将当前node设置为Signal状态，新的tail节点会随即进入park状态。一次类推。
+             */
+            for (; ; ) {
                 // 当前节点的前一个节点
                 final Node p = node.predecessor();
 
-                /**
-                 * 如果前一个节点为head节点？
-                 *    是：则试着加锁
-                 *          加锁成功：则当前节点成为新的head节点，没有被中断，直接返回。
-                 *          加锁失败：看是否需要park
-                 *    否：看是否需要park
-                 */
                 if (p == head && tryAcquire(arg)) {
                     setHead(node);
                     // help GC
@@ -976,14 +1013,18 @@ public abstract class AbstractQueuedSynchronizer
                 }
 
                 /**
-                 * 前任节点不是head节点或者抢锁失败。
+                 * 前任节点不是head节点 或者 抢锁失败。
                  */
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt()) {
                     interrupted = true;
                 }
             }
         } finally {
+
             if (failed) {
+                /**
+                 * 什么时候才能走到这个分支里？
+                 */
                 cancelAcquire(node);
             }
         }
@@ -1060,7 +1101,8 @@ public abstract class AbstractQueuedSynchronizer
                     return false;
                 }
 
-                // 未超时，
+                // 未超时，如果需要park，则 nanosTimeout 大于1000，直接park，
+                // 换句话说，如果 nanosTimeout <= 1000, 则直接使用自旋一直尝试，直到拿到锁 或者 超时
                 if (shouldParkAfterFailedAcquire(p, node) && nanosTimeout > spinForTimeoutThreshold) {
                     // 等待
                     LockSupport.parkNanos(this, nanosTimeout);
@@ -1083,6 +1125,7 @@ public abstract class AbstractQueuedSynchronizer
      * @param arg the acquire argument
      */
     private void doAcquireShared(int arg) {
+        // 构造节点
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
@@ -1100,8 +1143,7 @@ public abstract class AbstractQueuedSynchronizer
                         return;
                     }
                 }
-                if (shouldParkAfterFailedAcquire(p, node) &&
-                        parkAndCheckInterrupt())
+                if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     interrupted = true;
             }
         } finally {
@@ -1411,6 +1453,7 @@ public abstract class AbstractQueuedSynchronizer
         if (tryRelease(arg)) {
             Node h = head;
             if (h != null && h.waitStatus != 0) {
+                // 唤醒后继者
                 unparkSuccessor(h);
             }
             return true;
