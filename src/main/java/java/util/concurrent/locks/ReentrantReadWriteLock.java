@@ -291,7 +291,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         static final int MAX_COUNT = (1 << SHARED_SHIFT) - 1;
 
         /**
-         * 65535
+         * 65535,其二进制形式：1111111111111111
          */
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
