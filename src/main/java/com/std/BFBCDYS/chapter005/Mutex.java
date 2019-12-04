@@ -7,6 +7,7 @@ import java.util.concurrent.locks.Lock;
 
 /**
  * 自定义同步器
+ * 同一时刻只有一个线程可以占用
  *
  * @author zhaojy
  * @date 2019/11/11 23:36
@@ -48,6 +49,11 @@ public class Mutex implements Lock {
             // 释放锁
             setState(0);
             return true;
+        }
+
+        @Override
+        protected int tryAcquireShared(int arg) {
+            return super.tryAcquireShared(arg);
         }
 
         /**

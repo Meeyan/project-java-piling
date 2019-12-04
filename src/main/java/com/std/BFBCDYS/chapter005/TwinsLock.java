@@ -21,18 +21,27 @@ public class TwinsLock implements Lock {
             if (count <= 0) {
                 throw new IllegalArgumentException("count must by large than zero.");
             }
+
+            // 设置state为初始值，重点
             setState(count);
         }
 
+        /**
+         * 书中给的例子，此处的for循环会占用大量的cpu资源
+         * 可以优化为交给等待队列实现
+         *
+         * @param reduceCount int
+         * @return int
+         */
         @Override
         protected int tryAcquireShared(int reduceCount) {
-            for (; ; ) {
-                int current = getState();
-                int newCount = current - reduceCount;
-                if (newCount >= 0 && compareAndSetState(current, newCount)) {
-                    return newCount;
-                }
+            int current = getState();
+            int newCount = current - reduceCount;
+            if (newCount >= 0 && compareAndSetState(current, newCount)) {
+                return newCount;
             }
+            System.out.println(Thread.currentThread().getName() + "---- next acquire");
+            return -1;
         }
 
         @Override
@@ -43,6 +52,7 @@ public class TwinsLock implements Lock {
                 if (compareAndSetState(current, newCount)) {
                     return true;
                 }
+                // System.out.println(Thread.currentThread().getName() + "---- next release");
             }
         }
 
@@ -55,7 +65,7 @@ public class TwinsLock implements Lock {
 
     @Override
     public void lock() {
-        sync.tryAcquireShared(1);
+        sync.acquireShared(1);
     }
 
     @Override
@@ -75,7 +85,7 @@ public class TwinsLock implements Lock {
 
     @Override
     public void unlock() {
-        sync.tryReleaseShared(1);
+        sync.releaseShared(1);
     }
 
     @Override

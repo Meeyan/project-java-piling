@@ -104,6 +104,7 @@ import java.util.concurrent.TimeUnit;
  * @author Doug Lea
  * @since 1.5
  */
+@SuppressWarnings("all")
 public class ReentrantLock implements Lock, java.io.Serializable {
     private static final long serialVersionUID = 7373984872572414699L;
     /**
@@ -218,6 +219,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
+     * 非公平锁
      * Sync object for non-fair locks
      */
     static final class NonfairSync extends Sync {
@@ -252,6 +254,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
+     * 公平锁
      * Sync object for fair locks
      */
     static final class FairSync extends Sync {
@@ -267,6 +270,15 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          */
         @Override
         protected final boolean tryAcquire(int acquires) {
+            /**
+             * 公平锁的获取流程
+             * 1. 如果state为0，表示没有没有加锁，遍历队列看看是否有排队的节点
+             *   1.1 没有排队的节点，尝试cas加锁，成功则视为获取到了锁
+             *   1.2 有排队节点，则直接返回false
+             * 2. state != 0，意味着有线程拿到了锁，判断当前拿到锁的线程和尝试加锁的线程是否相同
+             *   2.1 和请求加锁线程相同，此种情况下是锁重入，更新state
+             *   2.2 和请求加锁线程不同，直接返回false
+             */
             final Thread current = Thread.currentThread();
             int c = getState();
             if (c == 0) {

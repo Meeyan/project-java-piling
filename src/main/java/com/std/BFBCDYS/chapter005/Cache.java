@@ -12,14 +12,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @date 2019-07-01 20:19
  */
 public class Cache {
-    static Map<String, Object> map = new HashMap<>();
 
-    static ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private static Map<String, Object> map = new HashMap<>();
 
-    static Lock r = rwl.readLock();
+    private static ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
-    static Lock w = rwl.writeLock();
+    private static Lock r = rwl.readLock();
 
+    private static Lock w = rwl.writeLock();
+
+    /**
+     * 读取内容
+     *
+     * @param key String
+     * @return Object
+     */
     public static final Object get(String key) {
         r.lock();
         try {
@@ -29,6 +36,14 @@ public class Cache {
         }
     }
 
+    /**
+     * 设置值
+     * 设置新值，返回旧值
+     *
+     * @param key    String
+     * @param object Object
+     * @return Object
+     */
     public static final Object put(String key, Object object) {
         w.lock();
         try {
@@ -38,6 +53,9 @@ public class Cache {
         }
     }
 
+    /**
+     * 清空内容
+     */
     public static final void clear() {
         w.lock();
         try {

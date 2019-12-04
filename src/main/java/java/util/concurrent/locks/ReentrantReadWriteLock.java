@@ -213,8 +213,8 @@ import java.util.concurrent.TimeUnit;
  * @author Doug Lea
  * @since 1.5
  */
-public class ReentrantReadWriteLock
-        implements ReadWriteLock, java.io.Serializable {
+@SuppressWarnings("all")
+public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializable {
     private static final long serialVersionUID = -6992448646407690164L;
     /**
      * Inner class providing readlock
@@ -476,7 +476,7 @@ public class ReentrantReadWriteLock
                     return false;
                 }
 
-                // 如果写锁数量超过最大值，报错。
+                // 如果申请写锁数量超过最大值，报错。
                 if (w + exclusiveCount(acquires) > MAX_COUNT) {
                     throw new Error("Maximum lock count exceeded");
                 }

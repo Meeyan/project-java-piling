@@ -27,6 +27,7 @@ public class FutureDemo {
 
         FutureTask<Integer> futureTask = new FutureTask<>(callable);
         new Thread(futureTask).start();
+        System.out.println("我去干点别的去");
         System.out.println(futureTask.get());
     }
 }
