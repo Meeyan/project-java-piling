@@ -345,6 +345,10 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         private transient ThreadLocalHoldCounter readHolds;
 
         /**
+         * 使用目的：当只有一个线程获取读锁时，不用查找ThreadLocal，直接可以使用，
+         * 一定程度上可以提高效率。
+         * <p>
+         * <p>
          * The hold count of the last thread to successfully acquire
          * readLock. This saves ThreadLocal lookup in the common case
          * where the next thread to release is the last one to
@@ -417,6 +421,11 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          */
 
         protected final boolean tryRelease(int releases) {
+            /**
+             * 1. 有其他写线程占锁，则抛异常
+             * 2. [写锁在低位]如果释放后写锁数量为0，则设置写锁线程为null
+             * 3. state更新
+             */
             if (!isHeldExclusively()) {
                 throw new IllegalMonitorStateException();
             }
@@ -439,7 +448,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
              *      2.1 如果写锁数量==0，表示有其他线程在读，加写锁失败，fail（读写排斥）
              *      2.2 如果写锁数量!=0，表示有写锁，判断加锁线程和当前线程关系。
              *         2.2.1 加锁线程和当前线程不同，fail，（其他线程在使用写锁）
-             *         2.2.2 枷锁线程和当前线程相同，success，返回true，结束加锁流程。
+             *         2.2.2 加锁线程和当前线程相同，success，返回true，结束加锁流程。
              */
 
             /*
@@ -502,6 +511,17 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         }
 
         protected final boolean tryReleaseShared(int unused) {
+            /**
+             * 1. 当前线程为firstReader
+             *   1.1 firstReaderHoldCount == 1 ，当前线程共抢了一次锁，firstReader置为null
+             *   1.2 firstReaderHoldCount != 1，当前线程多次抢锁，firstReaderHoldCount--
+             * 2. 当前线程不是firstReader
+             *   step1 搞到rh
+             *   step2 如果rh.count <= 1,移除ThreadLocal中的rh
+             *   step3 --rh.count，多次抢锁
+             *
+             * 3. for循环，重复尝试CAS更新状态，更新成功后，直接return
+             */
             Thread current = Thread.currentThread();
             if (firstReader == current) {
                 // assert firstReaderHoldCount > 0;
@@ -521,6 +541,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
                 }
                 --rh.count;
             }
+
             for (; ; ) {
                 int c = getState();
                 int nextc = c - SHARED_UNIT;
@@ -539,6 +560,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
 
         @Override
         protected final int tryAcquireShared(int unused) {
+
             /*
              * Walkthrough:
              * 1. If write lock held by another thread, fail.
@@ -556,7 +578,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
              */
             Thread current = Thread.currentThread();
             int c = getState();
-            // 如果排它锁数量部位0 且 当前线程和排他线程不同，返回-1，即fail
+            // 如果排它锁数量不为0 且 当前线程和排他线程不同，返回-1，即fail
             if (exclusiveCount(c) != 0 && getExclusiveOwnerThread() != current) {
                 return -1;
             }
@@ -564,7 +586,26 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
             // 获取读锁数量
             int r = sharedCount(c);
 
-            // 读锁不阻塞，
+            /**
+             * 1. 如果有写锁，并且线程不是当前线程，则视为失败
+             * 2. 读锁不需要block，cas设置状态成功
+             *    2.1 读锁数量为0，则firstReader标记为当前线程
+             *    2.2 读锁数量不为0 且 当前线程为firstReader，则firstReaderHoldCount++
+             *    2.3 读锁数量不为0 且 当前线程不是firstReader
+             *      2.3.1 缓存的rh不存在或者不属于当前线程的，则初始化一个。
+             *      2.3.2 缓存的rh存在，属于当前读线程，但是count为0，则将rh写入ThreadLocal中
+             *      至此：每个线程都有属于自己的rh
+             *      rh.count++,表示获取读锁一次
+             *      结束获取流程
+             *
+             * 3. 读锁需要block 或者 锁数量超值 或者 CAS抢锁失败，见「fullTryAcquireShared」
+             */
+
+            /**
+             * readerShouldBlock：
+             *   1. 公平锁依赖队列是否有节点
+             *   2. 非公平锁：
+             */
             // state 小于极限值
             // cas设置成功
             if (!readerShouldBlock() && r < MAX_COUNT && compareAndSetState(c, c + SHARED_UNIT)) {
@@ -592,6 +633,35 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * and reentrant reads not dealt with in tryAcquireShared.
          */
         final int fullTryAcquireShared(Thread current) {
+
+            /**
+             * 这是一个死循环
+             *
+             * 1. 如果写锁存在
+             *   1.1 写锁不是当前线程，则抢锁失败，直接return。
+             *   1.2 继续后面的流程，继续「3，4」流程
+             * 2. 写锁不存在，读锁应该block
+             *   2.1 如果当前线程是firstReader，那么当前线程不需要block，继续「3，4」流程
+             *   2.2 如果当前线程不是firstReader
+             *       step.1 rh为null，则取cachedHoldCounter为rh
+             *        step.1.1 rh为null 或者 rh不属于当前线程，取出（或初始化）当前线程的rh
+             *          若：当前线程的rh.count==0，则当前线程的rh必须被移除（读线程不是firstReader，需要block）
+             *       step.2 rh.count为0，则读线程抢锁失败，结束for，直接return。
+             * 3. 读锁数量超值，抛异常
+             * 4. CAS设置读锁成功？
+             *   成功：
+             *     4.1 读锁数量为0，标记当前线程为firstReader
+             *     4.2 读锁数量不为0且是当前线程，则firstReaderHoldCount++
+             *     4.3 读锁数量不为0且不是当前线程
+             *        4.3.1 rh为null，则rh=cachedHoldCounter
+             *        4.3.2 rh还是为null 或者 rh不为null，但不是当前线程的rh，则搞一个rh出来
+             *        4.3.3 rh存在，其线程id为当前线程，且rh.count==0,则把rh放到ThreadLocal中
+             *        4.3.4 rh.count++,cachedHoldCounter=rh（概率上说，下一次当前线程获取锁时，不用查找ThreadLocal）
+             *     return  1;
+             *
+             *   不成功：
+             *    继续下次for
+             */
             /*
              * This code is in part redundant with that in
              * tryAcquireShared but is simpler overall by not
@@ -599,7 +669,9 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
              * retries and lazily reading hold counts.
              */
             HoldCounter rh = null;
+
             for (; ; ) {
+                // 获取状态
                 int c = getState();
                 if (exclusiveCount(c) != 0) {
                     if (getExclusiveOwnerThread() != current) {
@@ -625,6 +697,8 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
                             return -1;
                     }
                 }
+
+
                 if (sharedCount(c) == MAX_COUNT)
                     throw new Error("Maximum lock count exceeded");
                 if (compareAndSetState(c, c + SHARED_UNIT)) {
@@ -640,6 +714,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
                             rh = readHolds.get();
                         else if (rh.count == 0)
                             readHolds.set(rh);
+
                         rh.count++;
                         cachedHoldCounter = rh; // cache for release
                     }
