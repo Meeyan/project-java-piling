@@ -42,14 +42,14 @@ import java.util.concurrent.TimeUnit;
  * An implementation of {@link ReadWriteLock} supporting similar
  * semantics to {@link ReentrantLock}.
  * <p>This class has the following properties:
- *
+ * <p>
  * <ul>
  * <li><b>Acquisition order</b>
- *
+ * <p>
  * <p>This class does not impose a reader or writer preference
  * ordering for lock access.  However, it does support an optional
  * <em>fairness</em> policy.
- *
+ * <p>
  * <dl>
  * <dt><b><i>Non-fair mode (default)</i></b>
  * <dd>When constructed as non-fair (the default), the order of entry
@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  * constraints.  A nonfair lock that is continuously contended may
  * indefinitely postpone one or more reader or writer threads, but
  * will normally have higher throughput than a fair lock.
- *
+ * <p>
  * <dt><b><i>Fair mode</i></b>
  * <dd>When constructed as fair, threads contend for entry using an
  * approximately arrival-order policy. When the currently held lock
@@ -65,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  * be assigned the write lock, or if there is a group of reader threads
  * waiting longer than all waiting writer threads, that group will be
  * assigned the read lock.
- *
+ * <p>
  * <p>A thread that tries to acquire a fair read lock (non-reentrantly)
  * will block if either the write lock is held, or there is a waiting
  * writer thread. The thread will not acquire the read lock until
@@ -74,7 +74,7 @@ import java.util.concurrent.TimeUnit;
  * its wait, leaving one or more reader threads as the longest waiters
  * in the queue with the write lock free, then those readers will be
  * assigned the read lock.
- *
+ * <p>
  * <p>A thread that tries to acquire a fair write lock (non-reentrantly)
  * will block unless both the read lock and write lock are free (which
  * implies there are no waiting threads).  (Note that the non-blocking
@@ -83,56 +83,56 @@ import java.util.concurrent.TimeUnit;
  * if it is possible, regardless of waiting threads.)
  * <p>
  * </dl>
- *
+ * <p>
  * <li><b>Reentrancy</b>
- *
+ * <p>
  * <p>This lock allows both readers and writers to reacquire read or
  * write locks in the style of a {@link ReentrantLock}. Non-reentrant
  * readers are not allowed until all write locks held by the writing
  * thread have been released.
- *
+ * <p>
  * <p>Additionally, a writer can acquire the read lock, but not
  * vice-versa.  Among other applications, reentrancy can be useful
  * when write locks are held during calls or callbacks to methods that
  * perform reads under read locks.  If a reader tries to acquire the
  * write lock it will never succeed.
- *
+ * <p>
  * <li><b>Lock downgrading</b>
  * <p>Reentrancy also allows downgrading from the write lock to a read lock,
  * by acquiring the write lock, then the read lock and then releasing the
  * write lock. However, upgrading from a read lock to the write lock is
  * <b>not</b> possible.
- *
+ * <p>
  * <li><b>Interruption of lock acquisition</b>
  * <p>The read lock and write lock both support interruption during lock
  * acquisition.
- *
+ * <p>
  * <li><b>{@link Condition} support</b>
  * <p>The write lock provides a {@link Condition} implementation that
  * behaves in the same way, with respect to the write lock, as the
  * {@link Condition} implementation provided by
  * {@link ReentrantLock#newCondition} does for {@link ReentrantLock}.
  * This {@link Condition} can, of course, only be used with the write lock.
- *
+ * <p>
  * <p>The read lock does not support a {@link Condition} and
  * {@code readLock().newCondition()} throws
  * {@code UnsupportedOperationException}.
- *
+ * <p>
  * <li><b>Instrumentation</b>
  * <p>This class supports methods to determine whether locks
  * are held or contended. These methods are designed for monitoring
  * system state, not for synchronization control.
  * </ul>
- *
+ * <p>
  * <p>Serialization of this class behaves in the same way as built-in
  * locks: a deserialized lock is in the unlocked state, regardless of
  * its state when serialized.
- *
+ * <p>
  * <p><b>Sample usages</b>. Here is a code sketch showing how to perform
  * lock downgrading after updating a cache (exception handling is
  * particularly tricky when handling multiple locks in a non-nested
  * fashion):
- *
+ * <p>
  * <pre> {@code
  * class CachedData {
  *   Object data;
@@ -174,7 +174,7 @@ import java.util.concurrent.TimeUnit;
  * overhead that outweighs synchronization overhead. For example, here
  * is a class using a TreeMap that is expected to be large and
  * concurrently accessed.
- *
+ * <p>
  * <pre> {@code
  * class RWDictionary {
  *   private final Map<String, Data> m = new TreeMap<String, Data>();
@@ -203,9 +203,9 @@ import java.util.concurrent.TimeUnit;
  *     finally { w.unlock(); }
  *   }
  * }}</pre>
- *
+ * <p>
  * <h3>Implementation Notes</h3>
- *
+ * <p>
  * <p>This lock supports a maximum of 65535 recursive write locks
  * and 65535 read locks. Attempts to exceed these limits result in
  * {@link Error} throws from locking methods.
@@ -354,11 +354,11 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * where the next thread to release is the last one to
          * acquire. This is non-volatile since it is just used
          * as a heuristic, and would be great for threads to cache.
-         *
+         * <p>
          * <p>Can outlive the Thread for which it is caching the read
          * hold count, but avoids garbage retention by not retaining a
          * reference to the Thread.
-         *
+         * <p>
          * <p>Accessed via a benign data race; relies on the memory
          * model's final field and out-of-thin-air guarantees.
          */
@@ -367,18 +367,18 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         /**
          * firstReader is the first thread to have acquired the read lock.
          * firstReaderHoldCount is firstReader's hold count.
-         *
+         * <p>
          * <p>More precisely, firstReader is the unique thread that last
          * changed the shared count from 0 to 1, and has not released the
          * read lock since then; null if there is no such thread.
-         *
+         * <p>
          * <p>Cannot cause garbage retention unless the thread terminated
          * without relinquishing its read locks, since tryReleaseShared
          * sets it to null.
-         *
+         * <p>
          * <p>Accessed via a benign data race; relies on the memory
          * model's out-of-thin-air guarantees for references.
-         *
+         * <p>
          * <p>This allows tracking of read holds for uncontended read
          * locks to be very cheap.
          */
@@ -905,10 +905,10 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
 
         /**
          * Acquires the read lock.
-         *
+         * <p>
          * <p>Acquires the read lock if the write lock is not held by
          * another thread and returns immediately.
-         *
+         * <p>
          * <p>If the write lock is held by another thread then
          * the current thread becomes disabled for thread scheduling
          * purposes and lies dormant until the read lock has been acquired.
@@ -920,37 +920,37 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         /**
          * Acquires the read lock unless the current thread is
          * {@linkplain Thread#interrupt interrupted}.
-         *
+         * <p>
          * <p>Acquires the read lock if the write lock is not held
          * by another thread and returns immediately.
-         *
+         * <p>
          * <p>If the write lock is held by another thread then the
          * current thread becomes disabled for thread scheduling
          * purposes and lies dormant until one of two things happens:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>The read lock is acquired by the current thread; or
-         *
+         * <p>
          * <li>Some other thread {@linkplain Thread#interrupt interrupts}
          * the current thread.
-         *
+         * <p>
          * </ul>
-         *
+         * <p>
          * <p>If the current thread:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>has its interrupted status set on entry to this method; or
-         *
+         * <p>
          * <li>is {@linkplain Thread#interrupt interrupted} while
          * acquiring the read lock,
-         *
+         * <p>
          * </ul>
          * <p>
          * then {@link InterruptedException} is thrown and the current
          * thread's interrupted status is cleared.
-         *
+         * <p>
          * <p>In this implementation, as this method is an explicit
          * interruption point, preference is given to responding to
          * the interrupt over normal or reentrant acquisition of the
@@ -965,7 +965,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         /**
          * Acquires the read lock only if the write lock is not held by
          * another thread at the time of invocation.
-         *
+         * <p>
          * <p>Acquires the read lock if the write lock is not held by
          * another thread and returns immediately with the value
          * {@code true}. Even when this lock has been set to use a
@@ -978,7 +978,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * for this lock, then use {@link #tryLock(long, TimeUnit)
          * tryLock(0, TimeUnit.SECONDS) } which is almost equivalent
          * (it also detects interruption).
-         *
+         * <p>
          * <p>If the write lock is held by another thread then
          * this method will return immediately with the value
          * {@code false}.
@@ -994,7 +994,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * another thread within the given waiting time and the
          * current thread has not been {@linkplain Thread#interrupt
          * interrupted}.
-         *
+         * <p>
          * <p>Acquires the read lock if the write lock is not held by
          * another thread and returns immediately with the value
          * {@code true}. If this lock has been set to use a fair
@@ -1004,47 +1004,47 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * method. If you want a timed {@code tryLock} that does
          * permit barging on a fair lock then combine the timed and
          * un-timed forms together:
-         *
+         * <p>
          * <pre> {@code
          * if (lock.tryLock() ||
          *     lock.tryLock(timeout, unit)) {
          *   ...
          * }}</pre>
-         *
+         * <p>
          * <p>If the write lock is held by another thread then the
          * current thread becomes disabled for thread scheduling
          * purposes and lies dormant until one of three things happens:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>The read lock is acquired by the current thread; or
-         *
+         * <p>
          * <li>Some other thread {@linkplain Thread#interrupt interrupts}
          * the current thread; or
-         *
+         * <p>
          * <li>The specified waiting time elapses.
-         *
+         * <p>
          * </ul>
-         *
+         * <p>
          * <p>If the read lock is acquired then the value {@code true} is
          * returned.
-         *
+         * <p>
          * <p>If the current thread:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>has its interrupted status set on entry to this method; or
-         *
+         * <p>
          * <li>is {@linkplain Thread#interrupt interrupted} while
          * acquiring the read lock,
-         *
+         * <p>
          * </ul> then {@link InterruptedException} is thrown and the
          * current thread's interrupted status is cleared.
-         *
+         * <p>
          * <p>If the specified waiting time elapses then the value
          * {@code false} is returned.  If the time is less than or
          * equal to zero, the method will not wait at all.
-         *
+         * <p>
          * <p>In this implementation, as this method is an explicit
          * interruption point, preference is given to responding to
          * the interrupt over normal or reentrant acquisition of the
@@ -1063,7 +1063,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
 
         /**
          * Attempts to release this lock.
-         *
+         * <p>
          * <p>If the number of readers is now zero then the lock
          * is made available for write lock attempts.
          */
@@ -1114,16 +1114,16 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
 
         /**
          * Acquires the write lock.
-         *
+         * <p>
          * <p>Acquires the write lock if neither the read nor write lock
          * are held by another thread
          * and returns immediately, setting the write lock hold count to
          * one.
-         *
+         * <p>
          * <p>If the current thread already holds the write lock then the
          * hold count is incremented by one and the method returns
          * immediately.
-         *
+         * <p>
          * <p>If the lock is held by another thread then the current
          * thread becomes disabled for thread scheduling purposes and
          * lies dormant until the write lock has been acquired, at which
@@ -1136,47 +1136,47 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         /**
          * Acquires the write lock unless the current thread is
          * {@linkplain Thread#interrupt interrupted}.
-         *
+         * <p>
          * <p>Acquires the write lock if neither the read nor write lock
          * are held by another thread
          * and returns immediately, setting the write lock hold count to
          * one.
-         *
+         * <p>
          * <p>If the current thread already holds this lock then the
          * hold count is incremented by one and the method returns
          * immediately.
-         *
+         * <p>
          * <p>If the lock is held by another thread then the current
          * thread becomes disabled for thread scheduling purposes and
          * lies dormant until one of two things happens:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>The write lock is acquired by the current thread; or
-         *
+         * <p>
          * <li>Some other thread {@linkplain Thread#interrupt interrupts}
          * the current thread.
-         *
+         * <p>
          * </ul>
-         *
+         * <p>
          * <p>If the write lock is acquired by the current thread then the
          * lock hold count is set to one.
-         *
+         * <p>
          * <p>If the current thread:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>has its interrupted status set on entry to this method;
          * or
-         *
+         * <p>
          * <li>is {@linkplain Thread#interrupt interrupted} while
          * acquiring the write lock,
-         *
+         * <p>
          * </ul>
          * <p>
          * then {@link InterruptedException} is thrown and the current
          * thread's interrupted status is cleared.
-         *
+         * <p>
          * <p>In this implementation, as this method is an explicit
          * interruption point, preference is given to responding to
          * the interrupt over normal or reentrant acquisition of the
@@ -1191,7 +1191,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         /**
          * Acquires the write lock only if it is not held by another thread
          * at the time of invocation.
-         *
+         * <p>
          * <p>Acquires the write lock if neither the read nor write lock
          * are held by another thread
          * and returns immediately with the value {@code true},
@@ -1205,11 +1205,11 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * fairness setting for this lock, then use {@link
          * #tryLock(long, TimeUnit) tryLock(0, TimeUnit.SECONDS) }
          * which is almost equivalent (it also detects interruption).
-         *
+         * <p>
          * <p>If the current thread already holds this lock then the
          * hold count is incremented by one and the method returns
          * {@code true}.
-         *
+         * <p>
          * <p>If the lock is held by another thread then this method
          * will return immediately with the value {@code false}.
          *
@@ -1225,7 +1225,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * Acquires the write lock if it is not held by another thread
          * within the given waiting time and the current thread has
          * not been {@linkplain Thread#interrupt interrupted}.
-         *
+         * <p>
          * <p>Acquires the write lock if neither the read nor write lock
          * are held by another thread
          * and returns immediately with the value {@code true},
@@ -1236,54 +1236,54 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * #tryLock()} method. If you want a timed {@code tryLock}
          * that does permit barging on a fair lock then combine the
          * timed and un-timed forms together:
-         *
+         * <p>
          * <pre> {@code
          * if (lock.tryLock() ||
          *     lock.tryLock(timeout, unit)) {
          *   ...
          * }}</pre>
-         *
+         * <p>
          * <p>If the current thread already holds this lock then the
          * hold count is incremented by one and the method returns
          * {@code true}.
-         *
+         * <p>
          * <p>If the lock is held by another thread then the current
          * thread becomes disabled for thread scheduling purposes and
          * lies dormant until one of three things happens:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>The write lock is acquired by the current thread; or
-         *
+         * <p>
          * <li>Some other thread {@linkplain Thread#interrupt interrupts}
          * the current thread; or
-         *
+         * <p>
          * <li>The specified waiting time elapses
-         *
+         * <p>
          * </ul>
-         *
+         * <p>
          * <p>If the write lock is acquired then the value {@code true} is
          * returned and the write lock hold count is set to one.
-         *
+         * <p>
          * <p>If the current thread:
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>has its interrupted status set on entry to this method;
          * or
-         *
+         * <p>
          * <li>is {@linkplain Thread#interrupt interrupted} while
          * acquiring the write lock,
-         *
+         * <p>
          * </ul>
          * <p>
          * then {@link InterruptedException} is thrown and the current
          * thread's interrupted status is cleared.
-         *
+         * <p>
          * <p>If the specified waiting time elapses then the value
          * {@code false} is returned.  If the time is less than or
          * equal to zero, the method will not wait at all.
-         *
+         * <p>
          * <p>In this implementation, as this method is an explicit
          * interruption point, preference is given to responding to
          * the interrupt over normal or reentrant acquisition of the
@@ -1305,7 +1305,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
 
         /**
          * Attempts to release this lock.
-         *
+         * <p>
          * <p>If the current thread is the holder of this lock then
          * the hold count is decremented. If the hold count is now
          * zero then the lock is released.  If the current thread is
@@ -1327,9 +1327,9 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * Object#wait() wait}, {@link Object#notify notify}, and {@link
          * Object#notifyAll notifyAll}) when used with the built-in
          * monitor lock.
-         *
+         * <p>
          * <ul>
-         *
+         * <p>
          * <li>If this write lock is not held when any {@link
          * Condition} method is called then an {@link
          * IllegalMonitorStateException} is thrown.  (Read locks are
@@ -1339,25 +1339,25 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * has also acquired read locks, since other threads that
          * could unblock it will not be able to acquire the write
          * lock.)
-         *
+         * <p>
          * <li>When the condition {@linkplain Condition#await() waiting}
          * methods are called the write lock is released and, before
          * they return, the write lock is reacquired and the lock hold
          * count restored to what it was when the method was called.
-         *
+         * <p>
          * <li>If a thread is {@linkplain Thread#interrupt interrupted} while
          * waiting then the wait will terminate, an {@link
          * InterruptedException} will be thrown, and the thread's
          * interrupted status will be cleared.
-         *
+         * <p>
          * <li> Waiting threads are signalled in FIFO order.
-         *
+         * <p>
          * <li>The ordering of lock reacquisition for threads returning
          * from waiting methods is the same as for threads initially
          * acquiring the lock, which is in the default case not specified,
          * but for <em>fair</em> locks favors those threads that have been
          * waiting the longest.
-         *
+         * <p>
          * </ul>
          *
          * @return the Condition object
