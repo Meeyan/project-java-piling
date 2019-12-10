@@ -2177,7 +2177,7 @@ public abstract class AbstractQueuedSynchronizer
 
             /**
              * trial的作用：总是指向队列中等待Condition的节点，从头到尾，依次变化，直到队列尾部。
-             *  因为lastWaiter总是指向队列的尾节点，所以一旦发现尾节点实效，需要及时更新lastWaiter
+             *  因为lastWaiter总是指向队列的尾节点，所以一旦发现尾节点失效，需要及时更新lastWaiter
              *
              *  举例：
              *  一个队列：case1
