@@ -1,5 +1,8 @@
 package com.std.BFBCDYS.chapter005;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -13,6 +16,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date 2019-07-04 10:22
  */
 public class BoundedQueue<T> {
+
+
+    private static Logger logger = LoggerFactory.getLogger(BoundedQueue.class);
 
     private Object[] items;
 
@@ -43,11 +49,12 @@ public class BoundedQueue<T> {
             if (++addIndex == items.length) {
                 addIndex = 0;
             }
+
             ++count;
-            System.out.println("add one");
+            logger.info("add one");
             notEmpty.signal();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("error happens:", e);
         } finally {
             lock.unlock();
         }
@@ -70,10 +77,10 @@ public class BoundedQueue<T> {
             count--;
             notFull.signal();
 
-            System.out.println("remove one");
+            logger.info("remove one");
             return (T) x;
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("error happens:", e);
         } finally {
             lock.unlock();
         }
@@ -83,6 +90,7 @@ public class BoundedQueue<T> {
 
     public static void main(String[] args) {
         BoundedQueue<Object> queue = new BoundedQueue<>(10);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
