@@ -983,11 +983,16 @@ public abstract class AbstractQueuedSynchronizer
             boolean interrupted = false;
 
             /**
+             * 整体的作用：
+             *   1. 当前节点只要不取消，会一直『自旋』直到抢到锁。
+             *   2. 当前节点被中断后，会抛出异常，但是在finally中会取消抢锁，终止自旋【只有该路径会触发取消抢锁cancelAcquire方法】
+             *   3. 当前节点被取消后，node处于取消状态，那么其后置节点在自旋的过程中（shouldParkAfterFailedAcquire方法内部）会将当前节点踢出.
+             *
              * 如果当前节点的前一个节点为head节点？
              *    是：则试着加锁
              *         加锁成功：则当前节点成为新的head节点，没有被中断，直接返回。
              *         加锁失败：
-             *           step 3: shouldParkAfterFailedAcquire()内部逻辑：
+             *          step 3: shouldParkAfterFailedAcquire()内部逻辑：
              *             1. 前置节点处于Signal状态，意味着前置节点等待通知被唤醒，那么当前节点需要进入park等待。
              *             2. 前置节点被取消(status>0)，则向前遍历，找到最近的一个不是处于cancle状态的节点，移除
              *                  前置节点（处于cancle状态，可能是多个连续的处于cancle状态的节点）
@@ -1947,7 +1952,7 @@ public abstract class AbstractQueuedSynchronizer
         try {
             int savedState = getState();
 
-            // 释放锁
+            // 释放锁，并唤醒同步队列的首节点
             if (release(savedState)) {
                 failed = false;
                 return savedState;
@@ -2346,11 +2351,12 @@ public abstract class AbstractQueuedSynchronizer
             if (Thread.interrupted()) {
                 throw new InterruptedException();
             }
-            // 创建节点
+            // 创建节点，并将其放到等待队列中
             Node node = addConditionWaiter();
 
             // 节点释放锁
             int savedState = fullyRelease(node);
+
             int interruptMode = 0;
 
 
