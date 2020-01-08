@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec2;
  * 线程中断方式2
  *
  * @author zhaojy
- * @createTime 2017-04-01
+ * @date 2017-04-01
  */
 public class ThreadInterrupt_2 implements Runnable {
     @Override

@@ -4,7 +4,7 @@ package com.std.arithmetic;
  * 整数的相关算法
  *
  * @author zhaojy
- * @createTime 2017-12-21
+ * @date 2017-12-21
  */
 public class IntegerDemo {
 

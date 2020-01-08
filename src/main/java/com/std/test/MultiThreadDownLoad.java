@@ -13,7 +13,7 @@ import java.util.List;
  * 多线程下载
  *
  * @author zhaojy
- * @createTime 2017-08-10
+ * @date 2017-08-10
  */
 public class MultiThreadDownLoad {
 

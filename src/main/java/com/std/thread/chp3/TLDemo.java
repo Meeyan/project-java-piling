@@ -8,7 +8,7 @@ import java.sql.SQLException;
 /**
  * 使用ThreadLocal确保线程安全
  * @author zhaojy
- * @createTime 2017-03-31
+ * @date 2017-03-31
  */
 public class TLDemo {
 

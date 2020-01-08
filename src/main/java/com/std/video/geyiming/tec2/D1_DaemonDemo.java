@@ -16,7 +16,7 @@ package com.std.video.geyiming.tec2;
  * MyDaemon的结束（程序退出）依赖于MyCommon的运行完毕。
  *
  * @author zhaojy
- * @createTime 2017-04-18
+ * @date 2017-04-18
  */
 public class D1_DaemonDemo {
 

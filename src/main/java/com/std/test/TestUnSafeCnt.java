@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 启动3个线程，访问非线程安全的服务，然后观察结果
  * 测试结果：线程安全状态下，3个线程各运行100次，那么输出结果理应为300，但实测不对
  * @author:zhaojy
- * @createTime:2016-12-21
+ * @date:2016-12-21
  */
 public class TestUnSafeCnt implements Runnable {
     private String threadName;

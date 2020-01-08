@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 重入特性：可以多次加锁，但是也必须多次释放锁（加锁和释放锁的次数必须保持一致）
  *
  * @author zhaojy
- * @createTime 2017-07-27
+ * @date 2017-07-27
  */
 public class D2_ReentrantLock implements Runnable {
 

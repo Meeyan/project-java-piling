@@ -4,7 +4,7 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D10_LockSupportDemo {
     public static Object u = new Object();

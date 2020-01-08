@@ -14,7 +14,7 @@ import java.math.BigInteger;
  * 可以确保为线程安全，但是性能不行
  *
  * @author zhaojy
- * @createTime 2017-03-24
+ * @date 2017-03-24
  */
 public class SynchronizedFactorzier extends GenericServlet {
 

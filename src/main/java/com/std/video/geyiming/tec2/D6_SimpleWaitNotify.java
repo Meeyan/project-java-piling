@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec2;
  * wait 和 notify实例
  *
  * @author zhaojy
- * @createTime 2017-04-28
+ * @date 2017-04-28
  */
 public class D6_SimpleWaitNotify {
 

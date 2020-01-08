@@ -5,7 +5,7 @@ package com.std.video.geyiming.tec2;
  * todo:测试发现会产生死锁
  *
  * @author zhaojy
- * @createTime 2017-05-17
+ * @date 2017-05-17
  */
 public class D7_SimpleWaitNotifyAll {
 

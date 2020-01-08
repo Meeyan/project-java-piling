@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
  * 针对数组-integer使用。
  *
  * @author zhaojy
- * @createTime 2017-05-31
+ * @date 2017-05-31
  */
 public class D6_AtomicIntegerArrayDemo {
     static AtomicIntegerArray integerArray = new AtomicIntegerArray(10);

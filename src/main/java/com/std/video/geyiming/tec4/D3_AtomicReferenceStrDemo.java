@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 使用AtomicReference对一个字符串做线程安全的修改操作【无锁模式】
  *
  * @author zhaojy
- * @createTime 2017-12-21
+ * @date 2017-12-21
  */
 public class D3_AtomicReferenceStrDemo extends Thread {
     static AtomicReference<String> atomStr = new AtomicReference<>("abc");

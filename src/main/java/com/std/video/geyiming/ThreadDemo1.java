@@ -3,7 +3,7 @@ package com.std.video.geyiming;
 /**
  *
  * @author zhaojy
- * @createTime 2017-3-31
+ * @date 2017-3-31
  */
 public class ThreadDemo1 extends Thread {
     @Override

@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 声明锁，加锁，释放锁。不同于synchronized的是，重入锁需要显式释放锁。
  *
  * @author zhaojy
- * @createTime 2017-07-27
+ * @date 2017-07-27
  */
 public class D1_ReentrantLock implements Runnable {
 

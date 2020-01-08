@@ -623,7 +623,7 @@ public abstract class AbstractQueuedSynchronizer
             Node t = tail;
             /*
              * 尾节点存在?
-             *   不存在：初始化一个head节点出来（改节点非传入的node），并把head标记为tail节点，继续下一次自旋。
+             *   不存在：初始化一个head节点出来（该节点非传入的node，是空节点），同时tail节点也指向该空姐点，继续下一次自旋。
              *   存在：新node的前置节点设置为旧的tail节点，新node cas设置为tail节点，旧tail节点的后置节点设置为新创建的节点，入队成功，返回。
              */
             if (t == null) {
@@ -898,7 +898,7 @@ public abstract class AbstractQueuedSynchronizer
         int ws = pred.waitStatus;
         /**
          * 1. 前置节点状态
-         *   1.1 为 Node.SIGNAL ：意味着前置节点处于被通知状态，后置节点的也需要进入park状态，等待前置节点主动唤醒
+         *   1.1 为 Node.SIGNAL ：意味着前置节点处于被通知状态，后置节点的也要进入park状态，等待前置节点主动唤醒，直接返回。
          *   1.2 status > 0 (意味着前置节点被取消) ：那么需要从当前节点开始向前遍历，找到最近的一个不是处于cancle状态的节点，然后移除当前节点
          *      的前置节点(可能是多个连续的处于cancle状态节点)。
          *   1.3 status <= 0 (初始状态 或者 等待Condition 或者 Propagate) : 前置节点只能是初始状态（为什么？），然后前置节点设置为被通知状态
@@ -1019,6 +1019,7 @@ public abstract class AbstractQueuedSynchronizer
 
                 /**
                  * 前任节点不是head节点 或者 抢锁失败。
+                 * todo  为什么前置节点处于signal时，当前节点就需要park呢？
                  */
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt()) {
                     interrupted = true;

@@ -8,7 +8,7 @@ import java.lang.management.ThreadMXBean;
  * 死锁检查器
  *
  * @author zhaojy
- * @createTime 2017-07-27
+ * @date 2017-07-27
  */
 public class DeadLockChecker {
 

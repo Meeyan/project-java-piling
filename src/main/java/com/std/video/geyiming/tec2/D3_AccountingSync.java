@@ -5,7 +5,7 @@ package com.std.video.geyiming.tec2;
  * 两个线程共享一个锁instance
  *
  * @author zhaojy
- * @createTime 2017-04-19
+ * @date 2017-04-19
  */
 public class D3_AccountingSync implements Runnable {
 

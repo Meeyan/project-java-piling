@@ -11,7 +11,7 @@ package com.std.video.geyiming.tec3;
  * 1. 加volatile修饰符
  *
  * @author zhaojy
- * @createTime 2017-12-18
+ * @date 2017-12-18
  */
 public class VisibilityTest extends Thread {
     private boolean stop;

@@ -5,7 +5,7 @@ package com.std.video.geyiming.tec2;
  * 优先级高，更有可能获得执行资源。
  *
  * @author zhaojy
- * @createTime 2017-04-19
+ * @date 2017-04-19
  */
 public class D2_PriorityDemo {
 

@@ -10,7 +10,7 @@ import java.net.URL;
  * http请求工具类
  *
  * @author:zhaojy
- * @createTime:2016-04-22
+ * @date:2016-04-22
  */
 public class HttpUtils {
 
@@ -21,7 +21,7 @@ public class HttpUtils {
      * @param content 内容
      * @return
      * @author:zhaojy
-     * @createTime:2016-04-22
+     * @date:2016-04-22
      */
     public static String httpReq(String address, String content, int method) {
         String retString = "";

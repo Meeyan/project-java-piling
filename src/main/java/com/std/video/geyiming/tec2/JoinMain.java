@@ -7,7 +7,7 @@ package com.std.video.geyiming.tec2;
  * 2.使用join后，主线程会等待子线程（此处为addThread）完成后，再继续运行。此时程序成为串行执行。<p>
  *
  * @author zhaojy
- * @createTime 2017-04-06
+ * @date 2017-04-06
  */
 public class JoinMain {
     public volatile static int i = 0;

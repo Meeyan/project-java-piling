@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 无锁式，实现同步
  *
  * @author zhaojy
- * @createTime 2017-05-27
+ * @date 2017-05-27
  */
 public class D1_AtomicIntegerDemo {
     private static AtomicInteger atomicInteger = new AtomicInteger();

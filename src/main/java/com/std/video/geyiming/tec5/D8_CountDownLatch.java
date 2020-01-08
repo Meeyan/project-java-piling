@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
  * CountDownLatch演示
  *
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D8_CountDownLatch implements Runnable {
     static final CountDownLatch countDownLatch = new CountDownLatch(10); // 10个

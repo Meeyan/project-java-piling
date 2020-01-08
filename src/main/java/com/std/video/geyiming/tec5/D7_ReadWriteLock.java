@@ -4,7 +4,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D7_ReadWriteLock implements Runnable {
     final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();

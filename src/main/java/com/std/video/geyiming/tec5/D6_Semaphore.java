@@ -8,7 +8,7 @@ import java.util.concurrent.Semaphore;
  * Semaphore示例
  *
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D6_Semaphore implements Runnable {
     final Semaphore semaphore = new Semaphore(5);   // 指定5个许可

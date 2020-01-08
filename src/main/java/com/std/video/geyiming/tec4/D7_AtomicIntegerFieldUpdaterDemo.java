@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  * 只能更新对象内部的int字段么？
  *
  * @author zhaojy
- * @createTime 2017-06-02
+ * @date 2017-06-02
  */
 public class D7_AtomicIntegerFieldUpdaterDemo {
 

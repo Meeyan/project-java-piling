@@ -21,7 +21,7 @@ public class D1_NioDemo {
      * @param dest     String
      * @throws IOException
      * @author zhaojy
-     * @createTime 2017-12-28
+     * @date 2017-12-28
      */
     public static void nioCopyFile(String resource, String dest) throws IOException {
         FileInputStream fis = new FileInputStream(resource);

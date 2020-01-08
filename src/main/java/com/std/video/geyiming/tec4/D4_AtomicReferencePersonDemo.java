@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 非阻塞式，针对对象同步的操作
  *
  * @author zhaojy
- * @createTime 2017-05-27
+ * @date 2017-05-27
  */
 public class D4_AtomicReferencePersonDemo {
     // 初始期望值

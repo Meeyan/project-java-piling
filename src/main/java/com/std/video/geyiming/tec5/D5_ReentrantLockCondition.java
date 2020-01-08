@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 演示使用Condition，可等待，可唤醒
  *
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D5_ReentrantLockCondition implements Runnable {
 

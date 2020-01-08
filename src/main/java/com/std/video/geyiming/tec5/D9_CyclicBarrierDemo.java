@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D9_CyclicBarrierDemo {
     public static class Soldier implements Runnable {

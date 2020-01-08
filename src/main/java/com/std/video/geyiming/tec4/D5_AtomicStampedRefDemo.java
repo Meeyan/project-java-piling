@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicStampedReference;
  * 确保只给消费线程充值一次。
  *
  * @author zhaojy
- * @createTime 2017-05-27
+ * @date 2017-05-27
  */
 public class D5_AtomicStampedRefDemo {
 

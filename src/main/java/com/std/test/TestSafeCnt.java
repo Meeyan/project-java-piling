@@ -8,7 +8,7 @@ import com.std.utils.HttpUtils;
  * 测试结果：3个线程，各内部发送100请求，结果为300，正确。
  *
  * @author:zhaojy
- * @createTime:2016-12-21
+ * @date:2016-12-21
  */
 public class TestSafeCnt implements Runnable {
     private String threadName;

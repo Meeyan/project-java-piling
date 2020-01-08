@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 讲解锁被中断
  *
  * @author zhaojy
- * @createTime 2017-07-27
+ * @date 2017-07-27
  */
 public class D3_ReentrantLockInt implements Runnable {
 

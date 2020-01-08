@@ -3,7 +3,7 @@ package com.std.video.geyiming.tec3;
 /**
  *
  * @author zhaojy
- * @createTime 2017-05-19
+ * @date 2017-05-19
  */
 public class TestVolatile implements Runnable {
     private volatile int i = 0;  // 不加volatile时，两个线程的执行结果会不相同，加了volatile也不行，加锁可以

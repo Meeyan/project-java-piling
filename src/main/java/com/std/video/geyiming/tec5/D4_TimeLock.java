@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 可限时特性示例
  *
  * @author zhaojy
- * @createTime 2017-12-25
+ * @date 2017-12-25
  */
 public class D4_TimeLock implements Runnable {
     static ReentrantLock lock = new ReentrantLock();

@@ -4,7 +4,7 @@ package com.std.video.geyiming.tec3;
  * 有序性示例
  *
  * @author zhaojy
- * @createTime 2017-05-19
+ * @date 2017-05-19
  */
 public class OrderExample {
     private int a = 0;

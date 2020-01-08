@@ -12,7 +12,7 @@ import java.math.BigInteger;
  * 测试非线程安全
  *
  * @author:zhaojy
- * @createTime:2016-12-21
+ * @date:2016-12-21
  */
 @NotThreadSafe
 public class UnsafeCountingFactorizer implements Servlet {
