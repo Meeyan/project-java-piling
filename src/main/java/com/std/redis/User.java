@@ -10,6 +10,9 @@ public class User {
     private int age;
     private String sex;
 
+    public User() {
+    }
+
     public User(String id, String name, int age, String sex) {
         this.id = id;
         this.name = name;

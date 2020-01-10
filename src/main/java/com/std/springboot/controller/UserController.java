@@ -1,9 +1,17 @@
 package com.std.springboot.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.std.redis.User;
 import com.std.springboot.common.bo.ConfigUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 用户
@@ -20,6 +28,21 @@ public class UserController {
     @RequestMapping("/info")
     public String getUserInfo() {
         return "张三";
+    }
+
+    @RequestMapping("/getUserList")
+    public String getUserList() {
+        User user = new User();
+        user.setName("张三");
+        user.setAge(18);
+        user.setId("18291");
+        user.setSex("男");
+        List<User> userList = new ArrayList<>();
+        userList.add(user);
+        userList.add(user);
+        userList.add(user);
+        userList.add(user);
+        return JSONUtil.toJsonStr(userList);
     }
 
     @RequestMapping("/getCfgUserInfo")
