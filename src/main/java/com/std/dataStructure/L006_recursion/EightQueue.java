@@ -64,7 +64,7 @@ public class EightQueue {
      * 查看当我们放置第n个皇后，就去检测该皇后是否和前面已经摆放的皇后冲突
      *
      * @param n 第n个皇后
-     * @return
+     * @return boolean
      */
     private boolean judge(int n) {
         for (int i = 0; i < n; i++) {
@@ -72,6 +72,7 @@ public class EightQueue {
              * 1、 array[i] == array[n]: 同一列判断
              * 2、Math.abs(n - 1) == Math.abs(array[n] - array[i])：表示判断第n个皇后是否和第i个皇后在同一斜线。
              *     Math.abs(n - 1) == Math.abs(array[n] - array[i]) 【todo 这个公示怎么得来的？？】
+             *     表示纵坐标之差和横坐标之差相同，即在一个斜线上
              * 3、判断是否在同一行，没有必要，n每次都在递增。
              */
             if (array[i] == array[n] || Math.abs(n - i) == Math.abs(array[n] - array[i])) {
