@@ -2234,7 +2234,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
 
         Node<K, V> find(int h, Object k) {
-            // loop to avoid arbitrarily deep recursion on forwarding nodes
+            // loop to avoid arbitrarily deep L006_recursion on forwarding nodes
             outer:
             for (Node<K, V>[] tab = nextTable; ; ) {
                 Node<K, V> e;

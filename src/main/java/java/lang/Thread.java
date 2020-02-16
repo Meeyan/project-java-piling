@@ -586,12 +586,12 @@ class Thread implements Runnable {
      *
      * <p>On some platforms, specifying a higher value for the
      * {@code stackSize} parameter may allow a thread to achieve greater
-     * recursion depth before throwing a {@link StackOverflowError}.
+     * L006_recursion depth before throwing a {@link StackOverflowError}.
      * Similarly, specifying a lower value may allow a greater number of
      * threads to exist concurrently without throwing an {@link
      * OutOfMemoryError} (or other internal error).  The details of
      * the relationship between the value of the <tt>stackSize</tt> parameter
-     * and the maximum recursion depth and concurrency level are
+     * and the maximum L006_recursion depth and concurrency level are
      * platform-dependent.  <b>On some platforms, the value of the
      * {@code stackSize} parameter may have no effect whatsoever.</b>
      *
@@ -1810,7 +1810,7 @@ class Thread implements Runnable {
      *
      * <p>Note that the default uncaught exception handler should not usually
      * defer to the thread's <tt>ThreadGroup</tt> object, as that could cause
-     * infinite recursion.
+     * infinite L006_recursion.
      *
      * @param eh the object to use as the default uncaught exception handler.
      *           If <tt>null</tt> then there is no default handler.
