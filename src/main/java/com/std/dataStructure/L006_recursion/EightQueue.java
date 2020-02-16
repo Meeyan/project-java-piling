@@ -11,13 +11,26 @@ public class EightQueue {
     // 皇后的个数
     int max = 8;
 
+    static int count = 0;
+
     // 保存皇后放置位置，如：arr = {0,4,7,5,2,6,1,3}，每一次保存一次。
     int[] array = new int[max];
 
+    public static void main(String[] args) {
+        EightQueue queue = new EightQueue();
+        queue.check(0);
+        System.out.println("总解法：" + count);
+    }
 
+
+    /**
+     * 放置第n个皇后
+     *
+     * @param n int
+     */
     public void check(int n) {
 
-        // n==max时，表示max个皇后已然放好
+        // n == max时，表示max个皇后已然放好
         if (n == max) {
             print();
             return;
@@ -35,11 +48,16 @@ public class EightQueue {
                 check(n + 1);
             }
 
-            // 如果冲突，就继续执行array[n]=i,即将第n个皇后放置在本行的后移的一个位置
+            // 如果冲突，就继续执行array[n]=i,即将第n个皇后放置在本行的后移的一个位置（第2列，第3列...）
         }
     }
 
     private void print() {
+        count++;
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i] + " ");
+        }
+        System.out.println();
     }
 
     /**
@@ -56,7 +74,7 @@ public class EightQueue {
              *     Math.abs(n - 1) == Math.abs(array[n] - array[i]) 【todo 这个公示怎么得来的？？】
              * 3、判断是否在同一行，没有必要，n每次都在递增。
              */
-            if (array[i] == array[n] || Math.abs(n - 1) == Math.abs(array[n] - array[i])) {
+            if (array[i] == array[n] || Math.abs(n - i) == Math.abs(array[n] - array[i])) {
                 return false;
             }
         }
