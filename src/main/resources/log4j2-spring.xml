@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--status 是否记录log4j2本身的event信息默认OFF print level:TRACE < DEBUG < INFO <WARN < ERROR < FATAL
+    monitorInterval 300秒检查一下配置，如果有变化不需要重启服务，自动更新-->
+<Configuration status="TRACE" monitorInterval="300">
+    <Properties>
+        <!--自定义指定路径-->
+        <Property name="LOG_HOME">/mnt/logs/javaStudy</Property>
+        <Property name="PATTERN_FORMAT">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{X-B3-SpanId}] [%X{X-B3-TraceId}] [%level] %c{1.} :%msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!--输出到控制台-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="${PATTERN_FORMAT}"/>
+        </Console>
+
+        <!--循环输出到文件 fileName：当前日志存储路径 filePattern 历史日志存储路径-->
+        <RollingRandomAccessFile name="DefaultRollingFile"
+                                 fileName="${LOG_HOME}/default.log"
+                                 filePattern="${LOG_HOME}/default-%d{yyyy-MM-dd}.log">
+            <!--<Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>-->
+
+            <PatternLayout pattern="${PATTERN_FORMAT}"/>
+
+            <Policies>
+                <!--这里的1的单位是filePattern里面的%d{yyyy-MM-dd HH-mm}-%i.log 最小的单位mm表示分钟-->
+                <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+                <!--日志文件大小-->
+                <SizeBasedTriggeringPolicy size="2000MB"/>
+            </Policies>
+            <!--最多保留文件数-->
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+        <!--
+         -->
+        <AsyncLogger name="com.common" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="com.Interview.thread" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="com.leetcode" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="com.std" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="com.util" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.springframework" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.mybatis" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile"/>
+        </AsyncLogger>
+
+        <AsyncRoot level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile"/>
+        </AsyncRoot>
+    </Loggers>
+</Configuration>

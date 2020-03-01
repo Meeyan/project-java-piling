@@ -9,19 +9,22 @@ package com.std.dataStructure.L006_recursion;
 public class EightQueue {
 
     // 皇后的个数
-    int max = 8;
+    private int max = 8;
 
-    static int count = 0;
+    private static int count = 0;
 
     // 保存皇后放置位置，如：arr = {0,4,7,5,2,6,1,3}，每一次保存一次。
-    int[] array = new int[max];
+    private int[] array = new int[max];
+
+    // 1.5w次以上，所以还是很废近的
+    private static int judgeCount = 0;
 
     public static void main(String[] args) {
         EightQueue queue = new EightQueue();
         queue.check(0);
         System.out.println("总解法：" + count);
+        System.out.println("judge次数：" + judgeCount);
     }
-
 
     /**
      * 放置第n个皇后
@@ -67,6 +70,7 @@ public class EightQueue {
      * @return boolean
      */
     private boolean judge(int n) {
+        judgeCount++;
         for (int i = 0; i < n; i++) {
             /**
              * 1、 array[i] == array[n]: 同一列判断

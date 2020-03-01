@@ -1,8 +1,10 @@
-package com.std;
+package com;
 
+import com.std.BFBCDYS.v0009.L009_Demo;
 import com.std.base.Constants;
 import com.std.springboot.filter.ChainFilter;
-import com.std.BFBCDYS.v0009.L009_Demo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +25,8 @@ import javax.annotation.PostConstruct;
 @ServletComponentScan(basePackages = "com.std")
 @SpringBootApplication(scanBasePackages = "com.std")
 public class ApplicationRun {
+
+    private final Logger logger = LoggerFactory.getLogger(ApplicationRun.class);
 
 
     public static void main(String[] args) {
@@ -49,10 +53,24 @@ public class ApplicationRun {
 
     @PostConstruct
     public void testAsync() {
-        System.out.println("-------------method begins----------------");
+        /*System.out.println("-------------method begins----------------");
         demo.methodB();
         demo.methodA();
-        System.out.println("-------------method ends----------------");
+        System.out.println("-------------method ends----------------");*/
+        new Thread() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Thread.sleep(300L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    logger.info("test");
+                }
+            }
+        }.start();
+
     }
 
 }
