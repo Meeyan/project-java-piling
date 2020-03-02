@@ -229,6 +229,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * Performs lock.  Try immediate barge, backing up to normal
          * acquire on failure.
          */
+        @Override
         final void lock() {
 
             /**
@@ -248,6 +249,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * @param acquires int
          * @return boolean
          */
+        @Override
         protected final boolean tryAcquire(int acquires) {
             return nonfairTryAcquire(acquires);
         }
