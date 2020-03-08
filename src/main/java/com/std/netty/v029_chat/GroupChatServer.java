@@ -43,7 +43,9 @@ public class GroupChatServer {
 
         try {
             while (true) {
-                int count = selector.select(2000);
+
+                // 超时2秒
+                int count = selector.select();
 
                 // 有事件需要处理
                 if (count > 0) {
@@ -56,6 +58,9 @@ public class GroupChatServer {
                         if (key.isAcceptable()) {
                             SocketChannel accept = serverSocketChannel.accept();
 
+                            // 设置非阻塞
+                            accept.configureBlocking(false);
+
                             // 注册到selector，关注read事件
                             accept.register(selector, SelectionKey.OP_READ);
 
@@ -64,7 +69,7 @@ public class GroupChatServer {
 
                         // 通道发生读操作
                         if (key.isReadable()) {
-                            readData(key);
+                            groupChat(key);
                         }
 
                         // 移除，防止重复处理
@@ -73,14 +78,19 @@ public class GroupChatServer {
                 } else {
                     System.out.println("server waiting");
                 }
-
             }
         } catch (Exception e) {
 
         }
     }
 
-    private void readData(SelectionKey selectionKey) throws IOException {
+    /**
+     * 群消息转发
+     *
+     * @param selectionKey
+     * @throws IOException
+     */
+    private void groupChat(SelectionKey selectionKey) throws IOException {
         SocketChannel channel = null;
         try {
             channel = (SocketChannel) selectionKey.channel();
@@ -88,9 +98,9 @@ public class GroupChatServer {
             ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
             int count = channel.read(byteBuffer);
 
-            //
+            // 读取到了数据
             if (count > 0) {
-                String message = new String(byteBuffer.array());
+                String message = new String(byteBuffer.array(), 0, count);
                 System.out.println("from 客户端:" + message);
 
                 // 向其他客户端转发消息，排除自己
@@ -100,7 +110,7 @@ public class GroupChatServer {
         } catch (Exception e) {
             e.printStackTrace();
             if (channel != null) {
-                System.out.println(channel.getRemoteAddress() + "离线了，");
+                System.out.println(channel.getRemoteAddress() + "离线了");
 
                 // 取消注册
                 selectionKey.cancel();
@@ -112,10 +122,10 @@ public class GroupChatServer {
     }
 
     /**
-     * 转发消息
+     * 转发消息 - 转发时要排除自己
      *
-     * @param msg
-     * @param selfChannel SocketChannel
+     * @param msg         String
+     * @param selfChannel SocketChannel 代表当前自己的channel，需要被排除
      */
     private void sendInfoToOtherClients(String msg, SocketChannel selfChannel) throws IOException {
         System.out.println("服务器转发消息。。。");
@@ -127,10 +137,17 @@ public class GroupChatServer {
             // 排除自己
             if (targetChannel instanceof SocketChannel && targetChannel != selfChannel) {
                 ByteBuffer wrap = ByteBuffer.wrap(msg.getBytes());
+
+
+                // 向channel中写入数据
                 ((SocketChannel) targetChannel).write(wrap);
             }
         }
+    }
 
-
+    public static void main(String[] args) {
+        GroupChatServer chatServer = new GroupChatServer();
+        chatServer.start();
+        chatServer.listen();
     }
 }
