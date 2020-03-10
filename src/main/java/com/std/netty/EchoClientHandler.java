@@ -32,12 +32,13 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         ctx.writeAndFlush(buffer);
         logger.info("EchoClientHandler 有新连接");
 
+
         new Thread() {
             @Override
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(1000L);
+                        Thread.sleep(30000L);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
