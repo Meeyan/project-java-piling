@@ -46,10 +46,11 @@ public class GroupChatServer {
                             ch.pipeline().addLast("encoder", new StringEncoder());
 
                             // 加入自己的业务处理handler
-                            ch.pipeline().addLast(null);
+                            ch.pipeline().addLast(new GroupChatServerHander());
                         }
                     });
 
+            System.out.println("groupChatServer start port:" + port);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
 
             channelFuture.channel().closeFuture().sync();
