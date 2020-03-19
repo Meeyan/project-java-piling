@@ -12,6 +12,7 @@ import io.netty.buffer.Unpooled;
 public class ByteBufTest {
     public static void main(String[] args) {
 
+        long startTime = System.currentTimeMillis();
         /**
          * 创建一个10个大小的buf
          * 1. 在netty中，ByteBuf不需要使用flip进行反转（nio中的ByteBuffer需要）
@@ -42,5 +43,6 @@ public class ByteBufTest {
         }
 
         System.out.println("执行完毕");
+        System.out.println("耗时：" + (System.currentTimeMillis() - startTime));
     }
 }
