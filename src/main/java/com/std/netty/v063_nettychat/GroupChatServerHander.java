@@ -9,7 +9,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 /**
- * server端工作对象
+ * 群聊server端工作对象
  *
  * @author zhaojy
  * @date 2020/3/11 22:21

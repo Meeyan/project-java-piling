@@ -12,6 +12,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import lombok.Data;
 
 /**
+ * 群聊服务端
+ *
  * @author zhaojy
  * @date 2020/3/11 22:10
  */
