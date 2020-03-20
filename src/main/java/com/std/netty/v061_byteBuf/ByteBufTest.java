@@ -11,10 +11,10 @@ import io.netty.buffer.Unpooled;
  */
 public class ByteBufTest {
     public static void main(String[] args) {
-
         long startTime = System.currentTimeMillis();
+
         /**
-         * 创建一个10个大小的buf
+         * 创建一个10个大小的buf)
          * 1. 在netty中，ByteBuf不需要使用flip进行反转（nio中的ByteBuffer需要）
          * 2. 底层维护了 readerIndex 和 writeIndex
          * 3. 跟踪代码可以发现，readerIndex, writerIndex, capacity 将buffer分成了三个区：

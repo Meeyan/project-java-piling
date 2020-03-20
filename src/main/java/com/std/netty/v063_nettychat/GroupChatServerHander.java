@@ -93,5 +93,15 @@ public class GroupChatServerHander extends SimpleChannelInboundHandler<String> {
         channelGroup.writeAndFlush("[客户端]" + ctx.channel().remoteAddress() + " 加入聊天\n");
 
         channelGroup.add(ctx.channel());
+
+        // 将该客户加入聊天的信息推送给其他在线的客户端
+
+        /**
+         * 调用该方法，我们不需要自己遍历
+         * 该方法底层会遍历所有的channel，发送消息
+         */
+        channelGroup.writeAndFlush("[客户端]" + ctx.channel().remoteAddress() + " 加入聊天");
+
+        super.handlerAdded(ctx);
     }
 }

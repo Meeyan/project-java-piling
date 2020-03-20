@@ -50,6 +50,8 @@ public class GroupChatServer {
                         }
                     });
 
+            System.out.println("netty 服务端启动完成");
+
             System.out.println("groupChatServer start port:" + port);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
 
