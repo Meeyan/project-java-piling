@@ -48,7 +48,7 @@ public class GroupChatServer {
                             ch.pipeline().addLast("encoder", new StringEncoder());
 
                             // 加入自己的业务处理handler
-                            ch.pipeline().addLast(new GroupChatServerHander());
+                            ch.pipeline().addLast(new GroupChatServerHandler());
                         }
                     });
 

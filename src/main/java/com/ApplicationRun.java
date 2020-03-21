@@ -60,7 +60,7 @@ public class ApplicationRun {
         new Thread() {
             @Override
             public void run() {
-                while(true) {
+                while (true) {
                     try {
                         Thread.sleep(300L);
                     } catch (InterruptedException e) {

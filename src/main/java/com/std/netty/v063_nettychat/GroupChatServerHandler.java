@@ -14,7 +14,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  * @author zhaojy
  * @date 2020/3/11 22:21
  */
-public class GroupChatServerHander extends SimpleChannelInboundHandler<String> {
+public class GroupChatServerHandler extends SimpleChannelInboundHandler<String> {
 
 
     /**
