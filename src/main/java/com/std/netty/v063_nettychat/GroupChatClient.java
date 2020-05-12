@@ -69,6 +69,6 @@ public class GroupChatClient {
     }
 
     public static void main(String[] args) {
-        new GroupChatClient("10.100.3.2", 10086).run();
+        new GroupChatClient("localhost", 10086).run();
     }
 }
