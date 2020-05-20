@@ -2,6 +2,8 @@ package com.std.arithmetic;
 
 import cn.hutool.core.util.ObjectUtil;
 
+import java.util.Stack;
+
 /**
  * 二叉树
  *
@@ -9,6 +11,43 @@ import cn.hutool.core.util.ObjectUtil;
  * @date 2020/5/11 6:11 PM
  */
 public class BinaryTree {
+
+
+    /**
+     * 先序遍历二叉树 - 递归
+     *
+     * @param node Node
+     */
+    public void preOrderTreeWalkRecursive(Node node) {
+        if (ObjectUtil.isNotNull(node)) {
+            System.out.println(node.value);
+            preOrderTreeWalkRecursive(node.left);
+            preOrderTreeWalkRecursive(node.right);
+        }
+    }
+
+    /**
+     * 先序遍历二叉树 - 栈
+     *
+     * @param root Node
+     */
+    public void preOrderTreeWalkStack(Node root) {
+        Stack<Node> treeNodeStack = new Stack<>();
+        Node node = root;
+        while (node != null || !treeNodeStack.isEmpty()) {
+            // 处理左子树，并入栈
+            while (node != null) {
+                System.out.println(node.value + " ");
+                treeNodeStack.push(node);
+                node = node.left;
+            }
+            // 处理完左子树后，回溯，搞到left.parent.right，继续遍历
+            if (!treeNodeStack.isEmpty()) {
+                node = treeNodeStack.pop();
+                node = node.right;
+            }
+        }
+    }
 
 
     /**
@@ -54,7 +93,7 @@ public class BinaryTree {
      *
      * @param node  Node
      * @param value int
-     * @return
+     * @return Node
      */
     public Node iterativeTreeSearch(Node node, int value) {
         while (node != null && value != node.value) {
@@ -98,13 +137,16 @@ public class BinaryTree {
     /**
      * 查找后继节点。
      * 后继节点：这个树转换成线性有序（升序）状态后，紧随其后的节点便是后继节点
+     * 前驱节点：这个树转换成线性有序（升序）状态后，紧在其前的节点便是前驱节点
      *
      * @param node Node
      * @return Node
      */
     public Node treeSuccessor(Node node) {
+
+        // 如果存在右子树，则查找右子树中的最小节点，则该节点就是后继节点
         if (ObjectUtil.isNotNull(node.right)) {
-            return treeSuccessor(node.right);
+            return findTreeMinimum(node.right);
         }
 
         Node parent = node.parent;
@@ -115,6 +157,7 @@ public class BinaryTree {
         }
         return parent;
     }
+
 
 }
 

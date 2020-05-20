@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--status 是否记录log4j2本身的event信息默认OFF print level:TRACE < DEBUG < INFO <WARN < ERROR < FATAL
     monitorInterval 300秒检查一下配置，如果有变化不需要重启服务，自动更新-->
-<Configuration status="TRACE" monitorInterval="300">
+<Configuration status="INFO" monitorInterval="300">
     <Properties>
         <!--自定义指定路径-->
         <Property name="LOG_HOME">/mnt/logs/javaStudy</Property>
@@ -41,27 +41,27 @@
          -->
         <AsyncLogger name="com.common" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+            <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
 
         <AsyncLogger name="com.Interview.thread" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+            <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
 
         <AsyncLogger name="com.leetcode" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+            <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
 
         <AsyncLogger name="com.std" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+            <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
 
         <AsyncLogger name="com.util" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="DefaultRollingFile" additivity="false"/>
+            <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
 
         <AsyncLogger name="org.springframework" additivity="false">
@@ -70,6 +70,10 @@
         </AsyncLogger>
 
         <AsyncLogger name="org.mybatis" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DefaultRollingFile"/>
+        </AsyncLogger>
+        <AsyncLogger name="org.apache" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="DefaultRollingFile"/>
         </AsyncLogger>
