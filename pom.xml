@@ -10,10 +10,10 @@
         <!-- lookup parent from repository -->
     </parent>
     <groupId>com.study.java</groupId>
-    <artifactId>javaStudy</artifactId>
+    <artifactId>project-java-piling</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>javaStudy</name>
+    <name>project-java-piling</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
