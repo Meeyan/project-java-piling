@@ -51,21 +51,45 @@ public class BinaryTree {
 
 
     /**
-     * 中序遍历二叉树
+     * 中序遍历二叉树 - 递归
      *
      * @param node Node
      */
-    public void inorderTreeWalk(Node node) {
+    public void midOrderTreeWalkRecursive(Node node) {
         if (node != null) {
 
-            inorderTreeWalk(node.left);
+            midOrderTreeWalkRecursive(node.left);
 
             System.out.println(node.value);
 
-            inorderTreeWalk(node.right);
+            midOrderTreeWalkRecursive(node.right);
         }
     }
 
+    /**
+     * 中序遍历 - 栈式操作
+     *
+     * @param root Node
+     */
+    public void midOrderTreeWalkStack(Node root) {
+        Stack<Node> treeNodeStack = new Stack<>();
+        Node node = root;
+        while (node != null || !treeNodeStack.isEmpty()) {
+
+            while (node != null) {
+                treeNodeStack.push(node);
+                node = node.left;
+            }
+
+            // 找到了左子树中没有子树的点，但是为 null
+            // 此时 pop 栈顶节点，打印，然后找出栈元素的右子树
+            if (!treeNodeStack.isEmpty()) {
+                node = treeNodeStack.pop();
+                System.out.println(node.value);
+                node = node.right;
+            }
+        }
+    }
 
     /**
      * 搜索节点
