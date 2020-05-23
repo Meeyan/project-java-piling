@@ -92,6 +92,72 @@ public class BinaryTree {
     }
 
     /**
+     * 后续遍历二叉树 - 递归
+     *
+     * @param node Node
+     */
+    public void postOrderTreeWalkRecursive(Node node) {
+        if (node != null) {
+
+            postOrderTreeWalkRecursive(node.left);
+
+            postOrderTreeWalkRecursive(node.right);
+
+            System.out.println(node.value);
+        }
+    }
+
+    /**
+     * 后续遍历二叉树 - 栈式 - 方法一 <br />
+     * 对任意节点p，将其入栈，然后沿着其左子树一直向下搜索，直到搜索到没有左子树的节点，此时该节点出现在栈顶，但是此时不能将其出栈访问，因为此节点的右子还未被访问。<br />
+     * 所以接下来按照同样的规则对其右子树进行相同的处理。当访问完其右子树时，该节点又出现在栈顶，此时可以将其出栈并访问。这样就保证了正确的访问顺序。<br />
+     * 可以看出，在整个过程中，每个节点都两次出现在栈顶，只有第二次出现在栈顶时，才能访问它。因此需要设置一个变量标识该节点是否是第一次出现在栈顶。<br />
+     * <p>
+     * 缺点：栈中会出现重复元素，浪费空间，效率低。
+     *
+     * @param root Node
+     */
+    public void postOrderTreeWalkStack(Node root) {
+        Stack<Node> treeNodeStack = new Stack<>();
+        Node node = root;
+        while (node != null || !treeNodeStack.isEmpty()) {
+            while (node != null) {
+                treeNodeStack.push(node);
+                node = node.left;
+            }
+
+            node = treeNodeStack.peek();
+
+            // 节点无左子，有右子，右子树继续入栈
+            if (node != null && node.right != null) {
+                node = node.right;
+                continue;
+            }
+
+
+            // 进行到此处，则节点的左右子树均为 null
+
+            /*
+             * node 是父节点的左子，则node.parent一定存在，所以下面的 treeNodeStack.peek() 不会有问题
+             */
+            if (node != null) {
+                System.out.println(node.value);
+                treeNodeStack.pop();
+                if (node.parent != null) {
+                    if (node == node.parent.left) {
+                        node = treeNodeStack.peek().right;
+                    } else {
+                        // 左右子树均遍历完成，输出父节点的值
+                        node = treeNodeStack.pop();
+                        System.out.println(node.value);
+                        node = null;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * 搜索节点
      * - 从树根开始递归期间遇到的节点就形成了一条向下的简单路径，所以treeSearch的运行时间为 O(h)，
      * 其中h是这棵树的高度。
