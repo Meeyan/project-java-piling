@@ -226,6 +226,7 @@ public class BinaryTree {
 
     /**
      * 查找后继节点。
+     * <p>
      * 后继节点：这个树转换成线性有序（升序）状态后，紧随其后的节点便是后继节点
      * 前驱节点：这个树转换成线性有序（升序）状态后，紧在其前的节点便是前驱节点
      *
@@ -233,6 +234,12 @@ public class BinaryTree {
      * @return Node
      */
     public Node treeSuccessor(Node node) {
+
+        /**
+         * 两种情况：
+         * 1. node 有右子，则其后继一定在右子树。
+         * 2. node 无右子，则表明 node 直接右子无后继节点，此时需要回溯，向上找最近的 有左子的父节点 pNode，则 pNode 就是 node 的后继。
+         */
 
         // 如果存在右子树，则查找右子树中的最小节点，则该节点就是后继节点
         if (ObjectUtil.isNotNull(node.right)) {
