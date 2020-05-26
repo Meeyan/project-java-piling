@@ -12,7 +12,6 @@ import java.util.Stack;
  */
 public class BinaryTree {
 
-
     /**
      * 先序遍历二叉树 - 递归
      *
@@ -20,7 +19,7 @@ public class BinaryTree {
      */
     public void preOrderTreeWalkRecursive(Node node) {
         if (ObjectUtil.isNotNull(node)) {
-            System.out.println(node.value);
+            System.out.print(node.value + " ");
             preOrderTreeWalkRecursive(node.left);
             preOrderTreeWalkRecursive(node.right);
         }
@@ -37,7 +36,7 @@ public class BinaryTree {
         while (node != null || !treeNodeStack.isEmpty()) {
             // 处理左子树，并入栈
             while (node != null) {
-                System.out.println(node.value + " ");
+                System.out.print(node.value + " ");
                 treeNodeStack.push(node);
                 node = node.left;
             }
@@ -60,7 +59,7 @@ public class BinaryTree {
 
             midOrderTreeWalkRecursive(node.left);
 
-            System.out.println(node.value);
+            System.out.print(node.value + " ");
 
             midOrderTreeWalkRecursive(node.right);
         }
@@ -85,7 +84,7 @@ public class BinaryTree {
             // 此时 pop 栈顶节点，打印，然后找出栈元素的右子树
             if (!treeNodeStack.isEmpty()) {
                 node = treeNodeStack.pop();
-                System.out.println(node.value);
+                System.out.print(node.value + " ");
                 node = node.right;
             }
         }
@@ -103,37 +102,79 @@ public class BinaryTree {
 
             postOrderTreeWalkRecursive(node.right);
 
-            System.out.println(node.value);
+            System.out.print(node.value + " ");
         }
     }
 
     /**
      * 后续遍历二叉树 - 栈式 - 方法一 <br />
-     * 对任意节点p，将其入栈，然后沿着其左子树一直向下搜索，直到搜索到没有左子树的节点，此时该节点出现在栈顶，但是此时不能将其出栈访问，因为此节点的右子还未被访问。<br />
-     * 所以接下来按照同样的规则对其右子树进行相同的处理。当访问完其右子树时，该节点又出现在栈顶，此时可以将其出栈并访问。这样就保证了正确的访问顺序。<br />
-     * 可以看出，在整个过程中，每个节点都两次出现在栈顶，只有第二次出现在栈顶时，才能访问它。因此需要设置一个变量标识该节点是否是第一次出现在栈顶。<br />
      * <p>
-     * 缺点：栈中会出现重复元素，浪费空间，效率低。
+     * 对任意节点p，将其入栈，然后沿着其左子树一直向下搜索，直到搜索到没有左子树的节点，此时该节点出现在栈顶，但是此时不能将其出栈 <br />
+     * 访问，因为此节点的右子还未被访问。所以接下来按照同样的规则对其右子树进行相同的处理。当访问完其右子树时，该节点又出现在栈顶，此时<br />
+     * 可以将其出栈并访问。这样就保证了正确的访问顺序。可以看出，在整个过程中，每个节点都两次出现在栈顶，只有第二次出现在栈顶时，才能访问它。<br />
+     * 因此需要设置一个变量标识该节点是否是第一次出现在栈顶。<br />
+     * <p>
+     * 缺点：<br />
+     * -- 1. 同一个元素会出现2次入栈和出栈，浪费空间，效率低。
+     * -- 2. 步长较多
      *
      * @param root Node
      */
     public void postOrderTreeWalkStack(Node root) {
         Stack<Node> treeNodeStack = new Stack<>();
         Node node = root;
+        Node tmpNode;
+        while (node != null || !treeNodeStack.isEmpty()) {
+            while (node != null) {
+                treeNodeStack.push(node);
+                node.isFirst = true;
+                node = node.left;
+            }
+
+            if (!treeNodeStack.isEmpty()) {
+                tmpNode = treeNodeStack.peek();
+                treeNodeStack.pop();
+                if (tmpNode.isFirst) {
+                    tmpNode.isFirst = false;
+                    treeNodeStack.push(tmpNode);
+                    node = tmpNode.right;
+                } else {
+                    System.out.print(tmpNode.value + " ");
+                    node = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * 后续遍历二叉树 - 栈式 - 方法一 <br />
+     * <p>
+     * 1. 需要构建一个父节点
+     * 2. 只有右子需要特殊处理，参考流程图
+     * 参考链接：https://www.jianshu.com/p/456af5480cee
+     *
+     * @param root Node
+     */
+    public void postOrderTreeWalkStack_2(Node root) {
+        Stack<Node> treeNodeStack = new Stack<>();
+        Node node = root;
+
+        // 右子访问后，避免再次入栈
+        Node lastVisit = root;
         while (node != null || !treeNodeStack.isEmpty()) {
             while (node != null) {
                 treeNodeStack.push(node);
                 node = node.left;
             }
 
+            // 看一下栈顶的节点
             node = treeNodeStack.peek();
 
             // 节点无左子，有右子，右子树继续入栈
-            if (node != null && node.right != null) {
+            if (node != null && node.right != null && node.right != lastVisit) {
                 node = node.right;
                 continue;
             }
-
 
             // 进行到此处，则节点的左右子树均为 null
 
@@ -141,17 +182,16 @@ public class BinaryTree {
              * node 是父节点的左子，则node.parent一定存在，所以下面的 treeNodeStack.peek() 不会有问题
              */
             if (node != null) {
-                System.out.println(node.value);
-                treeNodeStack.pop();
+                lastVisit = node = treeNodeStack.pop();
+                System.out.print(node.value + " ");
                 if (node.parent != null) {
                     if (node == node.parent.left) {
                         node = treeNodeStack.peek().right;
                     } else {
-                        // 左右子树均遍历完成，输出父节点的值
-                        node = treeNodeStack.pop();
-                        System.out.println(node.value);
                         node = null;
                     }
+                } else {
+                    node = null;
                 }
             }
         }
@@ -255,6 +295,71 @@ public class BinaryTree {
         return parent;
     }
 
+    /**
+     * 构建一个树
+     *
+     * @param array int[]
+     * @return Node
+     */
+    public Node buildBinaryTree(int[] array, int rootValue) {
+        if (null == array || array.length <= 0) {
+            return null;
+        }
+        Node root = new Node();
+        root.value = rootValue;
+        for (int value : array) {
+            insertNode(root, value);
+        }
+        return root;
+    }
+
+    public void insertNode(Node node, int value) {
+        if (value == node.value) {
+            return;
+        }
+        if (value < node.value) {
+            if (node.left == null) {
+                Node left = new Node(value);
+                node.left = left;
+                left.parent = node;
+            } else {
+                insertNode(node.left, value);
+            }
+        } else {
+            if (node.right == null) {
+                Node right = new Node(value);
+                node.right = right;
+                right.parent = node;
+            } else {
+                insertNode(node.right, value);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] array = {1, 8, 29, 10, 18, 23, 16, 33, 26, 21};
+        BinaryTree binaryTree = new BinaryTree();
+        Node node = binaryTree.buildBinaryTree(array, 1);
+
+        System.out.print("\n先序-递归：");
+        binaryTree.preOrderTreeWalkRecursive(node);
+
+        System.out.print("\n先序-栈  ：");
+        binaryTree.preOrderTreeWalkStack(node);
+        System.out.print("\n中序-递归：");
+        binaryTree.midOrderTreeWalkRecursive(node);
+        System.out.print("\n中序-栈  ：");
+        binaryTree.midOrderTreeWalkStack(node);
+
+        System.out.print("\n后序-递归：");
+        binaryTree.postOrderTreeWalkRecursive(node);
+
+        System.out.print("\n后序-栈1 ：");
+        binaryTree.postOrderTreeWalkStack(node);
+        System.out.print("\n后序-栈2 ：");
+        binaryTree.postOrderTreeWalkStack_2(node);
+    }
+
 
 }
 
@@ -278,4 +383,13 @@ class Node {
      * 值
      */
     public int value;
+
+    public boolean isFirst;
+
+    public Node(int value) {
+        this.value = value;
+    }
+
+    public Node() {
+    }
 }
