@@ -295,6 +295,27 @@ public class BinaryTree {
     }
 
     /**
+     * 查找前驱节点
+     * <p> 前驱节点定义看上面
+     *
+     * @param node Node
+     * @return Node
+     */
+    public Node treePredecessor(Node node) {
+
+        if (ObjectUtil.isNotNull(node.left)) {
+            return findTreeMaximum(node.left);
+        }
+
+        Node parent = node.parent;
+        while (ObjectUtil.isNotNull(parent) && node == parent.left) {
+            node = parent;
+            parent = parent.parent;
+        }
+        return parent;
+    }
+
+    /**
      * 构建一个树
      *
      * @param array int[]
