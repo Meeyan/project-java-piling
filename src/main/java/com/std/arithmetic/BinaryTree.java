@@ -356,6 +356,37 @@ public class BinaryTree {
         }
     }
 
+    public void treeInsert(Node tree, int value) {
+
+        Node z = new Node(value);
+
+        Node y = null;
+        Node x = tree;
+        while (x != null) {
+
+            // 1. 处理相等的情况
+            y = x;
+
+            // 2. 左子
+            if (z.value < x.left.value) {
+                x = x.left;
+            } else {
+                // 3. 右子
+                x = x.right;
+            }
+        }
+
+        z.parent = y;
+
+        if (y == null) {
+            tree = z;
+        } else if (z.value < y.value) {
+            y.left = z;
+        } else {
+            y.right = z;
+        }
+    }
+
     public static void main(String[] args) {
         int[] array = {1, 8, 29, 10, 18, 23, 16, 33, 26, 21};
         BinaryTree binaryTree = new BinaryTree();
