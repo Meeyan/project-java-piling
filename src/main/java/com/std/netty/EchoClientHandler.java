@@ -28,7 +28,7 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
             return;
         }
         final ByteBuf buffer = ctx.alloc().buffer(8);
-        buffer.writeBytes("连接已经建立，我要发送消息了。".getBytes());
+        buffer.writeBytes("{}".getBytes());
         ctx.writeAndFlush(buffer);
         logger.info("EchoClientHandler 有新连接");
 
@@ -38,15 +38,14 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(30000L);
+                        Thread.sleep(3000L);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     final ByteBuf buffer = ctx.alloc().buffer(8);
-                    String[] dataArray = {"unionman", "other"};
-                    String deviceType = dataArray[0];
+                    String deviceType = "{\"mac\":\"8c:ba:25:26:df:ef\",\"type\":\"glnet\"}";
                     if (System.currentTimeMillis() % 2 == 0) {
-                        deviceType = dataArray[1];
+                        deviceType = "{\"mac\":\"8c:ba:25:26:df:e3\",\"type\":\"unionman\"}";
                     }
                     buffer.writeBytes((deviceType).getBytes());
                     ctx.writeAndFlush(buffer);
