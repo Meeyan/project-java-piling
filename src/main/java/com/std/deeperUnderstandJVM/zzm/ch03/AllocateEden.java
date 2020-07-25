@@ -1,4 +1,4 @@
-package com.std.srljjxnj.zzm.ch03;
+package com.std.deeperUnderstandJVM.zzm.ch03;
 
 /**
  * 3.6.1 测试

@@ -1,4 +1,4 @@
-package com.std.srljjxnj.zzm.ch03;
+package com.std.deeperUnderstandJVM.zzm.ch03;
 
 /**
  * 3.6.2 测试大对象直接在老年代分配。不推荐，老年代回收比较慢（标记算法）
