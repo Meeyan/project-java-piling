@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zzm.ch03;
+package com.std.deep_understand_jvm.zzm.ch03;
 
 /**
  * 测试 3.6.3 ：长期存活对象将进入老年代【对 ParNew 有效，对PS收集器无效】

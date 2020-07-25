@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zl.v005;
+package com.std.deep_understand_jvm.zl.v005;
 
 /**
  * 初始化子类，会主动初始化父类

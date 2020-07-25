@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zl.v007;
+package com.std.deep_understand_jvm.zl.v007;
 
 import java.util.UUID;
 

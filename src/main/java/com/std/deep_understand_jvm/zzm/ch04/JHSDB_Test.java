@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zzm.ch04;
+package com.std.deep_understand_jvm.zzm.ch04;
 
 
 /**

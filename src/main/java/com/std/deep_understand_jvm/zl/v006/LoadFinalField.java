@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zl.v006;
+package com.std.deep_understand_jvm.zl.v006;
 
 /**
  * 常量在编译阶段会存入到“调用这个常量的方法所在类”的常量池中

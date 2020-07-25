@@ -1,7 +1,7 @@
-package com.std.deeperUnderstandJVM.zl.v007;
+package com.std.deep_understand_jvm.zl.v007;
 
 /**
- * 对于数组类型说，其类型是由JVM在运行期动态生成的，表示为  [Lcom.std.deeperUnderstandJVM.zl.v007.MyParentIns; 这种形式。
+ * 对于数组类型说，其类型是由JVM在运行期动态生成的，表示为  [Lcom.std.deep_understand_jvm.zl.v007.MyParentIns; 这种形式。
  * 动态生成的类型，其父类型就是Object
  * 对于数组来说，JavaDoc经常将构成数组的元素为Component，实际上就是将数组降低为一个维度后的类型
  * <p>

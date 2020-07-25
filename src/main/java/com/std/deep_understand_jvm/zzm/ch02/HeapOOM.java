@@ -1,4 +1,4 @@
-package com.std.deeperUnderstandJVM.zzm.ch02;
+package com.std.deep_understand_jvm.zzm.ch02;
 
 import java.util.ArrayList;
 import java.util.List;
