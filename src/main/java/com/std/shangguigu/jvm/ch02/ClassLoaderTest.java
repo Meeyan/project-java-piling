@@ -1,4 +1,4 @@
-package com.std.shangguigu.jvm.part02;
+package com.std.shangguigu.jvm.ch02;
 
 /**
  * @author zhaojy

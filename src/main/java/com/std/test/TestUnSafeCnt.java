@@ -2,8 +2,6 @@ package com.std.test;
 
 import com.std.utils.HttpUtils;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * 多线程测试
  * 启动3个线程，访问非线程安全的服务，然后观察结果

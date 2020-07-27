@@ -1,4 +1,4 @@
-package com.std.shangguigu.jvm.part02;
+package com.std.shangguigu.jvm.ch02;
 
 import sun.misc.Launcher;
 import sun.security.ec.CurveDB;

@@ -6,7 +6,7 @@ package java.lang;
  * @author zhaojy
  * @date 2020/7/25 22:53
  */
-public class String {
+public class StringTest {
 
     /**
      * 直接运行 main 方法会报错，为什么？
