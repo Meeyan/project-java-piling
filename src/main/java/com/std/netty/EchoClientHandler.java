@@ -43,9 +43,9 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
                         e.printStackTrace();
                     }
                     final ByteBuf buffer = ctx.alloc().buffer(8);
-                    String deviceType = "{\"mac\":\"8c:ba:25:26:df:ef\",\"type\":\"glnet\"}";
+                    String deviceType = "{\"mac\":\"50:80:4A:3D:87:10\",\"type\":\"glnet\"}";
                     if (System.currentTimeMillis() % 2 == 0) {
-                        deviceType = "{\"mac\":\"8c:ba:25:26:df:e3\",\"type\":\"unionman\"}";
+                        deviceType = "{\"mac\":\"50:80:4A:3D:87:10\",\"type\":\"unionman\"}";
                     }
                     buffer.writeBytes((deviceType).getBytes());
                     ctx.writeAndFlush(buffer);

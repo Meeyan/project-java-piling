@@ -77,7 +77,7 @@ public class EchoClient {
         new Thread() {
             @Override
             public void run() {
-                EchoClient echoClient = new EchoClient("172.28.20.15", 10086);
+                EchoClient echoClient = new EchoClient("10.100.3.2", 10087);
                 try {
                     echoClient.start();
                 } catch (Exception e) {
