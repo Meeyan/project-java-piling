@@ -38,14 +38,14 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(3000L);
+                        Thread.sleep(30000L);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     final ByteBuf buffer = ctx.alloc().buffer(8);
-                    String deviceType = "{\"mac\":\"50:80:4A:3D:87:10\",\"type\":\"glnet\"}";
+                    String deviceType = "{\"ip\" : \"10.12.0.158\",\"mac\" : \"94:83:c4:02:cd:ca\",\"peer\" : \"10.12.0.158\",\"type\" : \"glnet\"}";
                     if (System.currentTimeMillis() % 2 == 0) {
-                        deviceType = "{\"mac\":\"50:80:4A:3D:87:10\",\"type\":\"unionman\"}";
+                        deviceType = "{\"ip\" : \"10.12.0.158\",\"mac\" : \"94:83:c4:02:cd:ca\",\"peer\" : \"10.12.0.158\",\"type\" : \"glnet\"}";
                     }
                     buffer.writeBytes((deviceType).getBytes());
                     ctx.writeAndFlush(buffer);
