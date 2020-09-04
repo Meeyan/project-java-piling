@@ -30,6 +30,15 @@ public class StackAllocation {
         TestUser user = new TestUser();
         // 未发生逃逸
     }
+
+    public void f() {
+        // 多线程访问下，这样加锁没有意义，因为用的是实例锁，没有达到加锁目的，性能还低
+        Object lock = new Object();
+        synchronized (lock) {
+            System.out.println("lock");
+        }
+    }
+
 }
 
 class TestUser {
