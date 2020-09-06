@@ -7,6 +7,7 @@ package com.std.shangguigu.jvm.ch04;
  * @date 2020/7/27 23:21
  */
 public class PCRegisterTest {
+
     public static void main(String[] args) {
         int i = 10;
         int k = 20;
