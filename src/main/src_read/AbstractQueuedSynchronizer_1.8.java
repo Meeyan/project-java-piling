@@ -1381,10 +1381,14 @@ public abstract class AbstractQueuedSynchronizer
      *            can represent anything you like.
      */
     public final void acquire(int arg) {
-
         /*
-         * tryAcquire(arg)：获取锁方法，在子类实现里找【NonfairSync.tryAcquire()或者FairSync.tryAcquire()】
-         * acquireQueued(addWaiter(Node.EXCLUSIVE), arg):当前线程入队列方法
+         * 1、tryAcquire(arg)：获取锁方法，默认为空实现，有四个子类实现：
+         * - 1.1 ReentrantLock.NonfairSync.tryAcquire
+         * - 1.2 ReentrantLock.FairSync.tryAcquire
+         * - 1.3 ReentrantReadWriteLock.Lock.tryAcquire
+         * - 1.4 ThreadPoolExecutor.Worker.tryAcquire
+         *
+         * 2、acquireQueued(addWaiter(Node.EXCLUSIVE), arg):当前线程入队列方法
          * 解释：
          *    1. 如果获取锁失败，则把当前线程入队列，
          *         selfInterrupt()：中断当前线程？acquireQueued内部会有中断操作。
