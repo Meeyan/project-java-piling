@@ -2065,10 +2065,15 @@ public abstract class AbstractQueuedSynchronizer
     public class ConditionObject implements Condition, java.io.Serializable {
         private static final long serialVersionUID = 1173984872572414699L;
         /**
+         * 返回包含那些可能正在等待此条件的线程集合
+         * <p>
          * First node of condition queue.
          */
         private transient Node firstWaiter;
+
         /**
+         * condition队列的尾结点
+         * <p>
          * Last node of condition queue.
          */
         private transient Node lastWaiter;
@@ -2128,8 +2133,9 @@ public abstract class AbstractQueuedSynchronizer
          */
         private void doSignal(Node first) {
             do {
-                // 头节点指向原头节点的后继节点
-                // 队列只有一个等待节点，那么lastWaiter置空，first.nextWaiter置空
+                // 注意：触发了 doSignal 方法的节点一定是当前拿到了锁的头节点
+                // 头节点指向当前节点的后继节点
+                // 如果 nextWaiter 为空 则意味着当前节点是唯一的等待节点，所以 firstWaiter 和 lastWaiter 都将为空
                 if ((firstWaiter = first.nextWaiter) == null) {
                     lastWaiter = null;
                 }
@@ -2143,17 +2149,24 @@ public abstract class AbstractQueuedSynchronizer
          * @param first (non-null) the first node on condition queue
          */
         private void doSignalAll(Node first) {
+            // condition队列的头结点尾结点都设置为空
             lastWaiter = firstWaiter = null;
+            // 循环
             do {
+                // 获取first结点的nextWaiter域结点
                 Node next = first.nextWaiter;
+                // 设置first结点的nextWaiter域为空
                 first.nextWaiter = null;
+                // 将first结点从condition队列转移到sync队列
                 transferForSignal(first);
+                // 重新设置first
                 first = next;
             } while (first != null);
         }
 
         /**
          * 移除队列中不需要等待的节点
+         *
          * <p>
          * Unlinks cancelled waiter nodes from condition queue.
          * Called only while holding lock. This is called when
@@ -2182,28 +2195,28 @@ public abstract class AbstractQueuedSynchronizer
             Node t = firstWaiter;
 
             /**
-             * trial的作用：总是指向队列中等待Condition的节点，从头到尾，依次变化，直到队列尾部。
+             * trial 的作用：总是指向队列中等待Condition的节点，从头到尾，依次变化，直到队列尾部。
              *  因为lastWaiter总是指向队列的尾节点，所以一旦发现尾节点失效，需要及时更新lastWaiter
              *
              *  举例：
              *  一个队列：case1
-             *    1  == condition 第一次：trial 指向1
-             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
-             *    3  == condition 第三次：trial指向3
-             *    4  == condition 第四次：trial指向4，删除了2节点
+             *    1  == condition 第一次：trial  指向1
+             *    2  != condition 第二次：trial 为1，1.nextWaiter指向3
+             *    3  == condition 第三次：trial 指向3
+             *    4  == condition 第四次：trial 指向4，删除了2节点
              *
              *  一个队列：case2
-             *    1  == condition 第一次：trial 指向1
-             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
-             *    3  != condition 第三次：trial为1，1.nextWaiter指向4
-             *    4  == condition 第四次：trial指向4，删除了2，3节点
+             *    1  == condition 第一次：trial  指向1
+             *    2  != condition 第二次：trial 为1，1.nextWaiter指向3
+             *    3  != condition 第三次：trial 为1，1.nextWaiter指向4
+             *    4  == condition 第四次：trial 指向4，删除了2，3节点
              *
              *  一个队列：case3
-             *    1  == condition 第一次：trial 指向1
-             *    2  != condition 第二次：trial为1，1.nextWaiter指向3
-             *    3  != condition 第三次：trial为1，1.nextWaiter指向4
-             *    4  == condition 第四次：trial指向4
-             *    5  != condition 第五次：trial为4，4.nextWaiter指向next，next为null，那么lastWaiter指向trial（4）
+             *    1  == condition 第一次：trial  指向1
+             *    2  != condition 第二次：trial 为1，1.nextWaiter指向3
+             *    3  != condition 第三次：trial 为1，1.nextWaiter指向4
+             *    4  == condition 第四次：trial 指向4
+             *    5  != condition 第五次：trial 为4，4.nextWaiter指向next，next为null，那么lastWaiter指向trial （4）
              *  ...
              */
             // 上一个有效的等待节点
@@ -2245,15 +2258,14 @@ public abstract class AbstractQueuedSynchronizer
          */
         @Override
         public final void signal() {
-
-            // 判断当前线程是否拥有锁
-            if (!isHeldExclusively()) {
+            // 不被当前线程独占，抛出异常
+            if (!isHeldExclusively())
                 throw new IllegalMonitorStateException();
-            }
+            // 保存condition队列头结点
             Node first = firstWaiter;
-            if (first != null) {
+            if (first != null) // 头结点不为空
+                // 唤醒一个等待线程
                 doSignal(first);
-            }
         }
 
         /**
@@ -2263,11 +2275,14 @@ public abstract class AbstractQueuedSynchronizer
          * @throws IllegalMonitorStateException if {@link #isHeldExclusively}
          *                                      returns {@code false}
          */
+        // 唤醒所有等待线程。如果所有的线程都在等待此条件，则唤醒所有线程。在从 await 返回之前，每个线程都必须重新获取锁。
         public final void signalAll() {
-            if (!isHeldExclusively())
+            if (!isHeldExclusively()) // 不被当前线程独占，抛出异常
                 throw new IllegalMonitorStateException();
+            // 保存condition队列头结点
             Node first = firstWaiter;
-            if (first != null)
+            if (first != null) // 头结点不为空
+                // 唤醒所有等待线程
                 doSignalAll(first);
         }
 
@@ -2282,16 +2297,21 @@ public abstract class AbstractQueuedSynchronizer
          * {@link #acquire} with saved state as argument.
          * </ol>
          */
+        // 等待，当前线程在接到信号之前一直处于等待状态，不响应中断
         public final void awaitUninterruptibly() {
+            // 添加一个结点到等待队列
             Node node = addConditionWaiter();
+            // 获取释放的状态
             int savedState = fullyRelease(node);
             boolean interrupted = false;
-            while (!isOnSyncQueue(node)) {
+            while (!isOnSyncQueue(node)) { //
+                // 阻塞当前线程
                 LockSupport.park(this);
-                if (Thread.interrupted())
+                if (Thread.interrupted()) // 当前线程被中断
+                    // 设置interrupted状态
                     interrupted = true;
             }
-            if (acquireQueued(node, savedState) || interrupted)
+            if (acquireQueued(node, savedState) || interrupted) //
                 selfInterrupt();
         }
 
@@ -2335,6 +2355,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 等待，当前线程在接到信号或被中断之前一直处于等待状态
+         * <p>
          * Implements interruptible condition wait.
          * <ol>
          * <li> If current thread is interrupted, throw InterruptedException.
@@ -2360,7 +2382,6 @@ public abstract class AbstractQueuedSynchronizer
 
             int interruptMode = 0;
 
-
             // 如果线程不在同步队列中，则park，否则，继续后面的操作
             while (!isOnSyncQueue(node)) {
                 LockSupport.park(this);
@@ -2385,6 +2406,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 等待，当前线程在接到信号、被中断或到达指定等待时间之前一直处于等待状态
+         * <p>
          * Implements timed condition wait.
          * <ol>
          * <li> If current thread is interrupted, throw InterruptedException.
@@ -2426,6 +2449,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 等待，当前线程在接到信号、被中断或到达指定最后期限之前一直处于等待状态
+         * <p>
          * Implements absolute timed condition wait.
          * <ol>
          * <li> If current thread is interrupted, throw InterruptedException.
@@ -2467,6 +2492,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 等待，当前线程在接到信号、被中断或到达指定等待时间之前一直处于等待状态。此方法在行为上等效于: awaitNanos(unit.toNanos(time)) > 0
+         * <p>
          * Implements timed condition wait.
          * <ol>
          * <li> If current thread is interrupted, throw InterruptedException.
@@ -2523,6 +2550,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 查询是否有正在等待此条件的任何线程
+         * <p>
          * Queries whether any threads are waiting on this condition.
          * Implements {@link AbstractQueuedSynchronizer#hasWaiters(ConditionObject)}.
          *
@@ -2541,6 +2570,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 返回正在等待此条件的线程数估计值
+         * <p>
          * Returns an estimate of the number of threads waiting on
          * this condition.
          * Implements {@link AbstractQueuedSynchronizer#getWaitQueueLength(ConditionObject)}.
@@ -2561,6 +2592,8 @@ public abstract class AbstractQueuedSynchronizer
         }
 
         /**
+         * 返回包含那些可能正在等待此条件的线程集合
+         * <p>
          * Returns a collection containing those threads that may be
          * waiting on this Condition.
          * Implements {@link AbstractQueuedSynchronizer#getWaitingThreads(ConditionObject)}.
