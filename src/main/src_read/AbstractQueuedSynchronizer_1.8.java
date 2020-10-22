@@ -621,10 +621,11 @@ public abstract class AbstractQueuedSynchronizer
         // 自旋
         for (; ; ) {
             Node t = tail;
-            /*
+            /**
              * 尾节点存在?
-             *   不存在：初始化一个head节点出来（该节点非传入的node，是空节点），同时tail节点也指向该空姐点，继续下一次自旋。
-             *   存在：新node的前置节点设置为旧的tail节点，新node cas设置为tail节点，旧tail节点的后置节点设置为新创建的节点，入队成功，返回。
+             * - 不存在：初始化一个 head 节点出来（该节点非传入的 node，是空节点），同时 tail 节点也指向该空节点，继续下一次自旋。
+             * - 存在：新 node 的前置节点设置为旧的 tail节点，新 node cas 设置为 tail节点，旧 tail 节点的后置节点设置为新创建的
+             *   节点，入队成功，返回。
              */
             if (t == null) {
                 // Must initialize，注意此处，创建的节点不是传入的node，而是新建的一个node
@@ -643,9 +644,10 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * 增加一个waiter节点：
-     * 1. 存在tail节点，则将新节点的前置节点为原有的tail节点，原有的tail节点的后置节点为新的节点，cas更改新节点为tail节点，返回。
-     * 2. 不存在tail节点：创建一个node节点（非传入节点，标记使用），同时cas设置head节点（head节点和tail节点为同一个节点），
-     * 继续自旋，cas将当前node放到tail节点处，完成入队，返回。
+     * 1. 存在tail节点，则将新节点的前置节点为原有的 tail节点，原有的 tail节点的后置节点为新的节点，cas 更改新节点为 tail节点，返回。
+     * 2. 不存在 tail节点：创建一个 node 节点（非传入节点，标记使用），同时 cas 设置 head 节点（ head 节点和 tail节点为同一个节点），
+     * 继续自旋，cas 将当前 node 放到 tail节点处，完成入队，返回。
+     * <p>
      * Creates and enqueues node for current thread and given mode.
      *
      * @param mode Node.EXCLUSIVE for exclusive, Node.SHARED for shared
@@ -659,9 +661,9 @@ public abstract class AbstractQueuedSynchronizer
 
         /**
          * 存在尾节点？
-         *   存在：把尾节点设置为新创建节点的前一个节点，把新创建节点设置为尾节点，
-         *      把新创建节点设置为旧尾节点下一个节点，节点创建完成。（cas操作），返回该节点。
-         *   不存在：enq(node)：头节点入队操作
+         * - 存在：把尾节点设置为新创建节点的前一个节点，把新创建节点设置为尾节点，把新
+         *   创建节点设置为旧尾节点下一个节点，节点创建完成。（cas操作），返回该节点。
+         * - 不存在：enq(node)：头节点入队操作
          */
         if (pred != null) {
             node.prev = pred;
@@ -670,7 +672,6 @@ public abstract class AbstractQueuedSynchronizer
                 return node;
             }
         }
-
         // 入队
         enq(node);
 
@@ -881,7 +882,7 @@ public abstract class AbstractQueuedSynchronizer
 
     /**
      * 检查并更新一个抢锁失败节点的信号量。
-     * 返回true表示该节点需要block
+     * 返回 true 表示该节点需要 block
      * 在所有的抢锁循环中，该方法是控制信号量的最重要的方法
      * <p>
      * <p>
@@ -897,8 +898,8 @@ public abstract class AbstractQueuedSynchronizer
         // 前一个节点的状态
         int ws = pred.waitStatus;
         /**
-         * 1. 前置节点状态
-         *   1.1 为 Node.SIGNAL ：意味着前置节点处于被通知状态，后置节点的也要进入park状态，等待前置节点主动唤醒，直接返回。
+         * 1. 前置节点状态：
+         *   1.1 为 Node.SIGNAL ：意味着前置节点已经释放锁或者被取消，后置节点的也要进入park状态，等待前置节点主动唤醒，直接返回。
          *   1.2 status > 0 (意味着前置节点被取消) ：那么需要从当前节点开始向前遍历，找到最近的一个不是处于cancle状态的节点，然后移除当前节点
          *      的前置节点(可能是多个连续的处于cancle状态节点)。
          *   1.3 status <= 0 (初始状态 或者 等待Condition 或者 Propagate) : 前置节点只能是初始状态（为什么？），然后前置节点设置为被通知状态
@@ -1006,9 +1007,11 @@ public abstract class AbstractQueuedSynchronizer
              *  shouldParkAfterFailedAcquire内部，将当前node设置为Signal状态，新的tail节点会随即进入park状态。一次类推。
              */
             for (; ; ) {
-                // 当前节点的前一个节点
+                // 当前节点的前置节点
                 final Node p = node.predecessor();
 
+                // 如果前置节点不是 head，肯定不会执行 tryAcquire 方法
+                // 前置节点是 head 节点，开始尝试抢锁
                 if (p == head && tryAcquire(arg)) {
                     setHead(node);
                     // help GC
@@ -1018,15 +1021,14 @@ public abstract class AbstractQueuedSynchronizer
                 }
 
                 /**
-                 * 前任节点不是head节点 或者 抢锁失败。
-                 * todo  为什么前置节点处于signal时，当前节点就需要park呢？
+                 * 前置节点不是head节点 或者 前置节点是 head 节点，但是 tryAcquire 失败：
+                 * todo  为什么前置节点处于 signal 时，当前节点就需要park呢？
                  */
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt()) {
                     interrupted = true;
                 }
             }
         } finally {
-
             if (failed) {
                 /**
                  * 什么时候才能走到这个分支里？
