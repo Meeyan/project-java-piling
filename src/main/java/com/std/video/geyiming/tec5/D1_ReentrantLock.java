@@ -21,6 +21,9 @@ public class D1_ReentrantLock implements Runnable {
             lock.lock();    // 加锁
             try {
                 count++;
+                Thread.sleep(30000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             } finally {
                 lock.unlock();  // 必须手动释放锁
             }
