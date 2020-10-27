@@ -1,4 +1,4 @@
-package com.std.advice_150;
+package com.demo.advice_150;
 
 import com.common.DefaultThreadFactory;
 import com.util.BinaryUtil;

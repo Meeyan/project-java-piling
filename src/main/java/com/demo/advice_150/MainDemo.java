@@ -1,4 +1,4 @@
-package com.std.advice_150;
+package com.demo.advice_150;
 
 /**
  * 改善Java程序的151个建议

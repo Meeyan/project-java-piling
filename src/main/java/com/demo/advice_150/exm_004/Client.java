@@ -1,4 +1,4 @@
-package com.std.advice_150.exm_004;
+package com.demo.advice_150.exm_004;
 
 import java.text.NumberFormat;
 

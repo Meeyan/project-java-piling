@@ -1,4 +1,4 @@
-package com.std.advice_150.exm_002;
+package com.demo.advice_150.exm_002;
 
 import java.util.Random;
 

@@ -275,12 +275,12 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         protected final boolean tryAcquire(int acquires) {
             /**
              * 公平锁的获取流程
-             * 1. 如果state为0，表示没有没有加锁，遍历队列看看是否有排队的节点
-             *   1.1 没有排队的节点，尝试cas加锁，成功则视为获取到了锁
-             *   1.2 有排队节点，则直接返回false
+             * 1. 如果 state 为0，表示没有没有加锁，遍历队列看看是否有排队的节点
+             *   1.1 没有排队的节点，尝试 cas 加锁，成功则视为获取到了锁
+             *   1.2 有排队节点，则直接返回false [在 AQS.acquire 内部加入队列排队]
              * 2. state != 0，意味着有线程拿到了锁，判断当前拿到锁的线程和尝试加锁的线程是否相同
-             *   2.1 和请求加锁线程相同，此种情况下是锁重入，更新state
-             *   2.2 和请求加锁线程不同，直接返回false
+             *   2.1 和请求加锁线程相同，此种情况下是锁重入，更新 state
+             *   2.2 和请求加锁线程不同，直接返回 false [在 AQS.acquire 内部加入队列排队]
              */
             final Thread current = Thread.currentThread();
             int c = getState();

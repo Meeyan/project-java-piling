@@ -1,4 +1,4 @@
-package com.std.advice_150.exm_005;
+package com.demo.advice_150.exm_005;
 
 public class Client {
     public void methodA(String str, Integer... is) {

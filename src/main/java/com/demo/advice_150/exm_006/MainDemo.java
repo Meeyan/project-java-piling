@@ -1,4 +1,4 @@
-package com.std.advice_150.exm_006;
+package com.demo.advice_150.exm_006;
 
 /**
  * 覆写变长方法要遵守规则

@@ -2143,6 +2143,7 @@ public abstract class AbstractQueuedSynchronizer
          * @param first (non-null) the first node on condition queue
          */
         private void doSignal(Node first) {
+            // first 是 等待在 condition queue 中的头结点
             do {
                 // 注意：触发了 doSignal 方法的节点一定是当前拿到了锁的头节点
                 // 头节点指向当前节点的后继节点
@@ -2272,9 +2273,9 @@ public abstract class AbstractQueuedSynchronizer
             // 不被当前线程独占，抛出异常
             if (!isHeldExclusively())
                 throw new IllegalMonitorStateException();
-            // 保存condition队列头结点
+            // 取condition队列头结点
             Node first = firstWaiter;
-            if (first != null) // 头结点不为空
+            if (first != null)
                 // 唤醒一个等待线程
                 doSignal(first);
         }
