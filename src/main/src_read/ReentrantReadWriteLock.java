@@ -281,7 +281,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         static final int SHARED_SHIFT = 16;
 
         /**
-         * 1 左移16位 = 65536
+         * 读锁最大数量（非位数），1 左移16位 = 65536
          */
         static final int SHARED_UNIT = (1 << SHARED_SHIFT);
 
@@ -291,7 +291,7 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         static final int MAX_COUNT = (1 << SHARED_SHIFT) - 1;
 
         /**
-         * 65535,其二进制形式：1111111111111111
+         * 写锁最大数量（非位数），65535,其二进制形式：1111111111111111
          */
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
