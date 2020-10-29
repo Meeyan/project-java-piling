@@ -52,5 +52,19 @@ public class TestDemo {
                 threadFactory);
     }
 
+    @Test
+    public void testStock() {
+        double oriMoney = 10000.00;
+        int times = 0;
+        double destMoney = 100000.00;
+        double profitRate = 0.05;
+        double tmpMoney = oriMoney;
+        while (tmpMoney < destMoney) {
+            tmpMoney = tmpMoney + tmpMoney * profitRate;
+            times++;
+        }
+        System.out.printf("本金：%s, 实现 %s 收益，每天收益率：%s，需要的总上涨次数：%s", oriMoney, destMoney, profitRate, times);
+    }
+
 }
 
