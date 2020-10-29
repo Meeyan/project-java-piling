@@ -273,15 +273,16 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
          * and the upper the shared (reader) hold count.
          *
          * 锁的状态被分成两部分：
-         *      低16位代表排他锁的数量（写锁）
-         *      高16为代表共享锁的数量（读锁）
+         *   低 16 位代表排他锁的数量（写锁）
+         *   高 16 为代表共享锁的数量（读锁）
          *
          */
 
         static final int SHARED_SHIFT = 16;
 
         /**
-         * 读锁最大数量（非位数），1 左移16位 = 65536
+         * 读锁每次增加一个的单位，1 左移16位 = 65536
+         * 设定当前同步状态值为 S，当读状态增加 1 时，等于 S + (1 << 16)，即 S + SHARED_UNIT
          */
         static final int SHARED_UNIT = (1 << SHARED_SHIFT);
 
@@ -291,7 +292,8 @@ public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializab
         static final int MAX_COUNT = (1 << SHARED_SHIFT) - 1;
 
         /**
-         * 写锁最大数量（非位数），65535,其二进制形式：1111111111111111
+         * 写锁最大数量（非位数），65535 , 其二进制形式：1111111111111111
+         * 设定当前同步状态值为 S，当写状态增加 1 时，等于 S + 1
          */
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 

@@ -40,7 +40,7 @@ class ReadThread extends Thread {
         try {
             readWriteLock.readLock().lock();
             System.out.println(Thread.currentThread().getName() + " lock successfully");
-            Thread.sleep(5000L);
+            Thread.sleep(50000L);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -68,7 +68,7 @@ class WriteThread extends Thread {
         try {
             readWriteLock.writeLock().lock();
             System.out.println(Thread.currentThread().getName() + " lock successfully");
-            Thread.sleep(5000L);
+            Thread.sleep(50000L);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
