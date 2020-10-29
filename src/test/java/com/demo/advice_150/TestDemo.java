@@ -4,6 +4,7 @@ import com.common.DefaultThreadFactory;
 import com.util.BinaryUtil;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -64,6 +65,21 @@ public class TestDemo {
             times++;
         }
         System.out.printf("本金：%s, 实现 %s 收益，每天收益率：%s，需要的总上涨次数：%s", oriMoney, destMoney, profitRate, times);
+    }
+
+    @Test
+    public void testMap() {
+        int ssize = 1, sshift = 0;
+
+        int concurrencyLevel = 8;
+
+        while (ssize < concurrencyLevel) {
+            ++sshift;
+            // 右移一位
+            ssize <<= 1;
+        }
+
+        System.out.printf("ssize = %s, sshift = %s", ssize, sshift);
     }
 
 }
