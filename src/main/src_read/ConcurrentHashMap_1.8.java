@@ -712,12 +712,25 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * See Hackers Delight, sec 3.2
      */
     private static final int tableSizeFor(int c) {
+        /**
+         * 整个方法的作用就是找到 大于等于 c 的，离 c 最近的 2 的 n 次方的数字
+         */
         int n = c - 1;
+
         n |= n >>> 1;
+
+        // 当 n 小于等于 4 时，右移 2 位，高位将全部为 0 ，所以 |= 操作后，n 保持原值
         n |= n >>> 2;
+
+        // 当 n 小于等于 15 时，右移 4 位，高位将全部为 0 ，所以 |= 操作后，n 保持原值
         n |= n >>> 4;
+
+        // 当 n 小于等于 255 时，右移 8 位，高位将全部为 0 ，所以 |= 操作后，n 保持原值
         n |= n >>> 8;
+
+        // 当 n 小于等于 65535 时，右移 16 位，高位将全部为 0 ，所以 |= 操作后，n 保持原值
         n |= n >>> 16;
+
         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
     }
 
@@ -882,6 +895,11 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         if (initialCapacity < 0)
             throw new IllegalArgumentException();
 
+        // initialCapacity   cap
+        //    10             16
+        //    11             32
+        //    13             32
+        //    n              找出 大于等于 ((n + n/2) + 1) 的最近的 2 的 n 次方数字
         int cap = ((initialCapacity >= (MAXIMUM_CAPACITY >>> 1)) ? MAXIMUM_CAPACITY :
                 tableSizeFor(initialCapacity + (initialCapacity >>> 1) + 1));
         this.sizeCtl = cap;

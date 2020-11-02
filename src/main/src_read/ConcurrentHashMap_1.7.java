@@ -321,17 +321,20 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      */
     @SuppressWarnings("unchecked")
     static final <K, V> HashEntry<K, V> entryAt(HashEntry<K, V>[] tab, int i) {
+        /**
+         * 1. 如果 tab 为 null，则 返回的 entry 也为 null
+         * 2. tab 不为空，则使用 volatile 方式取数据
+         */
+
         return (tab == null) ? null :
-                (HashEntry<K, V>) UNSAFE.getObjectVolatile
-                        (tab, ((long) i << TSHIFT) + TBASE);
+                (HashEntry<K, V>) UNSAFE.getObjectVolatile(tab, ((long) i << TSHIFT) + TBASE);
     }
 
     /**
      * Sets the ith element of given table, with volatile write
      * semantics. (See above about use of putOrderedObject.)
      */
-    static final <K, V> void setEntryAt(HashEntry<K, V>[] tab, int i,
-                                        HashEntry<K, V> e) {
+    static final <K, V> void setEntryAt(HashEntry<K, V>[] tab, int i, HashEntry<K, V> e) {
         UNSAFE.putOrderedObject(tab, ((long) i << TSHIFT) + TBASE, e);
     }
 
@@ -427,6 +430,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         transient int modCount;
 
         /**
+         * 该 segment 到达容量上限（size * loadFactor），则需要扩容
+         * <p>
          * The table is rehashed when its size exceeds this threshold.
          * (The value of this field is always <tt>(int)(capacity *
          * loadFactor)</tt>.)
@@ -451,9 +456,9 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         /**
          * segment 内部是由 数组 + 链表组成
          *
-         * @param key
-         * @param hash
-         * @param value
+         * @param key          新 key
+         * @param hash         新 key 的 hash 值
+         * @param value        新 key 对应的 value 值
          * @param onlyIfAbsent
          * @return
          */
@@ -493,17 +498,29 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         }
                         e = e.next;
                     } else {
-                        if (node != null)
+                        /**
+                         * 第一个节点不存在
+                         * 1. 如果 node 不为 null，则 设置 node 的 next 节点为 null
+                         * 2. 如果 node 为 null，则以当前 key 和 value，构造节点，节点的 next 指向原链表的头节点（从头部加入）
+                         * - 2.1 扩容则扩容
+                         * - 2.2 更新该 entry，将新的 node 存入。
+                         */
+                        if (node != null) {
                             node.setNext(first);
-                        else
+                        } else {
                             node = new HashEntry<K, V>(hash, key, value, first);
+                        }
+
                         int c = count + 1;
+
                         if (c > threshold && tab.length < MAXIMUM_CAPACITY)
-                            // 扩容
+                        /*** 扩容 ***/
                             rehash(node);
                         else
                             setEntryAt(tab, index, node);
+
                         ++modCount;
+
                         count = c;
                         oldValue = null;
                         break;
@@ -521,6 +538,12 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
          */
         @SuppressWarnings("unchecked")
         private void rehash(HashEntry<K, V> node) {
+            /**
+             * 整体说明：
+             * 1、node 进入此方法时，该 node 已经加入原链表的顶端（从头部加入）
+             * 2、次方法主要为了扩容，所以，将原数组中的数据以及数组中链表数据全部转移到新的数组中之后
+             *    使用该 node 的 hash 值找到新的位置，让后将该 node 加入头结点即可。
+             */
             /*
              * Reclassify nodes in each list to new table.  Because we
              * are using power-of-two expansion, the elements from
@@ -538,47 +561,94 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
              * table write.
              */
             HashEntry<K, V>[] oldTable = table;
+            // segment 中 table 老的容量
             int oldCapacity = oldTable.length;
+
+            // 新的容量，2倍
             int newCapacity = oldCapacity << 1;
+
+            // 该 segment 新的扩容上限
             threshold = (int) (newCapacity * loadFactor);
-            HashEntry<K, V>[] newTable =
-                    (HashEntry<K, V>[]) new HashEntry[newCapacity];
+
+            // 创建新的数组
+            HashEntry<K, V>[] newTable = (HashEntry<K, V>[]) new HashEntry[newCapacity];
+
+            // 新的掩码，如从 16 扩容到 32，那么 sizeMask 为 31，对应二进制 ‘000...00011111’
+            // 为什么都是 2^n - 1 ？
             int sizeMask = newCapacity - 1;
+
+
+            /**
+             * segment 的 table[] 数据格式如下：
+             * -
+             * - entry -> entry -> entry
+             * -
+             * - entry -> null
+             * -
+             * - entry -> null
+             * -
+             * - entry -> null
+             * -
+             * - entry -> entry -> entry -> entry -> entry
+             * -
+             * - entry -> null
+             *
+             * 在遍历 table 时，从数组中第一个 entry 开始。
+             * - 1. 如果一个 entry 没有 next 节点，直接将当前节点放入新的 newTable 中即可
+             * - 2. 如果一个 entry 有 next 节点，则需要将该 entry 链表上的所有元素都遍历一遍，计算位置是否有变动
+             */
             for (int i = 0; i < oldCapacity; i++) {
+                // 取老的 entry
                 HashEntry<K, V> e = oldTable[i];
+
                 if (e != null) {
+
                     HashEntry<K, V> next = e.next;
+
+                    // 新的位置 idx
                     int idx = e.hash & sizeMask;
+
+                    // 老的 entry 仅有一个节点（无 next 节点），直接放到新的 newTable 中即可
                     if (next == null)   //  Single node on list
                         newTable[idx] = e;
-                    else { // Reuse consecutive sequence at same slot
+                    else { // Reuse consecutive sequence at same slot 有多个元素
+                        // 有 next 节点
                         HashEntry<K, V> lastRun = e;
+
                         int lastIdx = idx;
-                        for (HashEntry<K, V> last = next;
-                             last != null;
-                             last = last.next) {
+
+                        // 该 entry 的 next 节点不为空，遍历这个链表，从第二个节点开始，逐个找出 新的 idx 值不同的【看代码应该找的是最后一个】
+                        /** 疑问：如果这个节点上有多个不同的呢？ **/
+                        for (HashEntry<K, V> last = next; last != null; last = last.next) {
                             int k = last.hash & sizeMask;
                             if (k != lastIdx) {
                                 lastIdx = k;
                                 lastRun = last;
                             }
                         }
+
+                        // 将 lastRun 及其之后的所有节点组成的这个链表放到 lastIdx 这个位置
                         newTable[lastIdx] = lastRun;
+
                         // Clone remaining nodes
                         for (HashEntry<K, V> p = e; p != lastRun; p = p.next) {
                             V v = p.value;
                             int h = p.hash;
                             int k = h & sizeMask;
+
+                            // 这两句啥意思？
                             HashEntry<K, V> n = newTable[k];
                             newTable[k] = new HashEntry<K, V>(h, p.key, v, n);
                         }
                     }
                 }
             }
+
             int nodeIndex = node.hash & sizeMask; // add the new node
             node.setNext(newTable[nodeIndex]);
             newTable[nodeIndex] = node;
             table = newTable;
+
         }
 
         /**
@@ -593,6 +663,8 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
          */
         private HashEntry<K, V> scanAndLockForPut(K key, int hash, V value) {
 
+            // 该方法 scanAndLockForPut() 属于 segment，加锁时，会对 当前的 segment 加锁
+
             // 获取 segment 上，hash 值对应的 entry 数组的第一个节点
             HashEntry<K, V> first = entryForHash(this, hash);
 
@@ -602,6 +674,10 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
 
             int retries = -1; // negative while locating node
 
+            /**
+             * 1. 如果获取到了锁，则 while 循环结束，直接 return
+             * 2. 如果拿锁失败，则会不断的遍历
+             */
             // 循环获取锁，如果进入循环体内部，则说明存在并发
             while (!tryLock()) {
 
