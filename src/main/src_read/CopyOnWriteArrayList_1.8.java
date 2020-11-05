@@ -401,6 +401,8 @@ public class CopyOnWriteArrayList<E>
     }
 
     /**
+     * 指定位置，设置元素
+     * <p>
      * Replaces the element at the specified position in this list with the
      * specified element.
      *
@@ -411,10 +413,14 @@ public class CopyOnWriteArrayList<E>
         lock.lock();
         try {
             Object[] elements = getArray();
+
+            // 获取老值
             E oldValue = get(elements, index);
 
+            // 旧值和新值元素不相等
             if (oldValue != element) {
                 int len = elements.length;
+                // 每次都拷贝，fail-safe 机制，在新的数组上操作，保证基于老的快照不会异常
                 Object[] newElements = Arrays.copyOf(elements, len);
                 newElements[index] = element;
                 setArray(newElements);
@@ -498,6 +504,7 @@ public class CopyOnWriteArrayList<E>
      */
     public E remove(int index) {
         final ReentrantLock lock = this.lock;
+        // 加锁
         lock.lock();
         try {
             Object[] elements = getArray();
