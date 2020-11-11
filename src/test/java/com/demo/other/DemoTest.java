@@ -54,4 +54,10 @@ public class DemoTest {
     public void testTableSize() {
         System.out.println(tableSizeFor(300));
     }
+
+    @Test
+    public void testEqual() {
+        Object t = new Object();
+        System.out.println(t == (t = new Object()));
+    }
 }
