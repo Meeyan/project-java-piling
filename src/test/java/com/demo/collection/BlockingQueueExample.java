@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class BlockingQueueExample {
     public static void main(String[] args) throws InterruptedException {
-        BlockingQueue queue = new ArrayBlockingQueue(1024);
+        BlockingQueue<String> queue = new ArrayBlockingQueue<>(1024);
 
         QueueProducer producer = new QueueProducer(queue);
         QueueConsumer consumer = new QueueConsumer(queue);
@@ -25,8 +25,9 @@ public class BlockingQueueExample {
 }
 
 class QueueProducer extends Thread {
-    private BlockingQueue queue;
-    public QueueProducer(BlockingQueue queue) {
+    private BlockingQueue<String> queue;
+
+    public QueueProducer(BlockingQueue<String> queue) {
         this.queue = queue;
     }
 
@@ -46,9 +47,9 @@ class QueueProducer extends Thread {
 
 class QueueConsumer extends Thread {
 
-    private BlockingQueue queue;
+    private BlockingQueue<String> queue;
 
-    public QueueConsumer(BlockingQueue queue) {
+    public QueueConsumer(BlockingQueue<String> queue) {
         this.queue = queue;
     }
 
