@@ -17,5 +17,8 @@ public class StringTest {
      */
     public static void main(String[] args) {
         System.out.println("hello String!");
+        String name = "abc";
+        String lisi = "abc";
+        System.out.println(name == lisi);
     }
 }
