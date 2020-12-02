@@ -171,11 +171,15 @@ public class FutureTask<V> implements RunnableFuture<V> {
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
+        // 状态是 NEW 的，则 CAS 设置状态值未 中断 或 取消
+        // - 1. 设置成功，则 cancel 成功
+        // - 2. 设置失败，则 cancel 失败
         if (!(state == NEW &&
                 UNSAFE.compareAndSwapInt(this, stateOffset, NEW,
                         mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))
             return false;
         try {    // in case call to interrupt throws exception
+            // 是否可以在运行中中断，可以中断的，则直接中断
             if (mayInterruptIfRunning) {
                 try {
                     Thread t = runner;
@@ -484,8 +488,14 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * schemes.
      */
     private void removeWaiter(WaitNode node) {
+
+        /**
+         * 核心任务：
+         *  1、 将当前 waiter 从队列中搞出来，恢复队列
+         */
         // 线程结束等待状态
         if (node != null) {
+            // 线程置空
             node.thread = null;
             retry:
             for (; ; ) {          // restart on removeWaiter race
@@ -497,8 +507,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
                         pred.next = s;
                         if (pred.thread == null) // check for race
                             continue retry;
-                    } else if (!UNSAFE.compareAndSwapObject(this, waitersOffset,
-                            q, s))
+                    } else if (!UNSAFE.compareAndSwapObject(this, waitersOffset, q, s))
                         continue retry;
                 }
                 break;
