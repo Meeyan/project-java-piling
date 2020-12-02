@@ -384,8 +384,8 @@ public class FutureTask<V> implements RunnableFuture<V> {
         /**
          * 目的：遍历队列，全部唤醒
          *  1. 获取当前处于等待节点WaitNode
-         *   1.1 如果等待偏移量不是，继续for循环
-         *   1.2 如果等待偏移量是q，则把等待偏移量设置为null
+         *   1.1 如果等待偏移量不是 q，继续for循环
+         *   1.2 如果等待偏移量是 q，则把等待偏移量设置为null
          *      获取当前节点的等待线程
          *      唤醒线程t（unpark)
          *      获取拿到下一个等待节点，q指向下一个等待节点
@@ -422,18 +422,30 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * @param nanos time to wait, if timed
      * @return state upon completion
      */
-    private int awaitDone(boolean timed, long nanos)
-            throws InterruptedException {
+    private int awaitDone(boolean timed, long nanos) throws InterruptedException {
         final long deadline = timed ? System.nanoTime() + nanos : 0L;
         WaitNode q = null;
         boolean queued = false;
+
+        /**
+         * 等待逻辑：
+         * 0、线程会陷入自旋中，直到如下几种情况发生结束等待：
+         * - 1、线程被中段，结束 wait
+         * - 2、线程大于 completing 状态（已经完成），结束 wait
+         * - 3、线程处于 completing 状态（线程进入 yield）
+         * - 4、超时，会结束等待
+         * 1、其他情况，线程会进入 park 状态
+         */
+
         for (; ; ) {
+            // 1. 线程中段，移除 waiter，抛个异常出来
             if (Thread.interrupted()) {
                 removeWaiter(q);
                 throw new InterruptedException();
             }
-
             int s = state;
+
+            // 处于即将完成（正常结束，异常，取消）的状态
             if (s > COMPLETING) {
                 if (q != null)
                     q.thread = null;
@@ -441,16 +453,20 @@ public class FutureTask<V> implements RunnableFuture<V> {
             } else if (s == COMPLETING) // cannot time out yet
                 Thread.yield();
             else if (q == null)
+                // 构造 Waiter 节点
                 q = new WaitNode();
             else if (!queued)
-                queued = UNSAFE.compareAndSwapObject(this, waitersOffset,
-                        q.next = waiters, q);
+                queued = UNSAFE.compareAndSwapObject(this, waitersOffset, q.next = waiters, q);
             else if (timed) {
                 nanos = deadline - System.nanoTime();
+
+                // 等待超时，移除 waiter 线程
                 if (nanos <= 0L) {
                     removeWaiter(q);
                     return state;
                 }
+
+                // 否则，park 当前线程，有超时限制
                 LockSupport.parkNanos(this, nanos);
             } else
                 LockSupport.park(this);
@@ -468,6 +484,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
      * schemes.
      */
     private void removeWaiter(WaitNode node) {
+        // 线程结束等待状态
         if (node != null) {
             node.thread = null;
             retry:
