@@ -1,4 +1,6 @@
-package com.demo.thread;
+package com.demo.thread.monitorpool;
+
+import com.demo.thread.WorkThread;
 
 import java.util.concurrent.*;
 
@@ -8,6 +10,7 @@ import java.util.concurrent.*;
  */
 public class ThreadPoolMonitorExample {
     public static void main(String[] args) throws InterruptedException {
+        // 拒绝策略
         RejectedExecutionHandler rejectedExecutionHandler = new RejectedExecutionHandlerImpl();
 
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -32,7 +35,5 @@ public class ThreadPoolMonitorExample {
         //shut down the monitor thread
         Thread.sleep(5000);
         monitor.shutdown();
-
-
     }
 }

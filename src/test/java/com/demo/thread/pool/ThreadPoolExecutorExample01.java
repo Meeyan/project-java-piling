@@ -1,4 +1,6 @@
-package com.demo.thread;
+package com.demo.thread.pool;
+
+import com.demo.thread.WorkThread;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,36 +32,5 @@ public class ThreadPoolExecutorExample01 {
         }
 
         System.out.println("Finish all threads");
-    }
-}
-
-class WorkThread implements Runnable {
-
-    private String command;
-
-    public WorkThread(String command) {
-        this.command = command;
-    }
-
-    @Override
-    public void run() {
-        System.out.println(Thread.currentThread().getName() + " start. command :" + command);
-        processCommand();
-        System.out.println(Thread.currentThread().getName() + " end");
-    }
-
-    private void processCommand() {
-        try {
-            Thread.sleep(1500);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "WorkThread{" +
-                "command='" + command + '\'' +
-                '}';
     }
 }
