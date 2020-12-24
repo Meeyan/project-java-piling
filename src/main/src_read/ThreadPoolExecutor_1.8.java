@@ -732,6 +732,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     runStateAtLeast(c, TIDYING) ||
                     (runStateOf(c) == SHUTDOWN && !workQueue.isEmpty()))
                 return;
+
             if (workerCountOf(c) != 0) { // Eligible to terminate
                 interruptIdleWorkers(ONLY_ONE);
                 return;
@@ -821,13 +822,20 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
         try {
+            // 获取所有的 worker
             for (Worker w : workers) {
                 Thread t = w.thread;
+                // worker 未 interrupte，则尝试加锁，然后 interrupte
+                // 先尝试调用 w.tryLock(),如果获取到锁,就说明 worker 是空闲的,就可以直接中断它
+                // 注意的是,worker自己本身实现了AQS同步框架,然后实现的类似锁的功能
+                // 它实现的锁是不可重入的,所以如果 worker 在执行任务的时候,会先进行加锁,这里 tryLock() 就会返回 false
                 if (!t.isInterrupted() && w.tryLock()) {
                     try {
                         t.interrupt();
                     } catch (SecurityException ignore) {
+
                     } finally {
+                        // 解锁
                         w.unlock();
                     }
                 }
@@ -835,6 +843,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     break;
             }
         } finally {
+            // 主线程释放锁
             mainLock.unlock();
         }
     }
@@ -1084,6 +1093,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             int c = ctl.get();
             int rs = runStateOf(c);
 
+            // 线程池非 running 状态
             // Check if queue empty only if necessary.
             if (rs >= SHUTDOWN && (rs >= STOP || workQueue.isEmpty())) {
                 decrementWorkerCount();
@@ -1093,8 +1103,11 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             int wc = workerCountOf(c);
 
             // Are workers subject to culling?
+            // 判断超时，是否允许核心线程超时？ 当前工作线程数量是否超过核心线程数限制？
             boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
 
+            // 判断是否需要将 workerCount 减一
+            // ( wc 超值 或者 超时）且 （wc > 1 或者 队列为空）
             if ((wc > maximumPoolSize || (timed && timedOut))
                     && (wc > 1 || workQueue.isEmpty())) {
                 if (compareAndDecrementWorkerCount(c))
@@ -1103,6 +1116,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             }
 
             try {
+                // 取任务，take 方法会阻塞，直到有任务可用
+                // poll 方法加入了超时等待，所以也会阻塞
                 Runnable r = timed ?
                         workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
                         workQueue.take();
@@ -1444,9 +1459,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
         try {
+            // 检查是否可以关闭线程
             checkShutdownAccess();
+
+            // 设置线程池状态
             advanceRunState(SHUTDOWN);
+
+            // 尝试中断worker
             interruptIdleWorkers();
+
+            // 预留方法,留给子类实现
             onShutdown(); // hook for ScheduledThreadPoolExecutor
         } finally {
             mainLock.unlock();

@@ -434,9 +434,9 @@ public class FutureTask<V> implements RunnableFuture<V> {
         /**
          * 等待逻辑：
          * 0、线程会陷入自旋中，直到如下几种情况发生结束等待：
-         * - 1、线程被中段，结束 wait
+         * - 1、线程被中断，结束 wait
          * - 2、线程大于 completing 状态（已经完成），结束 wait
-         * - 3、线程处于 completing 状态（线程进入 yield）
+         * - 3、线程处于 completing 状态（主线程进入 yield，让出 cpu，等待 state 变为 NORMAL）
          * - 4、超时，会结束等待
          * 1、其他情况，线程会进入 park 状态
          */
@@ -460,6 +460,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 // 构造 Waiter 节点
                 q = new WaitNode();
             else if (!queued)
+                // 加入队列
                 queued = UNSAFE.compareAndSwapObject(this, waitersOffset, q.next = waiters, q);
             else if (timed) {
                 nanos = deadline - System.nanoTime();
@@ -473,6 +474,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 // 否则，park 当前线程，有超时限制
                 LockSupport.parkNanos(this, nanos);
             } else
+                // 挂起线程
                 LockSupport.park(this);
         }
     }
