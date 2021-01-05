@@ -390,6 +390,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private static final int RUNNING = -1 << COUNT_BITS;
     private static final int SHUTDOWN = 0 << COUNT_BITS;
     private static final int STOP = 1 << COUNT_BITS;
+
+    // 整理中
     private static final int TIDYING = 2 << COUNT_BITS;
     private static final int TERMINATED = 3 << COUNT_BITS;
 
@@ -709,8 +711,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private void advanceRunState(int targetState) {
         for (; ; ) {
             int c = ctl.get();
-            if (runStateAtLeast(c, targetState) ||
-                    ctl.compareAndSet(c, ctlOf(targetState, workerCountOf(c))))
+            if (runStateAtLeast(c, targetState) || ctl.compareAndSet(c, ctlOf(targetState, workerCountOf(c))))
                 break;
         }
     }
@@ -728,11 +729,12 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     final void tryTerminate() {
         for (; ; ) {
             int c = ctl.get();
-            if (isRunning(c) ||
-                    runStateAtLeast(c, TIDYING) ||
-                    (runStateOf(c) == SHUTDOWN && !workQueue.isEmpty()))
+
+            // 线程池正在运行中 或者 整理中 或者 线程池已经关闭且队列非空，则结束 tryTerminte 方法
+            if (isRunning(c) || runStateAtLeast(c, TIDYING) || (runStateOf(c) == SHUTDOWN && !workQueue.isEmpty()))
                 return;
 
+            // 工作数量
             if (workerCountOf(c) != 0) { // Eligible to terminate
                 interruptIdleWorkers(ONLY_ONE);
                 return;
@@ -774,6 +776,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         if (security != null) {
             security.checkPermission(shutdownPerm);
             final ReentrantLock mainLock = this.mainLock;
+            // 重入锁
             mainLock.lock();
             try {
                 for (Worker w : workers)
@@ -819,6 +822,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *                waiting for a straggler task to finish.
      */
     private void interruptIdleWorkers(boolean onlyOne) {
+        /**
+         * 遍历所有的 worker，尝试中断 worker
+         */
         final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
         try {
@@ -899,7 +905,10 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private List<Runnable> drainQueue() {
         BlockingQueue<Runnable> q = workQueue;
         ArrayList<Runnable> taskList = new ArrayList<Runnable>();
+        // 将队列中的所有元素都添加到 taskList 中
         q.drainTo(taskList);
+
+        // 如果队列中还有元素，则遍历，添加到 taskList 中
         if (!q.isEmpty()) {
             for (Runnable r : q.toArray(new Runnable[0])) {
                 if (q.remove(r))
@@ -1494,18 +1503,31 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * @throws SecurityException {@inheritDoc}
      */
     public List<Runnable> shutdownNow() {
+        /**
+         * shutdownNow做的比较绝，它先将线程池状态设置为STOP，然后拒绝所有提交的任务。最后中断左右正在运行中的worker,然后清空任务队列。
+         */
         List<Runnable> tasks;
         final ReentrantLock mainLock = this.mainLock;
+        // 加锁
         mainLock.lock();
         try {
+            // 检查是否能关闭
             checkShutdownAccess();
+
             advanceRunState(STOP);
+
+            // 中断所有的 worker
             interruptWorkers();
+
+            // 清空任务队列
             tasks = drainQueue();
         } finally {
             mainLock.unlock();
         }
+
+        // 结束任务
         tryTerminate();
+
         return tasks;
     }
 
